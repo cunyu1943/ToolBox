@@ -1,0 +1,71 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pnpm 必须在 setup-node 之前安装，才能启用 cache: pnpm
+      # 不指定 version，使用 package.json 的 packageManager 字段（pnpm@12），
+      # 以便正确读取 pnpm-workspace.yaml 中的 nodeLinker/allowBuilds 配置
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate static site
+        run: pnpm generate
+        env:
+          # GitHub Pages 子路径：<user>.github.io/<repo>/ 需要 baseURL=/<repo>/
+          # 若为 <user>.github.io 用户站点或已配置自定义域名/CNAME，请改为 /
+          NUXT_APP_BASE_URL: /${{ github.event.repository.name }}/
+          # 头部 GitHub 入口地址：自动取当前仓库；如需隐藏把 showGithub 设为 false 或删掉此行
+          NUXT_PUBLIC_GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}
+
+      - name: Verify build output
+        # 前置检查：产物缺失直接 fail，避免部署空白页
+        run: |
+          if [ ! -f .output/public/index.html ]; then
+            echo "::error::.output/public/index.html 不存在，构建失败"; exit 1
+          fi
+
+      - name: Add .nojekyll
+        # 关键：禁用 Jekyll，否则含下划线的资源目录会被忽略导致 404 白屏
+        run: touch .output/public/.nojekyll
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./.output/public
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          commit_message: "deploy: ${{ github.sha }}"
+
+      - name: Write URL to job summary
+        run: |
+          echo "## 部署完成 :white_check_mark:" >> "$GITHUB_STEP_SUMMARY"
+          echo "访问地址：https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> "$GITHUB_STEP_SUMMARY"

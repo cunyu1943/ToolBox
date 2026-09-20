@@ -1,0 +1,302 @@
+import type { ToolMeta } from '~/types'
+
+/**
+ * 工具统一注册表。
+ * 新增一个工具 = 在此数组追加一项 + 新建对应 pages/tool/*.vue 页面。
+ * 首页卡片、搜索、分类筛选全部由此驱动，无需改动核心逻辑。
+ */
+export const tools: ToolMeta[] = [
+  {
+    key: 'basic',
+    name: '标准计算器',
+    desc: '四则运算，支持键盘输入与精度处理',
+    icon: 'mdi:calculator',
+    route: '/tool/basic',
+    category: '数学',
+    keywords: ['计算', '加减乘除', '四则', 'calculator', '基础']
+  },
+  {
+    key: 'mortgage',
+    name: '房贷计算器',
+    desc: '等额本息 / 等额本金对比，生成还款计划表',
+    icon: 'mdi:home-city',
+    route: '/tool/mortgage',
+    category: '金融',
+    keywords: ['房贷', '月供', '贷款', '利息', '公积金', 'mortgage']
+  },
+  {
+    key: 'car-loan',
+    name: '车贷计算器',
+    desc: '首付比例滑杆联动，月供与落地价估算',
+    icon: 'mdi:car',
+    route: '/tool/car-loan',
+    category: '金融',
+    keywords: ['车贷', '汽车', '首付', '月供', 'loan']
+  },
+  {
+    key: 'kinship',
+    name: '亲戚称谓计算器',
+    desc: '输入关系链推导标准称谓，支持反向查询',
+    icon: 'mdi:account-group',
+    route: '/tool/kinship',
+    category: '生活',
+    keywords: ['亲戚', '称谓', '辈分', '称呼', '关系', 'kinship']
+  },
+  {
+    key: 'weight',
+    name: '质量换算',
+    desc: '毫克 / 克 / 千克 / 吨 / 斤 / 两 / 磅 / 盎司实时联动',
+    icon: 'mdi:weight',
+    route: '/tool/weight',
+    category: '单位换算',
+    keywords: ['质量', '重量', '换算', '公斤', '斤', '磅', 'weight']
+  },
+  {
+    key: 'volume',
+    name: '容量换算',
+    desc: '毫升 / 升 / 立方米 / 加仑 / 杯 / 勺实时联动',
+    icon: 'mdi:cup-water',
+    route: '/tool/volume',
+    category: '单位换算',
+    keywords: ['容量', '体积', '换算', '升', '加仑', '杯', 'volume']
+  },
+  {
+    key: 'bmi',
+    name: 'BMI 计算器',
+    desc: '身高体重求 BMI，分级可视化与健康区间建议',
+    icon: 'mdi:human-male-height',
+    route: '/tool/bmi',
+    category: '健康',
+    keywords: ['BMI', '体脂', '身高', '体重', '健康', '肥胖']
+  },
+  {
+    key: 'programmer',
+    name: '程序员计算器',
+    desc: '进制转换、位运算、字长切换、ASCII 与字节换算',
+    icon: 'mdi:console',
+    route: '/tool/programmer',
+    category: '开发',
+    keywords: ['进制', '二进制', '十六进制', '位运算', 'ASCII', 'programmer']
+  },
+  {
+    key: 'currency',
+    name: '货币换算',
+    desc: '内置可编辑汇率表，离线可用，标注更新时间',
+    icon: 'mdi:currency-usd',
+    route: '/tool/currency',
+    category: '金融',
+    keywords: ['货币', '汇率', '换算', '美元', '人民币', 'currency']
+  },
+  {
+    key: 'length',
+    name: '长度换算',
+    desc: '毫米 / 米 / 千米 / 英尺 / 英寸 / 市尺等实时联动',
+    icon: 'mdi:ruler',
+    route: '/tool/length',
+    category: '数据',
+    keywords: ['长度', '距离', '换算', '米', '英尺', '英寸', 'length']
+  },
+  {
+    key: 'temperature',
+    name: '温度换算',
+    desc: '摄氏 / 华氏 / 开尔文三温标互转，支持负温度',
+    icon: 'mdi:thermometer',
+    route: '/tool/temperature',
+    category: '数据',
+    keywords: ['温度', '摄氏', '华氏', '开尔文', '换算', 'temperature']
+  },
+  {
+    key: 'timestamp',
+    name: '时间戳转换',
+    desc: '实时时间戳（可暂停/切换单位），带时区的单个与批量互转',
+    icon: 'mdi:clock-time-four-outline',
+    route: '/tool/timestamp',
+    category: '数据',
+    keywords: ['时间戳', 'unix', 'epoch', '毫秒', '转换', 'timestamp']
+  },
+  {
+    key: 'date-calc',
+    name: '日期计算',
+    desc: '两日期相差天数与年月日、某日期加减天数',
+    icon: 'mdi:calendar-multiple',
+    route: '/tool/date-calc',
+    category: '数据',
+    keywords: ['日期', '天数', '相差', '加减', '星期', 'date']
+  },
+  {
+    key: 'number-words',
+    name: '数字大小写',
+    desc: '阿拉伯数字转中文财务大写金额与中文读法',
+    icon: 'mdi:format-text',
+    route: '/tool/number-words',
+    category: '数据',
+    keywords: ['大写', '金额', '中文', '财务', '转换', '人民币大写']
+  },
+  {
+    key: 'disk-partition',
+    name: '硬盘分区',
+    desc: '按用途方案把硬盘容量拆成各分区建议大小',
+    icon: 'mdi:harddisk',
+    route: '/tool/disk-partition',
+    category: '数据',
+    keywords: ['硬盘', '分区', 'SSD', '容量', 'C盘', 'partition']
+  },
+  {
+    key: 'investment',
+    name: '投资收益计算',
+    desc: '本金 + 定投按月复利，估算期末资产与总收益',
+    icon: 'mdi:chart-line',
+    route: '/tool/investment',
+    category: '数据',
+    keywords: ['投资', '收益', '复利', '定投', '理财', '收益率']
+  },
+  {
+    key: 'social-insurance',
+    name: '五险一金计算',
+    desc: '按缴费基数估算个人/单位缴纳明细与到手',
+    icon: 'mdi:account-heart-outline',
+    route: '/tool/social-insurance',
+    category: '数据',
+    keywords: ['五险一金', '社保', '公积金', '养老', '医保', '缴纳']
+  },
+  {
+    key: 'encoding',
+    name: '编码转换',
+    desc: 'Base64 / Base32 / URL / HTML 实体 / Unicode 转义的编码与解码',
+    icon: 'mdi:code-tags',
+    route: '/tool/encoding',
+    category: '编码',
+    keywords: ['base64', 'base32', 'url', '编码', '解码', 'html', '实体', 'unicode', '转义', 'encoding']
+  },
+  {
+    key: 'hash',
+    name: '哈希摘要',
+    desc: 'SHA-1 / 256 / 384 / 512 文本摘要，浏览器本地计算',
+    icon: 'mdi:shield-lock-outline',
+    route: '/tool/hash',
+    category: '编码',
+    keywords: ['hash', 'sha', '摘要', '加密', '哈希', 'digest', '加密', '校验']
+  },
+  {
+    key: 'json',
+    name: 'JSON 格式化',
+    desc: 'JSON 美化、压缩与语法校验，附错误行列定位',
+    icon: 'mdi:code-json',
+    route: '/tool/json',
+    category: '开发',
+    keywords: ['json', '格式化', '美化', '压缩', '校验', 'validate', 'formatter']
+  },
+  {
+    key: 'csv',
+    name: 'CSV 转 JSON',
+    desc: 'CSV 与 JSON 互转，支持引号、自定义分隔符与表头开关',
+    icon: 'mdi:table-large',
+    route: '/tool/csv',
+    category: '开发',
+    keywords: ['csv', 'json', '转换', '表格', '分隔符', '表头']
+  },
+  {
+    key: 'jwt',
+    name: 'JWT 解析',
+    desc: '本地解码 JWT 的 Header 与 Payload，展示 exp/iat 时间',
+    icon: 'mdi:key-variant',
+    route: '/tool/jwt',
+    category: '开发',
+    keywords: ['jwt', 'token', '解码', 'base64url', 'authorization', '解析']
+  },
+  {
+    key: 'uuid',
+    name: 'UUID 生成',
+    desc: '批量生成 v4 UUID，可切换大写、连字符与花括号',
+    icon: 'mdi:fingerprint',
+    route: '/tool/uuid',
+    category: '开发',
+    keywords: ['uuid', 'guid', '随机', '唯一标识', 'v4', '生成']
+  },
+  {
+    key: 'text',
+    name: '文本处理',
+    desc: '大小写转换、去重排序去空行，附字符/词/行/字节统计',
+    icon: 'mdi:format-text-variant',
+    route: '/tool/text',
+    category: '文本',
+    keywords: ['文本', '大小写', '去重', '排序', '空行', '字数', '统计', 'text']
+  },
+  {
+    key: 'naming',
+    name: '命名风格转换',
+    desc: 'camelCase / snake_case / kebab-case / CONSTANT 互转',
+    icon: 'mdi:alpha-c-box-outline',
+    route: '/tool/naming',
+    category: '文本',
+    keywords: ['命名', '驼峰', 'camel', 'snake', 'kebab', '常量', '大小写', '变量名']
+  },
+  {
+    key: 'regex',
+    name: '正则测试',
+    desc: '实时匹配测试，展示命中位置、内容与捕获组',
+    icon: 'mdi:regex',
+    route: '/tool/regex',
+    category: '文本',
+    keywords: ['正则', 'regex', '匹配', '捕获组', '表达式', '校验', '替换']
+  },
+  {
+    key: 'color',
+    name: '颜色转换',
+    desc: 'HEX / RGB / HSL 互转，取色器与前景可读色',
+    icon: 'mdi:palette',
+    route: '/tool/color',
+    category: '颜色',
+    keywords: ['颜色', 'hex', 'rgb', 'hsl', '取色', '色值', 'palette', 'color']
+  },
+  {
+    key: 'gradient',
+    name: 'CSS 渐变生成',
+    desc: '多角度多色标的 linear-gradient 可视化生成',
+    icon: 'mdi:gradient-vertical',
+    route: '/tool/gradient',
+    category: '颜色',
+    keywords: ['渐变', 'gradient', 'css', 'linear-gradient', '色标', '背景']
+  },
+  {
+    key: 'password',
+    name: '随机密码',
+    desc: '自定义长度与字符集，保证各类字符并排除易混淆',
+    icon: 'mdi:form-textbox-password',
+    route: '/tool/password',
+    category: '开发',
+    keywords: ['密码', '随机', 'password', '强密码', '生成', 'token', '密钥']
+  },
+  {
+    key: 'ip',
+    name: 'IP 地址转换',
+    desc: 'IPv4 点分十进制 ⇄ 整数 ⇄ 十六进制 ⇄ 二进制',
+    icon: 'mdi:ip-network',
+    route: '/tool/ip',
+    category: '开发',
+    keywords: ['ip', 'ipv4', '子网', '进制', '网络', '地址', 'binary', 'hex']
+  },
+  {
+    key: 'fullwidth',
+    name: '全角半角转换',
+    desc: 'ASCII 与全角字符双向转换，保留中文不变',
+    icon: 'mdi:alphabetical-variant',
+    route: '/tool/fullwidth',
+    category: '文本',
+    keywords: ['全角', '半角', '转换', '空格', 'ascii', 'fullwidth']
+  }
+]
+
+/** 全部可选分类（用于首页筛选标签） */
+export const categories: ToolMeta['category'][] = [
+  '数据',
+  '编码',
+  '文本',
+  '颜色',
+  '金融',
+  '数学',
+  '生活',
+  '单位换算',
+  '健康',
+  '开发'
+]

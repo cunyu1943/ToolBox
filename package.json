@@ -1,0 +1,36 @@
+{
+  "name": "multicalc",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.4.2",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "test": "vitest run",
+    "typecheck": "nuxt prepare && vue-tsc --noEmit",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.30",
+    "@iconify-json/mdi": "^1.2.3",
+    "@nuxt/ui": "^4.0.0",
+    "@pinia/nuxt": "^0.11.3",
+    "@vueuse/core": "^14.0.0",
+    "nuxt": "^4.0.0",
+    "pinia": "^3.0.3",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vueuse/nuxt": "^14.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.0.0"
+  }
+}

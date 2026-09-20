@@ -1,0 +1,11 @@
+# pnpm v10+ 从本文件读取安装配置
+nodeLinker: hoisted
+
+# esbuild 的平台二进制由其可选依赖（@esbuild/win32-x64）提供，postinstall 仅为可选优化。
+# 显式忽略其构建脚本，避免 pnpm/CI 因未确认构建而报错退出。
+allowBuilds:
+  esbuild: false
+  vue-demi: false
+ignoredBuiltDependencies:
+  - esbuild
+  - vue-demi

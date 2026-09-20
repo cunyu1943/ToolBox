@@ -1,0 +1,80 @@
+/* Tailwind CSS v4 + @nuxt/ui v4（CSS-first 主题）。
+   深色 dark 变体由 @nuxt/ui 依据 .dark 类注册，无需在此重复定义。 */
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme {
+  /* Vue 品牌绿完整色板，供 app.config ui.colors.primary='vue' 使用 */
+  --color-vue-50: #f0fbf5;
+  --color-vue-100: #daf4e6;
+  --color-vue-200: #b3e8cd;
+  --color-vue-300: #7fd6ad;
+  --color-vue-400: #55c491;
+  --color-vue-500: #42b883;
+  --color-vue-600: #2f9d6c;
+  --color-vue-700: #267d57;
+  --color-vue-800: #226348;
+  --color-vue-900: #1e523c;
+  --color-vue-950: #0e2d21;
+  /* 辅助深色 */
+  --color-vue-ink: #35495e;
+  /* 玻璃拟态阴影（生成 shadow-glass 工具类） */
+  --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.12);
+}
+
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  /* 对齐 Vue 官网（VitePress 默认主题）纯净底色与正文色 */
+  background-color: #ffffff;
+  color: #213547;
+  -webkit-font-smoothing: antialiased;
+}
+.dark body {
+  background-color: #1b1b1f;
+  color: #f6f6f7;
+}
+
+/* VitePress 首页式：仅顶部单一淡绿光晕，其余留白 */
+.app-aurora {
+  background:
+    radial-gradient(60rem 30rem at 50% -8%, rgba(66, 184, 131, 0.12), transparent 70%);
+}
+.dark .app-aurora {
+  background:
+    radial-gradient(60rem 30rem at 50% -8%, rgba(66, 184, 131, 0.1), transparent 70%);
+}
+
+/* 数字结果变化的克制动效 */
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-slide-in 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
