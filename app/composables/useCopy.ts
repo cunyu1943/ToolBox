@@ -9,9 +9,9 @@ export function useCopy() {
     if (!text) return
     try {
       await navigator.clipboard.writeText(text)
-      toast.add({ title: '已复制到剪贴板', color: 'success', icon: 'i-lucide-circle-check' })
+      toast.add({ title: '已复制到剪贴板', color: 'success', icon: 'i-lucide-circle-check', duration: 2000 })
     } catch {
-      toast.add({ title: '复制失败，请手动选择复制', color: 'error', icon: 'i-lucide-circle-x' })
+      toast.add({ title: '复制失败，请手动选择复制', color: 'error', icon: 'i-lucide-circle-x', duration: 2000 })
     }
   }
 
