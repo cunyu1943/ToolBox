@@ -2,7 +2,7 @@
 
 ![Deploy](https://github.com/<user>/<repo>/actions/workflows/deploy.yml/badge.svg)
 
-纯前端、无后端、隐私友好的在线工具箱。当前共 **45 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币/存储单位）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、MD5+SHA 哈希、JSON/XML 格式化、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、AES 加解密、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON）、文本处理（大小写、去重排序统计、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、BMI、亲戚称谓、硬盘分区、罗马数字转换）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
+纯前端、无后端、隐私友好的在线工具箱。当前共 **49 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币/存储单位）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、MD5+SHA 哈希、JSON/XML 格式化、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、AES 加解密、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON、Unicode 转义、HTTP 状态码速查）、文本处理（大小写、去重排序统计、行文本处理、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、BMI、亲戚称谓、硬盘分区、罗马数字转换、年龄计算器）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
 
 ## 技术栈
 
@@ -124,8 +124,12 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 | XML 格式化 | `xml-tool.ts` | 手写词法分析美化/压缩、标签配对与交叉错误定位、CDATA/注释/声明保留 |
 | 存储单位换算 | `units.ts`（`storageUnits`）| 十进制 SI（KB~PB）与二进制 IEC（KiB~TiB）双体系、bit⇄B、1GiB=1073741824B |
 | AES 加解密 | `aes-tool.ts` | Web Crypto AES-256-GCM + PBKDF2（十万轮、随机 salt/IV）、密文格式与前缀/长度/篡改分类报错 |
+| Unicode 转义 | `unicode-tool.ts` | 中文⇄\uXXXX 双向、emoji 代理对自动拆分配对、非法序列原样保留 |
+| 行文本处理 | `lines-tool.ts` | 去重/去空行/trim/升降序/反转/加序号/打乱，兼容 \n \r\n \r |
+| 年龄计算器 | `age-tool.ts` | 精确年月日、总天数、下次生日倒计时，2/29 平年按 3/1 计 |
+| HTTP 状态码 | `http-status.ts` | 48 个常见码中英说明速查，码号/名称/中文模糊搜索 + 大类过滤 |
 
-> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 337 例通过），页面组件直接调用，测试与线上代码同源。
+> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 378 例通过），页面组件直接调用，测试与线上代码同源。
 
 ## 设计说明
 

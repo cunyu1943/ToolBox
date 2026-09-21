@@ -410,6 +410,42 @@ export const tools: ToolMeta[] = [
     route: '/tool/aes',
     category: '编码',
     keywords: ['aes', 'gcm', '加密', '解密', '口令', 'pbkdf2', '对称']
+  },
+  {
+    key: 'unicode',
+    name: 'Unicode 转义',
+    desc: '中文与 \\uXXXX 转义串双向转换，emoji 代理对自动配对',
+    icon: 'mdi:code-braces-box',
+    route: '/tool/unicode',
+    category: '编码',
+    keywords: ['unicode', '转义', '\\u', 'escape', '字符编码', '中文']
+  },
+  {
+    key: 'lines',
+    name: '行文本处理',
+    desc: '去重、去空行、排序、反转、加序号、随机打乱，按行批量操作',
+    icon: 'mdi:format-list-bulleted-type',
+    route: '/tool/lines',
+    category: '文本',
+    keywords: ['去重', '排序', '空行', '序号', '打乱', '行', '列表']
+  },
+  {
+    key: 'age',
+    name: '年龄计算器',
+    desc: '精确到年/月/日，共度过天数与下次生日倒计时',
+    icon: 'mdi:cake-variant',
+    route: '/tool/age',
+    category: '生活',
+    keywords: ['年龄', '生日', '周岁', '天数', '倒计时', '出生']
+  },
+  {
+    key: 'http-status',
+    name: 'HTTP 状态码',
+    desc: '1xx~5xx 常见状态码速查，中英文说明与大类过滤',
+    icon: 'mdi:server-network',
+    route: '/tool/http-status',
+    category: '开发',
+    keywords: ['http', '状态码', '404', '500', 'status', '错误码', 'rfc']
   }
 ]
 

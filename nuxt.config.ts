@@ -102,7 +102,11 @@ export default defineNuxtConfig({
         '/tool/chinese',
         '/tool/xml',
         '/tool/storage',
-        '/tool/aes'
+        '/tool/aes',
+        '/tool/unicode',
+        '/tool/lines',
+        '/tool/age',
+        '/tool/http-status'
       ]
     }
   },
