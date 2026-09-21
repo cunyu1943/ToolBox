@@ -51,13 +51,16 @@ function toggle(name: string) {
   collapsed.value = next
 }
 
-// 导航后若目标工具所在分组被折叠，自动展开，避免当前项不可见
-const activeGroup = computed(() =>
-  groups.find((g) => g.items.some((t) => route.matched.some((m) => m.path === t.route)))?.name
+// 每次导航后若目标工具所在分组被折叠，自动展开，避免当前项不可见（同分组内跳转也生效）
+watch(
+  () => route.fullPath,
+  () => {
+    const name = groups.find((g) =>
+      g.items.some((t) => route.matched.some((m) => m.path === t.route))
+    )?.name
+    if (!name) return
+    const next = new Set(collapsed.value)
+    if (next.delete(name)) collapsed.value = next
+  }
 )
-watch(activeGroup, (name) => {
-  if (!name) return
-  const next = new Set(collapsed.value)
-  if (next.delete(name)) collapsed.value = next
-})
 </script>
