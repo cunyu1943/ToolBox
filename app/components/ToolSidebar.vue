@@ -10,7 +10,7 @@
         :to="tool.route"
         class="block truncate rounded-md px-2 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
         :class="
-          tool.route === route.path
+          route.matched.some((m) => m.path === tool.route)
             ? 'bg-vue-500/10 font-medium text-vue-600 dark:text-vue-300'
             : ''
         "

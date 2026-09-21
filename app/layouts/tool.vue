@@ -60,6 +60,6 @@
 import { tools } from '~/utils/tools'
 
 const route = useRoute()
-// 依当前路径匹配注册表条目，用于标题栏展示
-const meta = computed(() => tools.find((c) => c.route === route.path))
+// 用路由记录 path 匹配（不受子路径 baseURL 与目录尾斜杠影响），用于标题栏展示
+const meta = computed(() => tools.find((c) => route.matched.some((m) => m.path === c.route)))
 </script>
