@@ -320,6 +320,42 @@ export const tools: ToolMeta[] = [
     route: '/tool/cron',
     category: '开发',
     keywords: ['cron', '定时任务', 'crontab', '表达式', '调度', '计划任务']
+  },
+  {
+    key: 'diff',
+    name: '文本差异对比',
+    desc: '按行对比两段文本，标注增删与行号，可复制统一格式',
+    icon: 'mdi:file-compare',
+    route: '/tool/diff',
+    category: '文本',
+    keywords: ['diff', '对比', '差异', '比较', '行', '文本', 'unified']
+  },
+  {
+    key: 'html-md',
+    name: 'HTML ⇄ Markdown',
+    desc: '常用标签子集双向转换，支持标题/列表/引用/代码块',
+    icon: 'mdi:language-markdown-outline',
+    route: '/tool/html-md',
+    category: '文本',
+    keywords: ['html', 'markdown', 'md', '转换', '标签', '富文本']
+  },
+  {
+    key: 'subnet',
+    name: '子网划分计算',
+    desc: 'CIDR / 掩码求网络地址、广播地址与可用主机区间',
+    icon: 'mdi:subnet',
+    route: '/tool/subnet',
+    category: '开发',
+    keywords: ['子网', 'cidr', '掩码', '网段', '广播', 'subnet', '网络']
+  },
+  {
+    key: 'contrast',
+    name: '颜色对比度检查',
+    desc: 'WCAG 2.1 相对亮度与对比度，AA/AAA 达标判定',
+    icon: 'mdi:contrast-circle',
+    route: '/tool/contrast',
+    category: '颜色',
+    keywords: ['对比度', 'wcag', '无障碍', 'accessibility', '前景', '背景', 'contrast']
   }
 ]
 

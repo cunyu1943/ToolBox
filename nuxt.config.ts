@@ -92,7 +92,11 @@ export default defineNuxtConfig({
         '/tool/morse',
         '/tool/url',
         '/tool/roman',
-        '/tool/cron'
+        '/tool/cron',
+        '/tool/diff',
+        '/tool/html-md',
+        '/tool/subnet',
+        '/tool/contrast'
       ]
     }
   },
