@@ -18,8 +18,8 @@
     </GlassCard>
 
     <GlassCard v-if="svg" custom-class="p-5 flex flex-col items-center gap-4">
-      <!-- qrcode 包输出仅含 path/rect 与颜色，无用户原文，可安全注入 -->
-      <div class="rounded-xl bg-white p-3 shadow-inner" v-html="svg" />
+      <!-- qrcode 包输出仅含 path/rect 与颜色，无用户原文，可安全注入；包无 width/height 属性，需显式约束尺寸否则按 preflight 塌陷为 0 -->
+      <div class="rounded-xl bg-white p-3 shadow-inner [&>svg]:h-60 [&>svg]:w-60" v-html="svg" />
       <div class="flex flex-wrap justify-center gap-2">
         <UButton icon="i-lucide-download" label="下载 SVG" size="sm" @click="downloadSvg" />
         <UButton icon="i-lucide-image-down" label="下载 PNG" size="sm" color="neutral" variant="outline" :loading="pngBusy" @click="downloadPng" />
