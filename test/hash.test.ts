@@ -23,4 +23,11 @@ describe('hashText（Web Crypto 已知向量）', () => {
   it('中文 UTF-8 编码影响结果', async () => {
     expect(await hashText('SHA-256', '中')).not.toBe(await hashText('SHA-256', 'a'))
   })
+  it('MD5 "abc" 与空串已知向量', async () => {
+    expect(await hashText('MD5', 'abc')).toBe('900150983cd24fb0d6963f7d28e17f72')
+    expect(await hashText('MD5', '')).toBe('d41d8cd98f00b204e9800998ecf8427e')
+  })
+  it('MD5 中文按 UTF-8', async () => {
+    expect(await hashText('MD5', '中')).not.toBe(await hashText('MD5', 'a'))
+  })
 })

@@ -3,7 +3,7 @@
     <GlassCard custom-class="p-5 space-y-4">
       <UTextarea v-model="input" :rows="5" placeholder="输入需要计算摘要的文本（UTF-8）…" autoresize :maxrows="12" class="w-full font-mono text-sm" />
       <p class="text-xs text-slate-400">
-        基于浏览器原生 Web Crypto 计算，数据不上传。MD5 因非原生支持暂未提供。
+        基于浏览器原生 Web Crypto 计算 SHA 系列，MD5 由 js-md5 本地实现，数据不上传。
       </p>
     </GlassCard>
 

@@ -50,6 +50,21 @@ export const lengthUnits: Unit[] = [
   { id: 'cun', label: '市寸', factor: 1 / 30 }
 ]
 
+/** 数据存储（以字节 B 为基准）：十进制 SI 与二进制 IEC 双体系 */
+export const storageUnits: Unit[] = [
+  { id: 'bit', label: '位 bit', factor: 0.125 },
+  { id: 'B', label: '字节 B', factor: 1 },
+  { id: 'KB', label: 'KB（10³）', factor: 1e3 },
+  { id: 'MB', label: 'MB（10⁶）', factor: 1e6 },
+  { id: 'GB', label: 'GB（10⁹）', factor: 1e9 },
+  { id: 'TB', label: 'TB（10¹²）', factor: 1e12 },
+  { id: 'PB', label: 'PB（10¹⁵）', factor: 1e15 },
+  { id: 'KiB', label: 'KiB（2¹⁰）', factor: 1024 },
+  { id: 'MiB', label: 'MiB（2²⁰）', factor: 1024 ** 2 },
+  { id: 'GiB', label: 'GiB（2³⁰）', factor: 1024 ** 3 },
+  { id: 'TiB', label: 'TiB（2⁴⁰）', factor: 1024 ** 4 }
+]
+
 /** 按 id 查找单位 */
 export function findUnit(list: Unit[], id: string): Unit | undefined {
   return list.find((u) => u.id === id)

@@ -99,7 +99,10 @@ export default defineNuxtConfig({
         '/tool/contrast',
         '/tool/qrcode',
         '/tool/yaml',
-        '/tool/chinese'
+        '/tool/chinese',
+        '/tool/xml',
+        '/tool/storage',
+        '/tool/aes'
       ]
     }
   },

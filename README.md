@@ -2,7 +2,7 @@
 
 ![Deploy](https://github.com/<user>/<repo>/actions/workflows/deploy.yml/badge.svg)
 
-纯前端、无后端、隐私友好的在线工具箱。当前共 **42 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、SHA 哈希、JSON 格式化、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON）、文本处理（大小写、去重排序统计、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、BMI、亲戚称谓、硬盘分区、罗马数字转换）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
+纯前端、无后端、隐私友好的在线工具箱。当前共 **45 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币/存储单位）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、MD5+SHA 哈希、JSON/XML 格式化、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、AES 加解密、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON）、文本处理（大小写、去重排序统计、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、BMI、亲戚称谓、硬盘分区、罗马数字转换）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
 
 ## 技术栈
 
@@ -97,7 +97,7 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 | 长度换算 | `units.ts`（`lengthUnits`）| 英制/公制/市制因子、实时联动守恒 |
 | 时间戳/时区 | `timezone.ts` | 基于 Intl 的时区偏移（含纽约/伦敦/悉尼 DST）、epoch↔墙上时间格式化、两遍修正往返一致、秒/毫秒归一 |
 | 编码转换 | `encoding.ts` | UTF-8 安全 Base64/Base32(RFC4648) 编解码与非法向量、URL 组件、HTML 命名/数字实体转义还原、Unicode 转义含代理对 |
-| 哈希摘要 | `hash.ts` | Web Crypto 的 SHA-1/256/384/512 已知向量、逐字节补零十六进制、中文 UTF-8 编码影响 |
+| 哈希摘要 | `hash.ts` | MD5（js-md5）+ Web Crypto 的 SHA-1/256/384/512 已知向量、逐字节补零十六进制、中文 UTF-8 编码影响 |
 | JSON 格式化 | `json-tool.ts` | 美化/压缩/校验、自定义缩进、错误行列定位 |
 | CSV 转 JSON | `csv.ts` | 引号内逗号/换行/转义双引号、CRLF、自定义分隔符、表头开关、对象数组与二维数组双向 |
 | JWT 解析 | `jwt.ts` | base64url 补 padding 解码、三段结构校验、exp/iat 时间可读化 |
@@ -121,8 +121,11 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 | 二维码 | `qrcode-tool.ts` | qrcode 生成 SVG（等级/颜色可调）、PNG 导出、超容量报错 |
 | YAML 互转 | `yaml-tool.ts` | js-yaml 严格解析 YAML⇄JSON、错误行列定位、往返稳定 |
 | 繁简转换 | `chinese-convert.ts` | OpenCC 词级双向转换，台/港变体、转换器实例缓存 |
+| XML 格式化 | `xml-tool.ts` | 手写词法分析美化/压缩、标签配对与交叉错误定位、CDATA/注释/声明保留 |
+| 存储单位换算 | `units.ts`（`storageUnits`）| 十进制 SI（KB~PB）与二进制 IEC（KiB~TiB）双体系、bit⇄B、1GiB=1073741824B |
+| AES 加解密 | `aes-tool.ts` | Web Crypto AES-256-GCM + PBKDF2（十万轮、随机 salt/IV）、密文格式与前缀/长度/篡改分类报错 |
 
-> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 321 例通过），页面组件直接调用，测试与线上代码同源。
+> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 337 例通过），页面组件直接调用，测试与线上代码同源。
 
 ## 设计说明
 

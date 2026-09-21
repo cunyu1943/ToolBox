@@ -171,11 +171,11 @@ export const tools: ToolMeta[] = [
   {
     key: 'hash',
     name: '哈希摘要',
-    desc: 'SHA-1 / 256 / 384 / 512 文本摘要，浏览器本地计算',
+    desc: 'MD5 / SHA-1 / 256 / 384 / 512 文本摘要，浏览器本地计算',
     icon: 'mdi:shield-lock-outline',
     route: '/tool/hash',
     category: '编码',
-    keywords: ['hash', 'sha', '摘要', '加密', '哈希', 'digest', '加密', '校验']
+    keywords: ['hash', 'sha', 'md5', '摘要', '加密', '哈希', 'digest', '校验']
   },
   {
     key: 'json',
@@ -383,6 +383,33 @@ export const tools: ToolMeta[] = [
     route: '/tool/chinese',
     category: '文本',
     keywords: ['繁体', '简体', '繁简', 'opencc', '转换', '中文', 'tw', 'hk']
+  },
+  {
+    key: 'xml',
+    name: 'XML 格式化',
+    desc: 'XML 美化与压缩，标签配对校验并定位错误',
+    icon: 'mdi:xml',
+    route: '/tool/xml',
+    category: '开发',
+    keywords: ['xml', '格式化', '美化', '压缩', '标签', '校验']
+  },
+  {
+    key: 'storage',
+    name: '存储单位换算',
+    desc: 'bit/B 到 PB 与 KiB~TiB，十进制 SI 与二进制 IEC 双体系',
+    icon: 'mdi:content-save-settings-outline',
+    route: '/tool/storage',
+    category: '单位换算',
+    keywords: ['存储', '字节', 'kb', 'mb', 'gib', 'ti', '容量', '单位']
+  },
+  {
+    key: 'aes',
+    name: 'AES 加解密',
+    desc: 'AES-256-GCM 口令加密，PBKDF2 派生密钥，浏览器本地完成',
+    icon: 'mdi:table-key',
+    route: '/tool/aes',
+    category: '编码',
+    keywords: ['aes', 'gcm', '加密', '解密', '口令', 'pbkdf2', '对称']
   }
 ]
 

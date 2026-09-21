@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { roundFloat, formatNumber, formatCurrency, formatPercent } from '~/utils/number'
 import { calcEqualInstallment, calcEqualPrincipal } from '~/utils/loan'
-import { weightUnits, volumeUnits, convertUnit, convertAll, findUnit } from '~/utils/units'
+import { weightUnits, volumeUnits, storageUnits, convertUnit, convertAll, findUnit } from '~/utils/units'
 import { calcBmi, bmiLevel, healthyWeightRange, ftInToCm, lbToKg, bmiPosition } from '~/utils/bmi'
 import { resolveKinship } from '~/utils/kinship-data'
 
@@ -68,6 +68,15 @@ describe('utils/units 单位换算', () => {
     const g = findUnit(volumeUnits, 'gal-us')!
     const l = findUnit(volumeUnits, 'l')!
     expect(convertUnit(1, g, l)).toBeCloseTo(3.785411784, 6)
+  })
+  it('存储 1GiB = 1073741824B、1GB ≈ 0.93132258 GiB、1B = 8bit', () => {
+    const gib = findUnit(storageUnits, 'GiB')!
+    const b = findUnit(storageUnits, 'B')!
+    expect(convertUnit(1, gib, b)).toBe(1073741824)
+    const gb = findUnit(storageUnits, 'GB')!
+    expect(convertUnit(1, gb, gib)).toBeCloseTo(0.9313225746, 8)
+    const bit = findUnit(storageUnits, 'bit')!
+    expect(convertUnit(1, b, bit)).toBe(8)
   })
   it('convertAll 以 L 为基准联动且守恒', () => {
     const all = convertAll(volumeUnits, 'l', 1)
