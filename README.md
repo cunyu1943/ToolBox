@@ -2,7 +2,7 @@
 
 ![Deploy](https://github.com/<user>/<repo>/actions/workflows/deploy.yml/badge.svg)
 
-纯前端、无后端、隐私友好的在线工具箱。当前共 **53 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币/存储单位）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、MD5+SHA 哈希、JSON/XML 格式化、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、AES 加解密、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON、Unicode 转义、HTTP 状态码速查、图片⇄Base64、ASCII 码表）、文本处理（大小写、去重排序统计、行文本处理、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、BMI、亲戚称谓、硬盘分区、罗马数字转换、年龄计算器、生肖星座查询、随机数/抽签生成器）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
+纯前端、无后端、隐私友好的在线工具箱。当前共 **57 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币/存储单位/时间单位）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、MD5+SHA 哈希、JSON/XML 格式化、JSON 转 TS 接口、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、密码强度检查、AES 加解密、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON、Unicode 转义、HTTP 状态码速查、图片⇄Base64、ASCII 码表）、文本处理（大小写、去重排序统计、行文本处理、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、百分比计算、BMI、亲戚称谓、硬盘分区、罗马数字转换、年龄计算器、生肖星座查询、随机数/抽签生成器）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
 
 ## 技术栈
 
@@ -132,8 +132,12 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 | 图片 Base64 | `image-base64-tool.ts` | dataURL 解析/字节数估算/可读大小三档，图片不经服务器 |
 | 生肖星座 | `zodiac-tool.ts` | 12 年循环生肖、12 星座边界日期与四元素，非法月日校验 |
 | ASCII 码表 | `ascii-table.ts` | 0–127 全码位，33 控制字符名+中文说明，支持码号/0x十六进制/字符/名称搜索 |
+| 时间单位换算 | `units.ts`（`timeUnits`）| 纳秒~年实时联动，月按 30 天、年按 365 天近似，性能计时场景 |
+| JSON 转 TS 接口 | `json-ts.ts` | 递归生成 interface、数组样本键合并（缺席加 ?）、重名接口加序号、非法键加引号 |
+| 密码强度检查 | `password-strength.ts` | 熵估算（长度×log2字符集）、弱口令/连续/键盘序列/重复段惩罚、0~4 级评分 |
+| 百分比计算器 | `percent-tool.ts` | 求百分比/占比/增减幅三问，除零与非法输入防护，浮点归一 |
 
-> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 417 例通过），页面组件直接调用，测试与线上代码同源。
+> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 446 例通过），页面组件直接调用，测试与线上代码同源。
 
 ## 设计说明
 

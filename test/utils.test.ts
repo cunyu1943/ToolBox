@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { roundFloat, formatNumber, formatCurrency, formatPercent } from '~/utils/number'
 import { calcEqualInstallment, calcEqualPrincipal } from '~/utils/loan'
-import { weightUnits, volumeUnits, storageUnits, convertUnit, convertAll, findUnit } from '~/utils/units'
+import { weightUnits, volumeUnits, storageUnits, timeUnits, convertUnit, convertAll, findUnit } from '~/utils/units'
 import { calcBmi, bmiLevel, healthyWeightRange, ftInToCm, lbToKg, bmiPosition } from '~/utils/bmi'
 import { resolveKinship } from '~/utils/kinship-data'
 
@@ -83,6 +83,17 @@ describe('utils/units 单位换算', () => {
     expect(all.l).toBe(1)
     expect(all.ml).toBeCloseTo(1000, 6)
     expect(all.m3).toBeCloseTo(0.001, 9)
+  })
+  it('时间 1h=3600s、1wk=7d、1yr≈365d', () => {
+    const h = findUnit(timeUnits, 'h')!
+    const s = findUnit(timeUnits, 's')!
+    expect(convertUnit(1, h, s)).toBe(3600)
+    const wk = findUnit(timeUnits, 'wk')!
+    const d = findUnit(timeUnits, 'd')!
+    expect(convertUnit(1, wk, d)).toBe(7)
+    const yr = findUnit(timeUnits, 'yr')!
+    expect(convertUnit(1, yr, d)).toBeCloseTo(365, 6)
+    expect(convertAll(timeUnits, 'min', 1).ms).toBe(60000)
   })
 })
 

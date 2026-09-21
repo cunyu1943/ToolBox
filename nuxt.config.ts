@@ -102,6 +102,7 @@ export default defineNuxtConfig({
         '/tool/chinese',
         '/tool/xml',
         '/tool/storage',
+        '/tool/time-units',
         '/tool/aes',
         '/tool/unicode',
         '/tool/lines',
@@ -110,7 +111,10 @@ export default defineNuxtConfig({
         '/tool/random',
         '/tool/image-base64',
         '/tool/zodiac',
-        '/tool/ascii'
+        '/tool/ascii',
+        '/tool/json-ts',
+        '/tool/password-strength',
+        '/tool/percent'
       ]
     }
   },

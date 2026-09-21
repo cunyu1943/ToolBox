@@ -65,6 +65,20 @@ export const storageUnits: Unit[] = [
   { id: 'TiB', label: 'TiB（2⁴⁰）', factor: 1024 ** 4 }
 ]
 
+/** 时间：基准单位为秒(s)；月按 30 天、年按 365 天近似 */
+export const timeUnits: Unit[] = [
+  { id: 'ns', label: '纳秒 ns', factor: 1e-9 },
+  { id: 'us', label: '微秒 μs', factor: 1e-6 },
+  { id: 'ms', label: '毫秒 ms', factor: 0.001 },
+  { id: 's', label: '秒 s', factor: 1 },
+  { id: 'min', label: '分钟 min', factor: 60 },
+  { id: 'h', label: '小时 h', factor: 3600 },
+  { id: 'd', label: '天 d', factor: 86400 },
+  { id: 'wk', label: '周 wk', factor: 604800 },
+  { id: 'mo', label: '月（30天）', factor: 2592000 },
+  { id: 'yr', label: '年（365天）', factor: 31536000 }
+]
+
 /** 按 id 查找单位 */
 export function findUnit(list: Unit[], id: string): Unit | undefined {
   return list.find((u) => u.id === id)

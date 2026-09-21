@@ -268,6 +268,15 @@ export const tools: ToolMeta[] = [
     keywords: ['密码', '随机', 'password', '强密码', '生成', 'token', '密钥']
   },
   {
+    key: 'password-strength',
+    name: '密码强度检查',
+    desc: '本地实时评估：熵估算、字符集、弱口令/连续/重复模式扣分',
+    icon: 'mdi:shield-lock-outline',
+    route: '/tool/password-strength',
+    category: '开发',
+    keywords: ['密码', '强度', '安全检查', 'password', '熵', '弱口令']
+  },
+  {
     key: 'ip',
     name: 'IP 地址转换',
     desc: 'IPv4 点分十进制 ⇄ 整数 ⇄ 十六进制 ⇄ 二进制',
@@ -403,6 +412,15 @@ export const tools: ToolMeta[] = [
     keywords: ['存储', '字节', 'kb', 'mb', 'gib', 'ti', '容量', '单位']
   },
   {
+    key: 'time-units',
+    name: '时间单位换算',
+    desc: '纳秒到年月日实时联动，月按 30 天、年按 365 天近似',
+    icon: 'mdi:clock-outline',
+    route: '/tool/time-units',
+    category: '单位换算',
+    keywords: ['时间', '秒', '毫秒', '小时', '分钟', '单位', '换算']
+  },
+  {
     key: 'aes',
     name: 'AES 加解密',
     desc: 'AES-256-GCM 口令加密，PBKDF2 派生密钥，浏览器本地完成',
@@ -482,6 +500,24 @@ export const tools: ToolMeta[] = [
     route: '/tool/ascii',
     category: '开发',
     keywords: ['ascii', '码表', '控制字符', 'unicode', '十六进制', '实体']
+  },
+  {
+    key: 'json-ts',
+    name: 'JSON 转 TypeScript 接口',
+    desc: '粘贴 JSON 自动生成 interface，数组样本归并、缺席键可选',
+    icon: 'mdi:language-typescript',
+    route: '/tool/json-ts',
+    category: '开发',
+    keywords: ['json', 'typescript', 'ts', '接口', 'interface', '类型', '生成']
+  },
+  {
+    key: 'percent',
+    name: '百分比计算器',
+    desc: '求百分比、一个数是另一个数的百分之几、增减幅',
+    icon: 'mdi:percent',
+    route: '/tool/percent',
+    category: '数学',
+    keywords: ['百分比', '百分率', '增幅', '降幅', 'percent', '折扣']
   }
 ]
 
