@@ -38,6 +38,8 @@
 <script setup lang="ts">
 import { detectDelimiter, generateMarkdownTable, parseTableInput, type MdAlign } from '~/utils/markdown-table'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const DELIM_ITEMS = [
@@ -90,10 +92,6 @@ const output = computed(() => {
 })
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(output.value)
 }
 </script>

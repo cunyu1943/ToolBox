@@ -27,6 +27,8 @@
 <script setup lang="ts">
 import { formatJson, minifyJson, validateJson, type JsonResult } from '~/utils/json-tool'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('')
@@ -45,10 +47,6 @@ function run(fn: (text: string, indent?: number) => JsonResult) {
 
 async function copy() {
   if (!result.value.output) return
-  try {
-    await navigator.clipboard.writeText(result.value.output)
-  } catch {
-    /* 剪贴板不可用时静默降级 */
-  }
+  await copyWithToast(result.value.output)
 }
 </script>

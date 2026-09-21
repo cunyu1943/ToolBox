@@ -42,6 +42,8 @@
 <script setup lang="ts">
 import { toUpperCase, toLowerCase, invertCase, textStats, processLines } from '~/utils/text'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('')
@@ -90,10 +92,6 @@ const statRows = computed(() => [
 
 async function copy() {
   if (!output.value) return
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(output.value)
 }
 </script>

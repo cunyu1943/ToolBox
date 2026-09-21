@@ -45,6 +45,8 @@
 <script setup lang="ts">
 import { csvToJson, jsonToCsv } from '~/utils/csv'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 type Mode = 'csv2json' | 'json2csv'
@@ -80,10 +82,6 @@ const error = computed(() => result.value.error)
 
 async function copy() {
   if (!output.value) return
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(output.value)
 }
 </script>

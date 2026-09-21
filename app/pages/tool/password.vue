@@ -36,6 +36,8 @@
 <script setup lang="ts">
 import { generatePassword } from '~/utils/password'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const length = ref(16)
@@ -74,11 +76,7 @@ function regenerate() {
 
 async function copy() {
   if (!value.value) return
-  try {
-    await navigator.clipboard.writeText(value.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(value.value)
 }
 
 onMounted(regenerate)

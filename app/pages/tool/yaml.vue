@@ -31,6 +31,8 @@
 <script setup lang="ts">
 import { jsonToYaml, yamlToJson } from '~/utils/yaml-tool'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const modes = ['YAML → JSON', 'JSON → YAML'] as const
@@ -47,10 +49,6 @@ function useOutputAsInput() {
 }
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(result.value.output)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(result.value.output)
 }
 </script>

@@ -30,6 +30,8 @@
 <script setup lang="ts">
 import { newUuid } from '~/utils/uuid'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const count = ref(5)
@@ -53,11 +55,7 @@ const items = computed(() =>
 )
 
 async function copy(text: string) {
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(text)
 }
 
 async function copyAll() {

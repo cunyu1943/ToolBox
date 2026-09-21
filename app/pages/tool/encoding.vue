@@ -56,6 +56,8 @@ import {
   htmlEscape, htmlUnescape, unicodeEscape, unicodeUnescape
 } from '~/utils/encoding'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 type Type = 'base64' | 'base32' | 'url' | 'html' | 'unicode'
@@ -107,10 +109,6 @@ function swap() {
 
 async function copy() {
   if (!output.value) return
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 剪贴板不可用时静默降级 */
-  }
+  await copyWithToast(output.value)
 }
 </script>

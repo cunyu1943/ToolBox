@@ -39,6 +39,8 @@
 <script setup lang="ts">
 import { formatXml, minifyXml } from '~/utils/xml-tool'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('<?xml version="1.0"?><books count="2"><book id="1"><title>三体</title></book><book id="2"><title>活着</title><note/></book></books>')
@@ -53,10 +55,6 @@ const result = computed(() =>
 const error = computed(() => (result.value.ok ? '' : result.value.error))
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(result.value.output)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(result.value.output)
 }
 </script>

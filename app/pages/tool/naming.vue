@@ -22,6 +22,8 @@
 <script setup lang="ts">
 import { toCamelCase, toPascalCase, toSnakeCase, toKebabCase, toConstantCase, toTitleCase, toSentenceCase } from '~/utils/naming'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('')
@@ -41,10 +43,6 @@ const rows = computed(() => {
 
 async function copy(text: string) {
   if (!text) return
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(text)
 }
 </script>

@@ -36,6 +36,8 @@
 <script setup lang="ts">
 import { testRegex } from '~/utils/regex'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const pattern = ref('')
@@ -47,10 +49,6 @@ const shown = computed(() => result.value.matches.slice(0, 5000))
 const matchedValues = computed(() => shown.value.map((m) => m.value).join('\n'))
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(matchedValues.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(matchedValues.value)
 }
 </script>

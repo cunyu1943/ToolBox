@@ -32,6 +32,8 @@
 <script setup lang="ts">
 import { HASH_ALGORITHMS, hashText } from '~/utils/hash'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('')
@@ -55,10 +57,6 @@ watchEffect(() => {
 
 async function copy(text: string) {
   if (!text) return
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 剪贴板不可用时静默降级 */
-  }
+  await copyWithToast(text)
 }
 </script>

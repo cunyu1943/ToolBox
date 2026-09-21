@@ -43,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+const { copy: copyWithToast } = useCopy()
+
 export interface ResultRow {
   label: string
   value: string | number
@@ -64,10 +66,6 @@ const props = withDefaults(
 async function copy() {
   const text = props.copyText || ''
   if (!text) return
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 剪贴板不可用时静默降级 */
-  }
+  await copyWithToast(text)
 }
 </script>

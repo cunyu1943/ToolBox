@@ -39,6 +39,8 @@
 <script setup lang="ts">
 import { formatBytes, parseDataUrl } from '~/utils/image-base64-tool'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const file = ref<File | null>(null)
@@ -103,10 +105,6 @@ function onFile(e: Event) {
 
 async function copy(text: string) {
   if (!text) return
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(text)
 }
 </script>

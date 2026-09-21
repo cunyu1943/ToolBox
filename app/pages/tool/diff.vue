@@ -45,6 +45,8 @@
 import type { DiffOp } from '~/utils/diff'
 import { diffLines, toUnifiedDiff } from '~/utils/diff'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const oldText = ref('')
@@ -60,10 +62,6 @@ function rowClass(op: DiffOp) {
 }
 
 async function copyUnified() {
-  try {
-    await navigator.clipboard.writeText(toUnifiedDiff(result.value))
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(toUnifiedDiff(result.value))
 }
 </script>

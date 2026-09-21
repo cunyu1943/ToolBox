@@ -149,6 +149,8 @@
 <script setup lang="ts">
 import { formatInZone, TIMEZONES, zonedStringToMs } from '~/utils/timezone'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const fieldCls =
@@ -164,12 +166,7 @@ const tabs = [
 ] as const
 
 function copy(text: string): void {
-  if (!text) return
-  try {
-    navigator.clipboard?.writeText(text)
-  } catch {
-    /* 剪贴板不可用时静默降级 */
-  }
+  copyWithToast(text)
 }
 
 // —— 当前时间戳（可暂停）——

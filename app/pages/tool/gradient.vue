@@ -38,6 +38,8 @@
 import { buildLinearGradient } from '~/utils/gradient'
 import { randomHex } from '~/utils/color'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const angle = ref(90)
@@ -54,10 +56,6 @@ function randomize() {
 }
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(css.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(css.value)
 }
 </script>

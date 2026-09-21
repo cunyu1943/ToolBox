@@ -23,6 +23,8 @@
 <script setup lang="ts">
 import { isValidIpv4, ipv4ToInt, intToIpv4, ipv4ToHex, ipv4ToBinary } from '~/utils/ip'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('192.168.0.1')
@@ -56,10 +58,6 @@ const rows = computed(() => {
 })
 
 async function copy(text: string) {
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(text)
 }
 </script>

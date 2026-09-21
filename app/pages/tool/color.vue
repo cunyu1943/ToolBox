@@ -27,6 +27,8 @@
 <script setup lang="ts">
 import { hexToRgb, rgbToHsl, rgbToHex, formatRgb, formatHsl, randomHex } from '~/utils/color'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const hex = ref('#4a90d9')
@@ -49,10 +51,6 @@ function onPick(e: Event) {
 }
 
 async function copy(text: string) {
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(text)
 }
 </script>

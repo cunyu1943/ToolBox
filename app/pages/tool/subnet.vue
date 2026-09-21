@@ -35,6 +35,8 @@
 import { parseCidr, subnetInfo } from '~/utils/subnet'
 import { ipv4ToInt, intToIpv4 } from '~/utils/ip'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('192.168.1.5/24')
@@ -76,10 +78,6 @@ const rows = computed(() => {
 })
 
 async function copy(text: string) {
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(text)
 }
 </script>

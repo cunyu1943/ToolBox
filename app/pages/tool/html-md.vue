@@ -30,6 +30,8 @@
 <script setup lang="ts">
 import { htmlToMarkdown, markdownToHtml } from '~/utils/html-md'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const modes = ['HTML → Markdown', 'Markdown → HTML'] as const
@@ -44,10 +46,6 @@ function useOutputAsInput() {
 }
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(output.value)
 }
 </script>

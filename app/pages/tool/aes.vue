@@ -41,6 +41,8 @@
 <script setup lang="ts">
 import { decryptText, encryptText } from '~/utils/aes-tool'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const mode = ref<'enc' | 'dec'>('enc')
@@ -74,10 +76,6 @@ async function run() {
 }
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(output.value)
 }
 </script>

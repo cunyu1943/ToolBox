@@ -38,6 +38,8 @@ import {
   trimLines
 } from '~/utils/lines-tool'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const input = ref('')
@@ -54,10 +56,6 @@ function swap() {
 
 async function copy() {
   if (!output.value) return
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(output.value)
 }
 </script>

@@ -28,6 +28,8 @@
 <script setup lang="ts">
 import { parseJwt, describeJwtTime } from '~/utils/jwt'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const token = ref('')
@@ -41,10 +43,6 @@ const timeLines = computed(() => (parsed.value.ok && parsed.value.payload ? desc
 
 async function copy(text: string) {
   if (!text) return
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(text)
 }
 </script>

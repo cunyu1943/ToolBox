@@ -36,6 +36,8 @@
 import type { Locale } from '~/utils/chinese-convert'
 import { convertChinese, PRESETS } from '~/utils/chinese-convert'
 
+const { copy: copyWithToast } = useCopy()
+
 definePageMeta({ layout: 'tool' })
 
 const locales: Locale[] = ['cn', 'tw', 'hk']
@@ -58,10 +60,6 @@ function applyPreset(i: number) {
 }
 
 async function copy() {
-  try {
-    await navigator.clipboard.writeText(output.value)
-  } catch {
-    /* 静默 */
-  }
+  await copyWithToast(output.value)
 }
 </script>
