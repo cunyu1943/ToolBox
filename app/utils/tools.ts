@@ -446,6 +446,42 @@ export const tools: ToolMeta[] = [
     route: '/tool/http-status',
     category: '开发',
     keywords: ['http', '状态码', '404', '500', 'status', '错误码', 'rfc']
+  },
+  {
+    key: 'random',
+    name: '随机数/抽签',
+    desc: '区间随机整数、不重复抽签、掷骰抛硬币，本地生成',
+    icon: 'mdi:dice-multiple',
+    route: '/tool/random',
+    category: '数学',
+    keywords: ['随机', '抽签', '骰子', '硬币', '抽奖', 'random', '取样']
+  },
+  {
+    key: 'image-base64',
+    name: '图片 Base64',
+    desc: '本地图片转 dataURL、Base64 还原图片预览，不经服务器',
+    icon: 'mdi:image-sync',
+    route: '/tool/image-base64',
+    category: '编码',
+    keywords: ['图片', 'base64', 'dataurl', 'data uri', '编码', '嵌入']
+  },
+  {
+    key: 'zodiac',
+    name: '生肖星座',
+    desc: '年份查生肖、月日查星座（含边界日期与四元素）',
+    icon: 'mdi:zodiac-aquarius',
+    route: '/tool/zodiac',
+    category: '生活',
+    keywords: ['生肖', '属相', '星座', '十二宫', 'birthday', '占星']
+  },
+  {
+    key: 'ascii',
+    name: 'ASCII 码表',
+    desc: '0–127 码位速查，控制字符名与中英文说明、多格式详情',
+    icon: 'mdi:table-large',
+    route: '/tool/ascii',
+    category: '开发',
+    keywords: ['ascii', '码表', '控制字符', 'unicode', '十六进制', '实体']
   }
 ]
 

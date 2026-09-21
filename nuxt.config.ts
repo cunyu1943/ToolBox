@@ -106,7 +106,11 @@ export default defineNuxtConfig({
         '/tool/unicode',
         '/tool/lines',
         '/tool/age',
-        '/tool/http-status'
+        '/tool/http-status',
+        '/tool/random',
+        '/tool/image-base64',
+        '/tool/zodiac',
+        '/tool/ascii'
       ]
     }
   },
