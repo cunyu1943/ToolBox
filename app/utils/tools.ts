@@ -518,6 +518,15 @@ export const tools: ToolMeta[] = [
     route: '/tool/percent',
     category: '数学',
     keywords: ['百分比', '百分率', '增幅', '降幅', 'percent', '折扣']
+  },
+  {
+    key: 'md-table',
+    name: 'Markdown 表格生成',
+    desc: 'Tab/CSV/空格分隔文本转 Markdown 表格，逐列对齐与源码补白',
+    icon: 'mdi:table-plus',
+    route: '/tool/md-table',
+    category: '文本',
+    keywords: ['markdown', '表格', 'md', 'table', 'csv', 'tab']
   }
 ]
 
