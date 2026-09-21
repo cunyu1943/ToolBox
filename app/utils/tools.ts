@@ -284,6 +284,42 @@ export const tools: ToolMeta[] = [
     route: '/tool/fullwidth',
     category: '文本',
     keywords: ['全角', '半角', '转换', '空格', 'ascii', 'fullwidth']
+  },
+  {
+    key: 'morse',
+    name: '摩尔斯电码',
+    desc: '文本与国际摩尔斯电码互转，词以「/」分隔',
+    icon: 'mdi:waveform',
+    route: '/tool/morse',
+    category: '编码',
+    keywords: ['摩尔斯', 'morse', '电码', '无线电', '编码', '解码']
+  },
+  {
+    key: 'url',
+    name: 'URL 解析构建',
+    desc: '拆解协议/主机/路径/参数/片段，编辑后重建链接',
+    icon: 'mdi:link-variant',
+    route: '/tool/url',
+    category: '开发',
+    keywords: ['url', '链接', '解析', 'query', '查询参数', '构建']
+  },
+  {
+    key: 'roman',
+    name: '罗马数字转换',
+    desc: '1~3999 与罗马数字双向转换，拒绝非规范写法',
+    icon: 'mdi:roman-numerals',
+    route: '/tool/roman',
+    category: '数学',
+    keywords: ['罗马数字', 'roman', '转换', 'MCMXCIV', '世纪']
+  },
+  {
+    key: 'cron',
+    name: 'Cron 表达式解析',
+    desc: '5 字段 Cron 校验、中文说明与后 5 次执行时间推算',
+    icon: 'mdi:calendar-clock',
+    route: '/tool/cron',
+    category: '开发',
+    keywords: ['cron', '定时任务', 'crontab', '表达式', '调度', '计划任务']
   }
 ]
 

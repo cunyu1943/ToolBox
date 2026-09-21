@@ -88,7 +88,11 @@ export default defineNuxtConfig({
         '/tool/gradient',
         '/tool/password',
         '/tool/ip',
-        '/tool/fullwidth'
+        '/tool/fullwidth',
+        '/tool/morse',
+        '/tool/url',
+        '/tool/roman',
+        '/tool/cron'
       ]
     }
   },
