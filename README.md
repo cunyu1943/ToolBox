@@ -73,7 +73,7 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 
 > 交付节奏约定：每新增一个功能，**先测通再继续**，并**同步更新 README**，避免返工与回归。
 
-首页卡片、搜索、分类筛选全部由注册表驱动，无需改动核心逻辑。
+首页卡片、搜索、分类筛选与工具页侧边栏索引全部由注册表驱动，无需改动核心逻辑。
 
 ## 测试
 
@@ -134,6 +134,7 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
   - **返回顶部**：`components/BackToTop.vue` 挂在 `app.vue` 全局，滚动超过 400px 右下角浮现，点击平滑回顶。
   - **头部搜索（与首页大搜索二选一）**：`AppHeader.vue` 仅在首页且向下滚动越过 260px 后淡入紧凑搜索框，同时首页的大搜索淡出隐藏；两处绑定同一份 `useState('calc-search-query')`，关键词与结果实时联动；`UInput` v4 无内置清除属性，改由 `#trailing` 插槽自绘「输入非空时出现」的清除按钮。
   - **GitHub 入口**：`AppHeader` 在明暗切换按钮左侧，按 `runtimeConfig.public.showGithub` 且 `githubUrl` 非空时展示。配置方式二选一：直接改 `nuxt.config.ts` 的 `runtimeConfig.public.githubUrl`，或部署时注入环境变量 `NUXT_PUBLIC_GITHUB_URL`（Nuxt 自动覆盖同名公开配置）。
+  - **侧边栏工具索引**：`components/ToolSidebar.vue` 由 `utils/tools.ts` 注册表驱动，按 10 大分类列出全部工具、当前页高亮；`layouts/tool.vue` 桌面端（≥lg）显示粘性左侧栏，移动端折叠为「工具目录」`<details>` 面板。新增工具注册后侧边栏自动出现，无需额外维护。
 - **视觉**：对齐 Vue 官网（VitePress 默认主题）——正文色 `#213547` / 深色底 `#1b1b1f`，卡片为细边框浅阴影（`GlassCard` 共享组件），导航为置顶半透明毛玻璃条，首页为大字 hero（绿色渐变高亮）。改样式只需调整 `GlassCard.vue` 与 `assets/css/main.css`，各工具页自动继承。
 - **精度**：所有浮点计算经 `utils/number.ts` 的 `roundFloat` 归一，避免 `0.1+0.2` 误差。
 - **货币**：默认内置可手动编辑的汇率表，存 localStorage，无网络请求；结果标注「仅供参考」与最后更新时间。
