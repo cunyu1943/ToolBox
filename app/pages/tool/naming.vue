@@ -29,13 +29,13 @@ const rows = computed(() => {
   const s = input.value.trim()
   if (!s) return []
   return [
-    { label: 'camelCase', value: toCamelCase(s) },
-    { label: 'PascalCase', value: toPascalCase(s) },
-    { label: 'snake_case', value: toSnakeCase(s) },
-    { label: 'kebab-case', value: toKebabCase(s) },
-    { label: 'CONSTANT_CASE', value: toConstantCase(s) },
-    { label: 'Title Case', value: toTitleCase(s) },
-    { label: 'Sentence case', value: toSentenceCase(s) }
+    { label: '驼峰命名法 camelCase', value: toCamelCase(s) },
+    { label: '大驼峰命名法 PascalCase', value: toPascalCase(s) },
+    { label: '蛇形命名法 snake_case', value: toSnakeCase(s) },
+    { label: '连字符命名法 kebab-case', value: toKebabCase(s) },
+    { label: '常量命名法 CONSTANT_CASE', value: toConstantCase(s) },
+    { label: '标题命名法 Title Case', value: toTitleCase(s) },
+    { label: '句首大写 Sentence case', value: toSentenceCase(s) }
   ]
 })
 
