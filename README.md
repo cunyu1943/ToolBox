@@ -129,7 +129,7 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 | 年龄计算器 | `age-tool.ts` | 精确年月日、总天数、下次生日倒计时，2/29 平年按 3/1 计 |
 | HTTP 状态码 | `http-status.ts` | 48 个常见码中英说明速查，码号/名称/中文模糊搜索 + 大类过滤 |
 | 随机数/抽签 | `random-tool.ts` | 区间随机、不重复抽样（部分 Fisher-Yates）、掷骰抛硬币，rng 可注入测试 |
-| 图片 Base64 | `image-base64-tool.ts` | dataURL 解析/字节数估算/可读大小三档，图片不经服务器 |
+| 图片 Base64 | `image-base64-tool.ts` | dataURL 解析/字节数估算/可读大小三档，图片不经服务器；输出截断预览 + 输入解析 300ms 防抖防卡顿 |
 | 生肖星座 | `zodiac-tool.ts` | 12 年循环生肖、12 星座边界日期与四元素，非法月日校验 |
 | ASCII 码表 | `ascii-table.ts` | 0–127 全码位，33 控制字符名+中文说明，支持码号/0x十六进制/字符/名称搜索 |
 | 时间单位换算 | `units.ts`（`timeUnits`）| 纳秒~年实时联动，月按 30 天、年按 365 天近似，性能计时场景 |
