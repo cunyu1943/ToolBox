@@ -356,6 +356,33 @@ export const tools: ToolMeta[] = [
     route: '/tool/contrast',
     category: '颜色',
     keywords: ['对比度', 'wcag', '无障碍', 'accessibility', '前景', '背景', 'contrast']
+  },
+  {
+    key: 'qrcode',
+    name: '二维码生成',
+    desc: '文本/链接生成二维码 SVG，可调纠错等级与颜色并导出 PNG',
+    icon: 'mdi:qrcode',
+    route: '/tool/qrcode',
+    category: '开发',
+    keywords: ['二维码', 'qr', 'qrcode', '扫码', 'svg', 'png', '链接']
+  },
+  {
+    key: 'yaml',
+    name: 'YAML ⇄ JSON',
+    desc: 'js-yaml 严格解析互转，语法错误附行列定位',
+    icon: 'mdi:file-tree',
+    route: '/tool/yaml',
+    category: '开发',
+    keywords: ['yaml', 'json', '互转', '解析', '格式化', '配置']
+  },
+  {
+    key: 'chinese',
+    name: '繁简转换',
+    desc: 'OpenCC 词级双向转换，支持台/港繁体变体',
+    icon: 'mdi:language-chinese',
+    route: '/tool/chinese',
+    category: '文本',
+    keywords: ['繁体', '简体', '繁简', 'opencc', '转换', '中文', 'tw', 'hk']
   }
 ]
 

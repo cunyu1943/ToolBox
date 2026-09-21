@@ -96,7 +96,10 @@ export default defineNuxtConfig({
         '/tool/diff',
         '/tool/html-md',
         '/tool/subnet',
-        '/tool/contrast'
+        '/tool/contrast',
+        '/tool/qrcode',
+        '/tool/yaml',
+        '/tool/chinese'
       ]
     }
   },
