@@ -29,8 +29,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           # postcss-merge-longhand@8.0.4 要求 Node ≥22.11（使用 Set.prototype.difference），
-        # Node 20 会在 pnpm generate 阶段报 trustedFunctions.difference is not a function
-        node-version: 22
+          # Node 20 会在 pnpm generate 阶段报 trustedFunctions.difference is not a function
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
