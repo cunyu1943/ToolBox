@@ -316,7 +316,7 @@ export const tools: ToolMeta[] = [
     key: 'roman',
     name: '罗马数字转换',
     desc: '1~3999 与罗马数字双向转换，拒绝非规范写法',
-    icon: 'mdi:roman-numerals',
+    icon: 'mdi:format-list-numbered',
     route: '/tool/roman',
     category: '数学',
     keywords: ['罗马数字', 'roman', '转换', 'MCMXCIV', '世纪']
@@ -352,7 +352,7 @@ export const tools: ToolMeta[] = [
     key: 'subnet',
     name: '子网划分计算',
     desc: 'CIDR / 掩码求网络地址、广播地址与可用主机区间',
-    icon: 'mdi:subnet',
+    icon: 'mdi:ip-network-outline',
     route: '/tool/subnet',
     category: '开发',
     keywords: ['子网', 'cidr', '掩码', '网段', '广播', 'subnet', '网络']
@@ -388,7 +388,7 @@ export const tools: ToolMeta[] = [
     key: 'chinese',
     name: '繁简转换',
     desc: 'OpenCC 词级双向转换，支持台/港繁体变体',
-    icon: 'mdi:language-chinese',
+    icon: 'mdi:translate',
     route: '/tool/chinese',
     category: '文本',
     keywords: ['繁体', '简体', '繁简', 'opencc', '转换', '中文', 'tw', 'hk']
