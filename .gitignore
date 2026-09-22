@@ -1,8 +1,11 @@
-# Nuxt
-.nuxt/
-.output/
+# Vite
 dist/
 node_modules/
+types/
+
+# 迁移前 Nuxt 时期的本地构建产物（已停止使用，勿提交）
+.nuxt/
+.output/
 
 # Misc
 .DS_Store

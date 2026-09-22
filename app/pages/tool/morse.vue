@@ -30,7 +30,6 @@
 <script setup lang="ts">
 import { morseDecode, morseEncode } from '~/utils/morse'
 
-definePageMeta({ layout: 'tool' })
 
 const toMorse = ref(true)
 const input = ref('SOS')

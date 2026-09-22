@@ -36,7 +36,6 @@
 import { roundFloat } from '~/utils/number'
 import { dailyWaterMl, dailyWaterRangeMl, waterCups } from '~/utils/water'
 
-definePageMeta({ layout: 'tool' })
 
 const weightKg = ref<number | null>(60)
 const exerciseHours = ref<number | null>(0)

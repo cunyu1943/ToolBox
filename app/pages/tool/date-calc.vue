@@ -41,7 +41,6 @@
 <script setup lang="ts">
 import { addDays, daysBetween, diffComponents, weekday } from '~/utils/date-calc'
 
-definePageMeta({ layout: 'tool' })
 
 const today = new Date().toISOString().slice(0, 10)
 const from = ref(today)

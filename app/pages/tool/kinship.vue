@@ -59,7 +59,6 @@
 <script setup lang="ts">
 import { KINSHIP_EXAMPLES, resolveKinship, type KinshipResult } from '~/utils/kinship-data'
 
-definePageMeta({ layout: 'tool' })
 
 const chain = ref('爸爸的姐姐的儿子')
 const reverse = ref(false)

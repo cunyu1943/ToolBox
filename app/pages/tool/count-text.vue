@@ -25,7 +25,6 @@
 <script setup lang="ts">
 import { countText, readingMinutes, type TextStats } from '~/utils/count-text'
 
-definePageMeta({ layout: 'tool' })
 
 const { copy } = useCopy()
 

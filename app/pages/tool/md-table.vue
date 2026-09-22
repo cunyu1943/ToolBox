@@ -40,7 +40,6 @@ import { detectDelimiter, generateMarkdownTable, parseTableInput, type MdAlign }
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const DELIM_ITEMS = [
   { label: '自动探测', value: 'auto' },

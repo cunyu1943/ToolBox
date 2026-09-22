@@ -66,7 +66,6 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
 
 const { query, category, categories, filtered } = useToolSearch()
 const categoryList = categories

@@ -53,7 +53,6 @@
 import { computeInsurance } from '~/utils/social-insurance'
 import { formatNumber } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const base = ref<number | null>(10000)
 const fundRate = ref(12)

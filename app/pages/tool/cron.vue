@@ -54,7 +54,6 @@
 <script setup lang="ts">
 import { CRON_PRESETS, nextRuns, parseCron, type CronField } from '~/utils/cron'
 
-definePageMeta({ layout: 'tool' })
 
 const expr = ref('0 9 * * 1-5')
 const base = ref(new Date())

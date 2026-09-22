@@ -24,7 +24,6 @@
 import { computeInvestment } from '~/utils/investment'
 import { formatNumber } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const principal = ref<number | null>(10000)
 const rate = ref<number | null>(10)

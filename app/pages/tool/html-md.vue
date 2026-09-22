@@ -32,7 +32,6 @@ import { htmlToMarkdown, markdownToHtml } from '~/utils/html-md'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const modes = ['HTML → Markdown', 'Markdown → HTML'] as const
 const mode = ref<string>(modes[0])

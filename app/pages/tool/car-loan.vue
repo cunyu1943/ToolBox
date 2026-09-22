@@ -57,7 +57,6 @@
 import { calcEqualInstallment } from '~/utils/loan'
 import { formatNumber, roundFloat } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const price = ref<number | null>(20) // 万元
 const downPercent = ref(30)

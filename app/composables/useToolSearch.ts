@@ -7,9 +7,10 @@ import type { ToolMeta } from '~/types'
  * - category：当前分类，'全部' 表示不过滤
  * 结果用 computed 缓存，纯前端同步过滤，无副作用。
  */
+/** query 提升为跨组件共享状态：头部搜索框与首页搜索框联动同一份关键词 */
+const query = ref('')
+
 export function useToolSearch() {
-  // query 提升为跨组件共享状态：头部搜索框与首页搜索框联动同一份关键词
-  const query = useState('calc-search-query', () => '')
   const category = ref<'全部' | ToolMeta['category']>('全部')
 
   const filtered = computed(() => {

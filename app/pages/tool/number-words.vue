@@ -17,7 +17,6 @@
 <script setup lang="ts">
 import { toChineseLower, toChineseUpper } from '~/utils/chinese-number'
 
-definePageMeta({ layout: 'tool' })
 
 const value = ref<number | null>(1234.56)
 

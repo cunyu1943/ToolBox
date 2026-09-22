@@ -52,7 +52,6 @@
 import { partOf, percentOf, changePercent } from '~/utils/percent-tool'
 import { formatNumber } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const toNum = (s: string) => (s.trim() === '' ? NaN : Number(s))
 const p1 = ref('15')

@@ -42,7 +42,6 @@
 <script setup lang="ts">
 import { bodyFatLevel, bodyFatLevels, calcBodyFat } from '~/utils/body-fat'
 
-definePageMeta({ layout: 'tool' })
 
 const genderOptions = ['男', '女']
 const genderLabel = ref('男')

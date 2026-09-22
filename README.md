@@ -6,32 +6,32 @@
 
 ## 技术栈
 
-Nuxt 4（SPA，`ssr:false`）· TypeScript (strict) · Nuxt UI v4 · Tailwind CSS v4（CSS-first 主题）· Iconify · Pinia · VueUse
+Vite · Vue 3（SPA，纯客户端渲染）· TypeScript (strict) · Nuxt UI v4（以 `@nuxt/ui/vite` 插件形式接入 Vue 版）· Tailwind CSS v4（CSS-first 主题）· Iconify（图标构建期内联）· vue-router · Pinia · VueUse
+
+> 2026-09 起从 Nuxt 迁移到纯 Vite + Vue 3：去掉 Nitro/服务端与 `.nuxt` 生成物，构建约 5s，产物是标准 `dist/` 静态目录。
 
 ## 本地开发
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:3000
+pnpm dev        # http://localhost:5173
 pnpm test       # 运行 utils 纯函数单元测试（vitest）
 ```
 
 ## 构建与本地预览
 
 ```bash
-pnpm generate   # 产出静态站点到 .output/public/
-pnpm dlx serve .output/public -l 3000
-# 验证子路径：浏览器打开 http://localhost:3000/<repo>/
+pnpm build      # vite build → dist/，再由 scripts/gen-pages.mjs 为每个路由生成 <route>/index.html
+pnpm preview    # 本地静态预览 dist/
 ```
 
-> **已验证**：升级到 Nuxt 4 后，Windows 本地 `pnpm build` / `pnpm generate` 的全部路由预渲染均已跑通
-> （旧版 `@nuxt/icon` 在 Windows + Node ≥ 22.12 的 `createRequire('file:///_entry.js')` 问题已随 Nitro 更新消失）。
-> CI 的 `pnpm generate`（Linux + Node 20）同样正常。
+> **已验证**：`pnpm build` 产出 69 份 HTML（根 + 68 条路由），首页与全部工具页深链直出、零外部请求（图标已在构建期内联）；`pnpm test` 498 例通过。
+> 深链可用的关键：`gen-pages.mjs` 把 `dist/index.html` 按路由复制成目录页，GitHub Pages 才能在没有服务端 rewrite 的情况下返回 `/<repo>/tool/xxx`。
 
 
 ## 部署到 GitHub Pages（自动）
 
-推送 `main` 分支后，GitHub Actions 会执行 `pnpm generate` 并把 `dist/` 发布到 `gh-pages` 分支（也可在 Actions 页手动 `workflow_dispatch` 触发）。
+推送 `main` 分支后，GitHub Actions 会执行 `pnpm build` 并把 `dist/` 发布到 `gh-pages` 分支（也可在 Actions 页手动 `workflow_dispatch` 触发）。
 
 ### 仓库一次性配置
 
@@ -41,34 +41,42 @@ pnpm dlx serve .output/public -l 3000
 
 ### 子路径 baseURL 说明
 
-- 站点地址为 `https://<user>.github.io/<repo>/` 时，`baseURL` 必须是 `/<repo>/`。workflow 已通过环境变量 `NUXT_APP_BASE_URL` 自动注入，无需手动改代码。
-- **两种例外**需把 `NUXT_APP_BASE_URL` 改为 `/`：
+- 站点地址为 `https://<user>.github.io/<repo>/` 时，资源前缀必须是 `/<repo>/`。workflow 已注入 `VITE_BASE_PATH=/<repo>/`，`vite.config.ts` 的 `base` 读取它，无需手动改代码。
+- **两种例外**需把 `VITE_BASE_PATH` 改为 `/`：
   - 仓库是用户/组织站点 `<user>.github.io`；
   - 使用自定义域名（在 `public/CNAME` 放置域名并将 Pages 指向该域名）。
-- `nuxt.config.ts` 已设 `buildAssetsDir: '/assets'`（避开默认 `_nuxt` 下划线目录），workflow 亦对 `.output/public` 执行 `touch .nojekyll`，双重防止 Jekyll 忽略资源导致白屏。
+- `vite.config.ts` 已设 `build.assetsDir: 'assets'`（避开默认 `_nuxt/` 之类的下划线目录），workflow 亦对 `dist/` 执行 `touch .nojekyll`，双重防止 Jekyll 忽略资源导致白屏。
 
 ## 目录结构
 
 ```
-app/                  # Nuxt 4 srcDir，~ 别名指向此目录
-├─ app.config.ts      # 主题：ui.colors.primary=vue 绿
-├─ app.vue            # <UApp> 根容器 + 全局氛围背景
+index.html            # Vite 入口 HTML（挂载 #app、引入 app/main.ts）
+vite.config.ts        # base=VITE_BASE_PATH、~ → app/、@nuxt/ui/vite（含 autoImport/components/icon）
+scripts/gen-pages.mjs # 构建后按 pages 目录生成 <route>/index.html，保证 GitHub Pages 深链可直出
+app/                  # 应用源码，~ 别名指向此目录
+├─ main.ts            # createApp + pinia + router + @nuxt/ui/vue-plugin
+├─ router.ts          # import.meta.glob('./pages/**/*.vue') 生成路由；/tool/ 前缀 → tool 布局；afterEach 设标题
+├─ app.vue            # <UApp> 根容器 + 布局映射（default / tool）+ 全局氛围背景
 ├─ assets/css/main.css# Tailwind v4：@import tailwind + @nuxt/ui，@theme 定义 vue 色板
-├─ components/        # GlassCard / AppHeader / NumberField / ResultPanel ...
-├─ composables/       # useToolSearch / useNumberFormat
-├─ layouts/           # default（首页/关于）· tool（工具页，复用同一 AppHeader，工具标题在内容区顶部）
-├─ pages/tool/*.vue   # 工具页面
+├─ components/        # GlassCard / AppHeader / NumberField / ResultPanel / tools/UnitConverter ...
+├─ composables/       # useToolSearch / useNumberFormat / useCopy
+├─ layouts/           # default.vue · tool.vue（普通组件，用 <slot/> 承载页面）
+├─ pages/*.vue        # index.vue · about.vue
+├─ pages/tool/*.vue   # 工具页面（路由由文件名推导）
 ├─ stores/currency.ts # 可编辑汇率表（localStorage 持久化）
 └─ utils/             # tools 注册表 + 各计算/处理核心纯函数
-nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根）
 ```
+
+> 自动导入：`vue` / `vue-router` / `pinia` / `@vueuse/core` 与 `app/composables`、`app/stores` 由 `@nuxt/ui/vite` 内置的
+> unplugin 提供（声明文件生成到 `types/`，已 gitignore）。**`app/utils` 不在自动导入范围内**——页面必须
+> `import { fn } from '~/utils/xxx'` 显式引入（Nuxt 曾自动导入 utils，迁移后如遗漏会在运行期报 `xxx is not defined`）。
 
 ## 新增一个工具（零成本扩展）
 
-1. 新建 `pages/tool/xxx.vue`（`definePageMeta({ layout: 'tool' })`）。
-2. 在 `utils/tools.ts` 注册表追加一项（名称/图标/路由/分类/关键词）。
-3. 在 `nuxt.config.ts` 的 `nitro.prerender.routes` 增加 `/tool/xxx`。
-4. 把处理逻辑写成 `utils/` 纯函数，并在 `test/` 补单元测试，`pnpm test` 通过后再继续。
+1. 新建 `app/pages/tool/xxx.vue`（无需声明布局：路由名以 `/tool/` 开头即自动套 `tool` 布局）。
+2. 在 `app/utils/tools.ts` 注册表追加一项（名称/图标/路由/分类/关键词）。图标必须是**有效的 mdi 名**：先用 `curl "https://api.iconify.design/mdi.json?icons=<name>"` 确认返回不含该名的 `not_found`，否则页面上会是空白图标。
+3. 无需登记路由：`app/router.ts` 按文件生成分组、`scripts/gen-pages.mjs` 按文件生成深链 HTML。
+4. 把处理逻辑写成 `utils/` 纯函数并在页面显式 `import`，在 `test/` 补单元测试，`pnpm test` 通过后再继续。
 5. 同步更新本 README（功能列表 / 测试覆盖表）。
 
 > 交付节奏约定：每新增一个功能，**先测通再继续**，并**同步更新 README**，避免返工与回归。
@@ -152,10 +160,11 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 ## 设计说明
 
 - **导航与全局交互**：
-  - **Logo 返回首页**：`AppHeader` 的 Logo 是 `<NuxtLink to="/">`，任意页点击均回首页；已在首页时再点平滑回到顶部。
+  - **Logo 返回首页**：`AppHeader` 的 Logo 是 `<RouterLink to="/">`，任意页点击均回首页；已在首页时再点平滑回到顶部。
   - **返回顶部**：`components/BackToTop.vue` 挂在 `app.vue` 全局，滚动超过 400px 右下角浮现，点击平滑回顶。
-  - **头部搜索（与首页大搜索二选一）**：`AppHeader.vue` 仅在首页且向下滚动越过 260px 后淡入紧凑搜索框，同时首页的大搜索淡出隐藏；两处绑定同一份 `useState('calc-search-query')`，关键词与结果实时联动；`UInput` v4 无内置清除属性，改由 `#trailing` 插槽自绘「输入非空时出现」的清除按钮。
-  - **GitHub 入口**：`AppHeader` 在明暗切换按钮左侧，按 `runtimeConfig.public.showGithub` 且 `githubUrl` 非空时展示。配置方式二选一：直接改 `nuxt.config.ts` 的 `runtimeConfig.public.githubUrl`，或部署时注入环境变量 `NUXT_PUBLIC_GITHUB_URL`（Nuxt 自动覆盖同名公开配置）。
+  - **头部搜索（与首页大搜索二选一）**：`AppHeader.vue` 仅在首页且向下滚动越过 260px 后淡入紧凑搜索框，同时首页的大搜索淡出隐藏；两处绑定 `composables/useToolSearch.ts` 里同一个模块级 `query` ref，关键词与结果实时联动；`UInput` v4 无内置清除属性，改由 `#trailing` 插槽自绘「输入非空时出现」的清除按钮。
+  - **GitHub 入口**：`AppHeader` 在明暗切换按钮左侧，`showGithub` 为真且地址非空时展示。地址取 `import.meta.env.VITE_GITHUB_URL`（workflow 自动注入当前仓库），本地未注入时回落到 README 里的仓库地址；清空该变量即隐藏按钮。
+  - **明暗模式**：`ColorModeToggle.vue` 用 VueUse `useDark()`（`localStorage` 键 `vueuse-color-scheme`，跟随系统偏好初始化），`@nuxt/ui/vite` 的 colorMode 插件在应用挂载前把 `.dark` 类写到 `<html>`，因此 Tailwind 的 `dark:` 变体与刷新后一致、无闪烁。
   - **侧边栏工具索引**：`components/ToolSidebar.vue` 由 `utils/tools.ts` 注册表驱动，按 10 大分类列出全部工具、当前页品牌绿高亮，各分类组头可点击折叠/展开（导航到折叠分组内工具时自动展开）；`layouts/tool.vue` 桌面端（≥lg）显示粘性左侧栏，移动端折叠为「工具目录」`<details>` 面板。新增工具注册后侧边栏自动出现，无需额外维护。
 - **视觉**：对齐 Vue 官网（VitePress 默认主题）——正文色 `#213547` / 深色底 `#1b1b1f`，卡片为细边框浅阴影（`GlassCard` 共享组件），导航为置顶半透明毛玻璃条，首页为大字 hero（绿色渐变高亮）。改样式只需调整 `GlassCard.vue` 与 `assets/css/main.css`，各工具页自动继承。
 - **精度**：所有浮点计算经 `utils/number.ts` 的 `roundFloat` 归一，避免 `0.1+0.2` 误差。

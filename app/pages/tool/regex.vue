@@ -38,7 +38,6 @@ import { testRegex } from '~/utils/regex'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const pattern = ref('')
 const flags = ref('g')

@@ -45,7 +45,6 @@
 <script setup lang="ts">
 import { evaluateContrast } from '~/utils/contrast'
 
-definePageMeta({ layout: 'tool' })
 
 const colors = reactive({ fg: '#767676', bg: '#ffffff' })
 const pickers = reactive({ fg: '#767676', bg: '#ffffff' })

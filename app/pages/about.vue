@@ -33,7 +33,7 @@
       </h2>
       <div class="flex flex-wrap gap-2 text-sm">
         <UBadge
-          v-for="t in ['Nuxt 4 (SPA)', 'Vue 3', 'TypeScript (strict)', '@nuxt/ui v4', 'Tailwind CSS v4', 'Iconify', 'Pinia', 'VueUse', 'GitHub Actions → Pages']"
+          v-for="t in ['Vite', 'Vue 3 (SPA)', 'TypeScript (strict)', '@nuxt/ui v4', 'Tailwind CSS v4', 'Iconify', 'Pinia', 'VueUse', 'GitHub Actions → Pages']"
           :key="t"
           :label="t"
           color="neutral"
@@ -52,6 +52,5 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
-useHead({ title: '关于 · ToolBox' })
+// 标题由 router.afterEach 统一设置（关于 · ToolBox）
 </script>

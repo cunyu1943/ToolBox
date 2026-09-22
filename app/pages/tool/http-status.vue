@@ -34,7 +34,6 @@
 <script setup lang="ts">
 import { filterByClass, filterStatuses } from '~/utils/http-status'
 
-definePageMeta({ layout: 'tool' })
 
 const classes = [
   { label: '全部', value: 0 },

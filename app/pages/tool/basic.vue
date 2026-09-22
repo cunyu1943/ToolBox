@@ -34,9 +34,9 @@
 </template>
 
 <script setup lang="ts">
+import { useEventListener } from '@vueuse/core'
 import { initialCalc, press as step, type CalcKey, type CalcState } from '~/utils/calc-basic'
 
-definePageMeta({ layout: 'tool' })
 
 const keys: {
   value: CalcKey

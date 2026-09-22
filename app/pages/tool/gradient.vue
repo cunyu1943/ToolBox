@@ -40,7 +40,6 @@ import { randomHex } from '~/utils/color'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const angle = ref(90)
 const stops = reactive([{ color: '#42b883', pos: 0 }, { color: '#35495e', pos: 100 }])

@@ -53,7 +53,6 @@
 import type { AsciiEntry } from '~/utils/ascii-table'
 import { searchAscii } from '~/utils/ascii-table'
 
-definePageMeta({ layout: 'tool' })
 
 const kinds = [
   { label: '全部', value: '' },

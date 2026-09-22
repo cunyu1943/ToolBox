@@ -29,7 +29,6 @@ import { hexToRgb, rgbToHsl, rgbToHex, formatRgb, formatHsl, randomHex } from '~
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const hex = ref('#4a90d9')
 

@@ -36,31 +36,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate static site
-        run: pnpm generate
+      - name: Build static site
+        run: pnpm build
         env:
-          # GitHub Pages 子路径：<user>.github.io/<repo>/ 需要 baseURL=/<repo>/
+          # GitHub Pages 子路径：<user>.github.io/<repo>/ 需要 base=/<repo>/
           # 若为 <user>.github.io 用户站点或已配置自定义域名/CNAME，请改为 /
-          NUXT_APP_BASE_URL: /${{ github.event.repository.name }}/
-          # 头部 GitHub 入口地址：自动取当前仓库；如需隐藏把 showGithub 设为 false 或删掉此行
-          NUXT_PUBLIC_GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # 头部 GitHub 入口地址：自动取当前仓库；如需隐藏清空此变量
+          VITE_GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}
 
       - name: Verify build output
         # 前置检查：产物缺失直接 fail，避免部署空白页
         run: |
-          if [ ! -f .output/public/index.html ]; then
-            echo "::error::.output/public/index.html 不存在，构建失败"; exit 1
+          if [ ! -f dist/index.html ]; then
+            echo "::error::dist/index.html 不存在，构建失败"; exit 1
           fi
 
       - name: Add .nojekyll
         # 关键：禁用 Jekyll，否则含下划线的资源目录会被忽略导致 404 白屏
-        run: touch .output/public/.nojekyll
+        run: touch dist/.nojekyll
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./.output/public
+          publish_dir: ./dist
           publish_branch: gh-pages
           force_orphan: true
           user_name: github-actions[bot]

@@ -29,7 +29,6 @@ import { formatJson, minifyJson, validateJson, type JsonResult } from '~/utils/j
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const input = ref('')
 const indent = ref(2)

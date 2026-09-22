@@ -39,7 +39,6 @@
 <script setup lang="ts">
 import { chineseZodiac, westernZodiac } from '~/utils/zodiac-tool'
 
-definePageMeta({ layout: 'tool' })
 
 const year = ref<number | null>(null)
 const month = ref<number | null>(null)

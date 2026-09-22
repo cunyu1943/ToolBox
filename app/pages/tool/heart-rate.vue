@@ -37,7 +37,6 @@
 <script setup lang="ts">
 import { heartRateZonesFor } from '~/utils/heart-rate'
 
-definePageMeta({ layout: 'tool' })
 
 const age = ref<number | null>(30)
 const restingHr = ref<number | null>(65)

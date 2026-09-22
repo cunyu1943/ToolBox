@@ -63,8 +63,8 @@
 
 <script setup lang="ts">
 import { useCurrencyStore } from '~/stores/currency'
+import { formatCurrency } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const store = useCurrencyStore()
 

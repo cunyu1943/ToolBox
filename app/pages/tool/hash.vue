@@ -34,7 +34,6 @@ import { HASH_ALGORITHMS, hashText } from '~/utils/hash'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const input = ref('')
 const digests = reactive<Record<string, string>>({})

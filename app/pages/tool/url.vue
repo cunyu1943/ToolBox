@@ -49,7 +49,6 @@
 <script setup lang="ts">
 import { buildUrl, parseUrl, type UrlParts } from '~/utils/url-tool'
 
-definePageMeta({ layout: 'tool' })
 
 const raw = ref('https://example.com:8443/a/b?x=1&y=%E4%BD%A0%E5%A5%BD&x=2#sec')
 const error = ref('')

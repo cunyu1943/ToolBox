@@ -93,7 +93,6 @@ import { calcEqualInstallment, calcEqualPrincipal, scheduleToCsv } from '~/utils
 import type { LoanResult } from '~/types'
 import { formatNumber } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const principal = ref<number | null>(100) // 万元
 const annualRate = ref<number | null>(4.9)

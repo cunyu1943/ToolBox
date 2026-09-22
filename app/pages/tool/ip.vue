@@ -25,7 +25,6 @@ import { isValidIpv4, ipv4ToInt, intToIpv4, ipv4ToHex, ipv4ToBinary } from '~/ut
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const input = ref('192.168.0.1')
 

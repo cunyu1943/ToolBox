@@ -37,7 +37,6 @@ import { ipv4ToInt, intToIpv4 } from '~/utils/ip'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const input = ref('192.168.1.5/24')
 

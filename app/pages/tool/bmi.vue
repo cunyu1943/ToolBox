@@ -73,7 +73,6 @@
 import { bmiLevel, bmiPosition, calcBmi, ftInToCm, healthyWeightRange, lbToKg } from '~/utils/bmi'
 import { roundFloat } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const unitSystem = ref<'metric' | 'imperial'>('metric')
 const unitOptions = [

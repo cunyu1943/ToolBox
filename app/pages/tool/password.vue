@@ -38,7 +38,6 @@ import { generatePassword } from '~/utils/password'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const length = ref(16)
 const lowercase = ref(true)

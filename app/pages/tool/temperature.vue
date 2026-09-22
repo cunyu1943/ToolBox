@@ -23,7 +23,6 @@
 import { convertTempAll, findTempUnit, tempUnits } from '~/utils/temperature'
 import { formatNumber } from '~/utils/number'
 
-definePageMeta({ layout: 'tool' })
 
 const value = ref<number | null>(25)
 const sourceId = ref('C')

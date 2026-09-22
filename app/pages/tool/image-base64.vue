@@ -41,7 +41,6 @@ import { formatBytes, parseDataUrl } from '~/utils/image-base64-tool'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const file = ref<File | null>(null)
 const dataUrl = ref('')

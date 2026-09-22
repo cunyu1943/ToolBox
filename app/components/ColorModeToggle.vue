@@ -10,11 +10,12 @@
 </template>
 
 <script setup lang="ts">
-const colorMode = useColorMode()
-const isDark = computed(() => colorMode.value === 'dark')
+import { useDark } from '@vueuse/core'
+
+const isDark = useDark()
 
 function toggle() {
-  // useColorMode 会持久化选择到 localStorage
-  colorMode.preference = isDark.value ? 'light' : 'dark'
+  // useDark 会持久化选择到 localStorage，并跟随系统偏好初始化
+  isDark.value = !isDark.value
 }
 </script>

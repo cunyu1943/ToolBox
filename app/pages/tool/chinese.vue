@@ -38,7 +38,6 @@ import { convertChinese, PRESETS } from '~/utils/chinese-convert'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const locales: Locale[] = ['cn', 'tw', 'hk']
 const localeNames = ['简体', '繁体（台湾）', '繁体（香港）']

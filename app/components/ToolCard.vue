@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="meta.route" class="group block focus-visible:outline-none">
+  <RouterLink :to="meta.route" class="group block focus-visible:outline-none">
     <GlassCard
       hoverable
       interactive
@@ -24,7 +24,7 @@
         </div>
       </div>
     </GlassCard>
-  </NuxtLink>
+  </RouterLink>
 </template>
 
 <script setup lang="ts">

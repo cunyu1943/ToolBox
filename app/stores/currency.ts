@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { DEFAULT_CURRENCIES, DEFAULT_UPDATED, type Currency } from '~/utils/currency-rates'
 

@@ -25,7 +25,6 @@ import { toHalfWidth, toFullWidth } from '~/utils/fullwidth'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const input = ref('')
 const output = ref('')

@@ -34,7 +34,6 @@
 import type { EcLevel } from '~/utils/qrcode-tool'
 import { generateQrPngDataUrl, generateQrSvg } from '~/utils/qrcode-tool'
 
-definePageMeta({ layout: 'tool' })
 
 const levels: EcLevel[] = ['L', 'M', 'Q', 'H']
 const input = ref('https://github.com/cunyu1943/ToolBox')

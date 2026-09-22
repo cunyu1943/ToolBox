@@ -40,7 +40,6 @@
 <script setup lang="ts">
 import { activityLevels, calcBmr, calcTdee } from '~/utils/bmr'
 
-definePageMeta({ layout: 'tool' })
 
 const genderOptions = ['男', '女']
 const activityOptions = activityLevels.map((a) => a.label)

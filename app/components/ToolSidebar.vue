@@ -15,7 +15,7 @@
         />
       </button>
       <div v-show="!collapsed.has(group.name)" class="space-y-0.5">
-        <NuxtLink
+        <RouterLink
           v-for="tool in group.items"
           :key="tool.key"
           :to="tool.route"
@@ -27,7 +27,7 @@
           "
         >
           {{ tool.name }}
-        </NuxtLink>
+        </RouterLink>
       </div>
     </div>
   </nav>

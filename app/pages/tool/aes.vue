@@ -43,7 +43,6 @@ import { decryptText, encryptText } from '~/utils/aes-tool'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const mode = ref<'enc' | 'dec'>('enc')
 const password = ref('')

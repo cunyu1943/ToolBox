@@ -58,7 +58,6 @@ import {
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 type Type = 'base64' | 'base32' | 'url' | 'html' | 'unicode'
 const types: { value: Type; label: string }[] = [

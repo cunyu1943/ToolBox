@@ -68,7 +68,6 @@
 <script setup lang="ts">
 import { analyzePassword } from '~/utils/password-strength'
 
-definePageMeta({ layout: 'tool' })
 
 const password = ref('')
 const visible = ref(false)

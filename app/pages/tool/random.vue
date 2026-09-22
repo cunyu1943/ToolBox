@@ -46,7 +46,6 @@
 <script setup lang="ts">
 import { flipCoins, pickUnique, randInt, rollDice } from '~/utils/random-tool'
 
-definePageMeta({ layout: 'tool' })
 
 const minN = ref(1)
 const maxN = ref(100)

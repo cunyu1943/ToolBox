@@ -43,7 +43,6 @@
 import type { AgeResult } from '~/utils/age-tool'
 import { calcAge, parseDate } from '~/utils/age-tool'
 
-definePageMeta({ layout: 'tool' })
 
 const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
 

@@ -41,7 +41,6 @@
 <script setup lang="ts">
 import { fromRoman, toRoman } from '~/utils/roman'
 
-definePageMeta({ layout: 'tool' })
 
 const numberInput = ref('1994')
 const romanInput = ref('MMXXVI')

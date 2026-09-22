@@ -101,7 +101,6 @@ import {
   type RadixKey
 } from '~/utils/programmer'
 
-definePageMeta({ layout: 'tool' })
 
 const WORD_SIZES = [8, 16, 32, 64] as const
 type Bits = (typeof WORD_SIZES)[number]

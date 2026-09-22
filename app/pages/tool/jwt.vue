@@ -30,7 +30,6 @@ import { parseJwt, describeJwtTime } from '~/utils/jwt'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const token = ref('')
 const parsed = computed(() => parseJwt(token.value))

@@ -47,7 +47,6 @@ import { diffLines, toUnifiedDiff } from '~/utils/diff'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const oldText = ref('')
 const newText = ref('')

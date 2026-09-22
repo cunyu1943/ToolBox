@@ -47,7 +47,6 @@ import { csvToJson, jsonToCsv } from '~/utils/csv'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 type Mode = 'csv2json' | 'json2csv'
 const modes: { value: Mode; label: string }[] = [

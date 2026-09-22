@@ -32,7 +32,6 @@ import { newUuid } from '~/utils/uuid'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const count = ref(5)
 const upper = ref(false)

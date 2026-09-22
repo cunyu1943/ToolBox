@@ -33,7 +33,6 @@ import { jsonToYaml, yamlToJson } from '~/utils/yaml-tool'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const modes = ['YAML → JSON', 'JSON → YAML'] as const
 const mode = ref<string>(modes[0])

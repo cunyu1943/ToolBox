@@ -3,7 +3,7 @@
     <div
       class="mx-auto flex items-center gap-3 px-4 py-3 max-w-6xl sm:px-6"
     >
-      <NuxtLink to="/" class="flex shrink-0 items-center gap-2 focus-visible:outline-none" @click="onLogoClick">
+      <RouterLink to="/" class="flex shrink-0 items-center gap-2 focus-visible:outline-none" @click="onLogoClick">
         <span
           class="grid h-9 w-9 place-items-center rounded-lg bg-vue-500 text-white"
         >
@@ -12,7 +12,7 @@
         <span class="text-lg font-semibold tracking-tight text-vue-ink dark:text-white">
           ToolBox
         </span>
-      </NuxtLink>
+      </RouterLink>
 
       <!-- 紧凑搜索：仅首页且向下滚动后出现，与首页大搜索二选一（共享 query） -->
       <div
@@ -79,12 +79,13 @@ const isHome = computed(() => route.name === 'index')
 // 越过阈值后首页大搜索已滚离视口，此处补上头部搜索，二者不同时出现
 const showSearch = computed(() => isHome.value && y.value > 260)
 
-// 点击 logo：非首页由 NuxtLink 跳转回顶；已在首页则平滑回到顶部
+// 点击 logo：非首页由 RouterLink 跳转回顶；已在首页则平滑回到顶部
 function onLogoClick() {
   if (isHome.value) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-const cfg = useRuntimeConfig().public
+// 运行时公开配置改由 Vite env 注入（CI 设 VITE_GITHUB_URL），未配置时用默认仓库地址
+const cfg = { showGithub: true, githubUrl: import.meta.env.VITE_GITHUB_URL || 'https://github.com/cunyu1943/ToolBox' }
 const githubUrl = computed(() => String(cfg.githubUrl || ''))
 const showGithub = computed(() => Boolean(cfg.showGithub) && githubUrl.value.length > 0)
 </script>

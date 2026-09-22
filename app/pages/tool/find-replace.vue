@@ -43,7 +43,6 @@
 <script setup lang="ts">
 import { replaceAll, type ReplaceResult } from '~/utils/find-replace'
 
-definePageMeta({ layout: 'tool' })
 
 const { copy } = useCopy()
 

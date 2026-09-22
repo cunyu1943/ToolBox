@@ -151,7 +151,6 @@ import { formatInZone, TIMEZONES, zonedStringToMs } from '~/utils/timezone'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const fieldCls =
   'min-h-[2.5rem] flex-1 rounded-lg border border-slate-200/70 bg-slate-50 px-3 py-2 text-sm tabular-nums text-slate-800 dark:border-white/10 dark:bg-white/5 dark:text-slate-100'

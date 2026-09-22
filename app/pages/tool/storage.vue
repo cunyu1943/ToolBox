@@ -10,5 +10,4 @@
 <script setup lang="ts">
 import { storageUnits } from '~/utils/units'
 
-definePageMeta({ layout: 'tool' })
 </script>

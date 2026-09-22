@@ -28,7 +28,6 @@ import { jsonToTs } from '~/utils/json-ts'
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const EXAMPLE = '{"id":101,"name":"工具箱","vip":true,"tags":[{"key":"dev","weight":5},{"key":"life","weight":3}],"address":{"city":"杭州","zip":null}}'
 

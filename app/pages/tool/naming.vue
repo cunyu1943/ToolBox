@@ -24,7 +24,6 @@ import { toCamelCase, toPascalCase, toSnakeCase, toKebabCase, toConstantCase, to
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const input = ref('')
 const rows = computed(() => {

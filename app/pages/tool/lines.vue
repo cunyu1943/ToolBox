@@ -40,7 +40,6 @@ import {
 
 const { copy: copyWithToast } = useCopy()
 
-definePageMeta({ layout: 'tool' })
 
 const input = ref('')
 const output = ref('')

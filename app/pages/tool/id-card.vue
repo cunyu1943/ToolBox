@@ -50,7 +50,6 @@
 <script setup lang="ts">
 import { parseIdCard, type IdCardInfo } from '~/utils/id-card'
 
-definePageMeta({ layout: 'tool' })
 
 const EXAMPLE = '110105199001010010'
 

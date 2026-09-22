@@ -21,7 +21,6 @@
 <script setup lang="ts">
 import { allocate, diskPresets, formatCapacity } from '~/utils/disk-partition'
 
-definePageMeta({ layout: 'tool' })
 
 const totalGb = ref<number | null>(512)
 const presetId = ref('balanced')
