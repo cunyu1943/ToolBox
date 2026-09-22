@@ -559,7 +559,7 @@ export const tools: ToolMeta[] = [
     key: 'id-card',
     name: '身份证验证',
     desc: '校验位核验并解析出生日期、性别、年龄、归属地码',
-    icon: 'mdi:card-account-id-outline',
+    icon: 'mdi:card-account-details-outline',
     route: '/tool/id-card',
     category: '生活',
     keywords: ['身份证', '校验位', '归属地', '性别', '出生', 'idcard']
