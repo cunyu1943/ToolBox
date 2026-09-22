@@ -119,7 +119,8 @@ export default defineNuxtConfig({
         '/tool/area-units',
         '/tool/speed-units',
         '/tool/count-text',
-        '/tool/id-card'
+        '/tool/id-card',
+        '/tool/find-replace'
       ]
     }
   },

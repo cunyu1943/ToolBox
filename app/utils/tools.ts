@@ -563,6 +563,15 @@ export const tools: ToolMeta[] = [
     route: '/tool/id-card',
     category: '生活',
     keywords: ['身份证', '校验位', '归属地', '性别', '出生', 'idcard']
+  },
+  {
+    key: 'find-replace',
+    name: '文本查找替换',
+    desc: '批量查找替换，支持正则分组、大小写敏感与全字匹配',
+    icon: 'mdi:find-replace',
+    route: '/tool/find-replace',
+    category: '文本',
+    keywords: ['查找', '替换', 'replace', '正则', 'find', '批量', '全字']
   }
 ]
 
