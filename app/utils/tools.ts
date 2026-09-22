@@ -527,6 +527,42 @@ export const tools: ToolMeta[] = [
     route: '/tool/md-table',
     category: '文本',
     keywords: ['markdown', '表格', 'md', 'table', 'csv', 'tab']
+  },
+  {
+    key: 'area-units',
+    name: '面积单位换算',
+    desc: '平方米/公顷/亩/英亩等面积单位实时换算，1 公顷 = 15 亩',
+    icon: 'mdi:rectangle-outline',
+    route: '/tool/area-units',
+    category: '单位换算',
+    keywords: ['面积', '平方米', '公顷', '亩', '英亩', '单位', '换算']
+  },
+  {
+    key: 'speed-units',
+    name: '速度单位换算',
+    desc: 'km/h、mph、节等速度单位互转，车速与风速常用',
+    icon: 'mdi:speedometer',
+    route: '/tool/speed-units',
+    category: '单位换算',
+    keywords: ['速度', '公里', 'mph', '节', 'kn', '单位', '换算']
+  },
+  {
+    key: 'count-text',
+    name: '字数统计',
+    desc: '字符/中文/英文单词/行/句/段计数，估算阅读时长',
+    icon: 'mdi:counter',
+    route: '/tool/count-text',
+    category: '文本',
+    keywords: ['字数', '字符', '统计', '词数', 'word', 'count', '阅读时长']
+  },
+  {
+    key: 'id-card',
+    name: '身份证验证',
+    desc: '校验位核验并解析出生日期、性别、年龄、归属地码',
+    icon: 'mdi:card-account-id-outline',
+    route: '/tool/id-card',
+    category: '生活',
+    keywords: ['身份证', '校验位', '归属地', '性别', '出生', 'idcard']
   }
 ]
 

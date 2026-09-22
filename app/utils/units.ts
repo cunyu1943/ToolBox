@@ -79,6 +79,31 @@ export const timeUnits: Unit[] = [
   { id: 'yr', label: '年（365天）', factor: 31536000 }
 ]
 
+/** 面积：基准单位为平方米(m²)；1 公顷=10000m²、1 亩=2000/3 m²（1 公顷=15 亩） */
+export const areaUnits: Unit[] = [
+  { id: 'mm2', label: '平方毫米 mm²', factor: 1e-6 },
+  { id: 'cm2', label: '平方厘米 cm²', factor: 1e-4 },
+  { id: 'm2', label: '平方米 m²', factor: 1 },
+  { id: 'ha', label: '公顷 ha', factor: 10_000 },
+  { id: 'mu', label: '亩', factor: 2000 / 3 },
+  { id: 'km2', label: '平方千米 km²', factor: 1e6 },
+  { id: 'acre', label: '英亩 acre', factor: 4046.8564224 },
+  { id: 'in2', label: '平方英寸 in²', factor: 0.00064516 },
+  { id: 'ft2', label: '平方英尺 ft²', factor: 0.09290304 },
+  { id: 'yd2', label: '平方码 yd²', factor: 0.83612736 }
+]
+
+/** 速度：基准单位为米/秒(m/s) */
+export const speedUnits: Unit[] = [
+  { id: 'ms', label: '米/秒 m/s', factor: 1 },
+  { id: 'kmh', label: '千米/时 km/h', factor: 1000 / 3600 },
+  { id: 'mph', label: '英里/时 mph', factor: 1609.344 / 3600 },
+  { id: 'kn', label: '节 kn（海里/时）', factor: 1852 / 3600 },
+  { id: 'fts', label: '英尺/秒 ft/s', factor: 0.3048 },
+  { id: 'kms', label: '千米/秒 km/s', factor: 1000 },
+  { id: 'min', label: '米/分 m/min', factor: 1 / 60 }
+]
+
 /** 按 id 查找单位 */
 export function findUnit(list: Unit[], id: string): Unit | undefined {
   return list.find((u) => u.id === id)

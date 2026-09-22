@@ -115,7 +115,11 @@ export default defineNuxtConfig({
         '/tool/json-ts',
         '/tool/password-strength',
         '/tool/percent',
-        '/tool/md-table'
+        '/tool/md-table',
+        '/tool/area-units',
+        '/tool/speed-units',
+        '/tool/count-text',
+        '/tool/id-card'
       ]
     }
   },

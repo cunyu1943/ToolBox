@@ -2,7 +2,7 @@
 
 ![Deploy](https://github.com/<user>/<repo>/actions/workflows/deploy.yml/badge.svg)
 
-纯前端、无后端、隐私友好的在线工具箱。当前共 **58 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币/存储单位/时间单位）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、MD5+SHA 哈希、JSON/XML 格式化、JSON 转 TS 接口、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、密码强度检查、AES 加解密、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON、Unicode 转义、HTTP 状态码速查、图片⇄Base64、ASCII 码表）、文本处理（大小写、去重排序统计、行文本处理、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换、Markdown 表格生成）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、百分比计算、BMI、亲戚称谓、硬盘分区、罗马数字转换、年龄计算器、生肖星座查询、随机数/抽签生成器）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
+纯前端、无后端、隐私友好的在线工具箱。当前共 **62 个工具 / 10 大分类**，涵盖数据换算（长度/温度/质量/容量/货币/存储单位/时间单位/面积单位/速度单位）、开发编码（程序员进制、时间戳、日期计算、数字大写、Base64/Base32/URL/HTML/Unicode 编码、MD5+SHA 哈希、JSON/XML 格式化、JSON 转 TS 接口、CSV⇄JSON、JWT 解析、UUID 生成、随机密码、密码强度检查、AES 加解密、IP 地址进制转换、URL 解析构建、Cron 表达式解析、子网划分计算、二维码生成、YAML⇄JSON、Unicode 转义、HTTP 状态码速查、图片⇄Base64、ASCII 码表）、文本处理（大小写、去重排序统计、字数统计、行文本处理、命名风格转换、正则测试、全角半角转换、摩尔斯电码、文本差异对比、HTML⇄Markdown、繁简转换、Markdown 表格生成）、颜色设计（HEX/RGB/HSL 转换、CSS 渐变生成、WCAG 对比度检查）与财务/生活/数学工具（房贷/车贷/投资收益/五险一金、标准计算、百分比计算、BMI、亲戚称谓、硬盘分区、罗马数字转换、年龄计算器、生肖星座查询、随机数/抽签生成器、身份证解析）。UI 参考 [Vue 官网（VitePress 默认主题）](https://cn.vuejs.org/) 的干净观感：白/深色纯净底、细边框卡片、品牌绿点缀、首页大标题 hero + 明暗双模式，完全响应式，推送即自动发布到 GitHub Pages。
 
 ## 技术栈
 
@@ -137,8 +137,12 @@ nuxt.config.ts        # ssr:false、baseURL、prerender 路由（位于项目根
 | 密码强度检查 | `password-strength.ts` | 熵估算（长度×log2字符集）、弱口令/连续/键盘序列/重复段惩罚、0~4 级评分 |
 | 百分比计算器 | `percent-tool.ts` | 求百分比/占比/增减幅三问，除零与非法输入防护，浮点归一 |
 | Markdown 表格生成 | `markdown-table.ts` | Tab/CSV/分号/竖线/连续空格自动识别、复用 parseCsv、逐列对齐、竖线转义、换行转 `<br>`、源码补白 |
+| 面积单位换算 | `units.ts`（`areaUnits`）| m²/公顷/亩/km²/英亩/ft² 实时联动，1 公顷=10000m²=15 亩 |
+| 速度单位换算 | `units.ts`（`speedUnits`）| m/s、km/h、mph、节、ft/s 互转，1 节≈1.852 km/h |
+| 字数统计 | `count-text.ts` | 字符/中文/英文词/行/句/段计数（码点级，emoji 计 1），阅读时长估算，300ms 防抖 |
+| 身份证验证 | `id-card.ts` | GB 11643 校验位核验、出生日期/性别/年龄/归属地码解析，非法日期拦截 |
 
-> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 458 例通过），页面组件直接调用，测试与线上代码同源。
+> 全部工具的核心逻辑均为 `utils/` 纯函数（`pnpm test` 共 473 例通过），页面组件直接调用，测试与线上代码同源。
 
 ## 设计说明
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { roundFloat, formatNumber, formatCurrency, formatPercent } from '~/utils/number'
 import { calcEqualInstallment, calcEqualPrincipal } from '~/utils/loan'
-import { weightUnits, volumeUnits, storageUnits, timeUnits, convertUnit, convertAll, findUnit } from '~/utils/units'
+import { weightUnits, volumeUnits, storageUnits, timeUnits, areaUnits, speedUnits, convertUnit, convertAll, findUnit } from '~/utils/units'
 import { calcBmi, bmiLevel, healthyWeightRange, ftInToCm, lbToKg, bmiPosition } from '~/utils/bmi'
 import { resolveKinship } from '~/utils/kinship-data'
 
@@ -94,6 +94,25 @@ describe('utils/units 单位换算', () => {
     const yr = findUnit(timeUnits, 'yr')!
     expect(convertUnit(1, yr, d)).toBeCloseTo(365, 6)
     expect(convertAll(timeUnits, 'min', 1).ms).toBe(60000)
+  })
+  it('面积 1ha=10000m²、1km²=1e6m²、1亩≈666.667m²、1m²=10000cm²', () => {
+    const ha = findUnit(areaUnits, 'ha')!
+    const m2 = findUnit(areaUnits, 'm2')!
+    expect(convertUnit(1, ha, m2)).toBe(10000)
+    expect(convertUnit(1, findUnit(areaUnits, 'km2')!, m2)).toBe(1e6)
+    expect(convertUnit(1, findUnit(areaUnits, 'mu')!, m2)).toBeCloseTo(666.6666667, 6)
+    expect(convertUnit(1, m2, findUnit(areaUnits, 'cm2')!)).toBe(10000)
+    const all = convertAll(areaUnits, 'm2', 1)
+    expect(all.m2).toBe(1)
+    expect(all.mu).toBeCloseTo(0.0015, 9)
+  })
+  it('速度 1m/s=3.6km/h、1km/h≈0.2778m/s、1kn≈0.5144m/s、1mph=0.44704m/s', () => {
+    const ms = findUnit(speedUnits, 'ms')!
+    const kmh = findUnit(speedUnits, 'kmh')!
+    expect(convertUnit(1, ms, kmh)).toBeCloseTo(3.6, 6)
+    expect(convertUnit(1, kmh, ms)).toBeCloseTo(0.2777777778, 9)
+    expect(convertUnit(1, findUnit(speedUnits, 'kn')!, ms)).toBeCloseTo(0.5144444444, 9)
+    expect(convertUnit(1, findUnit(speedUnits, 'mph')!, ms)).toBeCloseTo(0.44704, 9)
   })
 })
 
