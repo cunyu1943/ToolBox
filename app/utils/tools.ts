@@ -572,6 +572,42 @@ export const tools: ToolMeta[] = [
     route: '/tool/find-replace',
     category: '文本',
     keywords: ['查找', '替换', 'replace', '正则', 'find', '批量', '全字']
+  },
+  {
+    key: 'bmr',
+    name: '基础代谢率',
+    desc: 'Mifflin-St Jeor 公式估算 BMR 与每日总消耗 TDEE',
+    icon: 'mdi:fire',
+    route: '/tool/bmr',
+    category: '健康',
+    keywords: ['基础代谢', 'BMR', 'TDEE', '热量', '消耗', '减肥']
+  },
+  {
+    key: 'body-fat',
+    name: '体脂率计算',
+    desc: 'Deurenberg 公式估算体脂率，按 ACE 标准分级',
+    icon: 'mdi:chart-donut',
+    route: '/tool/body-fat',
+    category: '健康',
+    keywords: ['体脂', '脂肪', 'body fat', 'DEURENBERG', '分级']
+  },
+  {
+    key: 'water-intake',
+    name: '每日饮水量',
+    desc: '按体重与运动量计算每日建议饮水量并换算杯数',
+    icon: 'mdi:water',
+    route: '/tool/water-intake',
+    category: '健康',
+    keywords: ['饮水', '喝水', '水量', '杯', '运动']
+  },
+  {
+    key: 'heart-rate',
+    name: '靶心率区间',
+    desc: 'Karvonen 储备心率法计算五档运动心率区间',
+    icon: 'mdi:heart-pulse',
+    route: '/tool/heart-rate',
+    category: '健康',
+    keywords: ['心率', '靶心率', '燃脂', '有氧', 'Karvonen', '最大心率']
   }
 ]
 
