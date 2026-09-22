@@ -1,0 +1,1 @@
+import{$ as e,H as t,Qn as n,Rt as r}from"./useFieldGroup-D7L86bUW.js";import{a as i,t as a}from"./UnitConverter-_WvpzMcK.js";var o=e({__name:`storage`,setup(e){return(e,o)=>{let s=a;return r(),t(s,{units:n(i),title:`存储换算`,"default-id":`GB`,note:`十进制 SI（KB=1000B，硬盘厂商标法）与二进制 IEC（KiB=1024B，系统显示）并列展示，1 字节 = 8 位。`},null,8,[`units`])}}});export{o as default};

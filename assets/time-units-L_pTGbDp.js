@@ -1,0 +1,1 @@
+import{$ as e,H as t,Qn as n,Rt as r}from"./useFieldGroup-D7L86bUW.js";import{o as i,t as a}from"./UnitConverter-_WvpzMcK.js";var o=e({__name:`time-units`,setup(e){return(e,o)=>{let s=a;return r(),t(s,{units:n(i),title:`时间换算`,"default-id":`h`,note:`月按 30 天、年按 365 天近似（不含闰年与日历月差异）；纳秒/微秒适合性能计时场景。`},null,8,[`units`])}}});export{o as default};

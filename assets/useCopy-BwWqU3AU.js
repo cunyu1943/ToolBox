@@ -1,0 +1,1 @@
+import{i as e}from"./index-7EoacLf9.js";function t(){let t=e();async function n(e){if(e)try{await navigator.clipboard.writeText(e),t.add({title:`已复制到剪贴板`,color:`success`,icon:`i-lucide-circle-check`,duration:2e3})}catch{t.add({title:`复制失败，请手动选择复制`,color:`error`,icon:`i-lucide-circle-x`,duration:2e3})}}return{copy:n}}export{t};

@@ -1,0 +1,1 @@
+import{$ as e,H as t,Qn as n,Rt as r}from"./useFieldGroup-D7L86bUW.js";import{i,t as a}from"./UnitConverter-_WvpzMcK.js";var o=e({__name:`speed-units`,setup(e){return(e,o)=>{let s=a;return r(),t(s,{units:n(i),title:`速度换算`,"default-id":`kmh`,note:`1 节 = 1 海里/时 ≈ 1.852 km/h；mph 为英里/时，常用于车速与风速。`},null,8,[`units`])}}});export{o as default};

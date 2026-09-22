@@ -1,0 +1,1 @@
+import{$ as e,H as t,Qn as n,Rt as r}from"./useFieldGroup-D7L86bUW.js";import{c as i,t as a}from"./UnitConverter-_WvpzMcK.js";var o=e({__name:`weight`,setup(e){return(e,o)=>{let s=a;return r(),t(s,{units:n(i),title:`质量换算`,"default-id":`kg`,note:`换算采用国际标准定义：1 磅 = 0.45359237 千克，1 市斤 = 0.5 千克。结果保留高精度，末尾 0 已省略。`},null,8,[`units`])}}});export{o as default};

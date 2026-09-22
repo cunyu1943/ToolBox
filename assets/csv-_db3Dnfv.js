@@ -1,0 +1,6 @@
+function e(e,t=`,`){let n=[],r=[],i=``,a=!1,o=()=>{r.push(i),i=``},s=()=>{o(),n.push(r),r=[]};for(let n=0;n<e.length;n++){let r=e[n];a?r===`"`?e[n+1]===`"`?(i+=`"`,n++):a=!1:i+=r:r===`"`?a=!0:r===t?o():r===`
+`?s():r===`\r`?e[n+1]!==`
+`&&s():i+=r}return(i.length>0||r.length>0)&&s(),n.filter(e=>e.length!==1||e[0]!==``)}function t(t,{delimiter:n=`,`,header:r=!0}={}){let i=e(t,n);if(!r)return JSON.stringify(i,null,2);if(i.length===0)return JSON.stringify([],null,2);let a=i[0],o=i.slice(1).map(e=>{let t={};return a.forEach((n,r)=>{t[n]=e[r]??``}),t});return JSON.stringify(o,null,2)}function n(e,t){let n=e==null?``:String(e);return n.includes(`"`)||n.includes(t)||n.includes(`
+`)||n.includes(`\r`)?`"`+n.replace(/"/g,`""`)+`"`:n}function r(e){let t=JSON.parse(e);if(!Array.isArray(t))throw Error(`顶层需为数组`);if(t.length===0)return``;if(Array.isArray(t[0]))return t.map(e=>e.map(e=>n(e,`,`)).join(`,`)).join(`
+`);let r=t,i=[...new Set(r.flatMap(e=>Object.keys(e??{})))],a=i.map(e=>n(e,`,`)).join(`,`),o=r.map(e=>i.map(t=>n(e?.[t],`,`)).join(`,`)).join(`
+`);return o?`${a}\n${o}`:a}export{r as n,e as r,t};

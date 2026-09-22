@@ -1,0 +1,1 @@
+import{$ as e,H as t,Qn as n,Rt as r}from"./useFieldGroup-D7L86bUW.js";import{r as i,t as a}from"./UnitConverter-_WvpzMcK.js";var o=e({__name:`length`,setup(e){return(e,o)=>{let s=a;return r(),t(s,{units:n(i),title:`长度换算`,"default-id":`m`,note:`英制与国际标准定义：1 英寸 = 2.54 厘米，1 英尺 = 12 英寸；1 市尺 = 1/3 米。结果保留高精度，末尾 0 已省略。`},null,8,[`units`])}}});export{o as default};
