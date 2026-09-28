@@ -125,6 +125,7 @@ toolbox/
 ├─ vite.config.ts             # vue + tailwindcss + @nuxt/ui/vite + staticHosting 四个插件、颜色别名、~ 别名
 ├─ pnpm-workspace.yaml        # nodeLinker: hoisted（Nuxt UI 子路径解析必需）
 ├─ .npmrc                     # node-linker=hoisted
+├─ LICENSE                    # MIT 文本 + 文末的第三方数据出处（见「四、License」）
 ├─ public/                    # favicon.svg（由 lucide:toolbox 生成的品牌图标）、.nojekyll
 ├─ scripts/                   # 构建期代码生成器（不参与 `pnpm build`）：`gen-chinese-variant-table.mjs` 是繁简字表 `src/tools/chinese-variant/table.ts` 的唯一来源，见「繁简转换的字表是怎么来的」
 ├─ types/                     # 由插件生成的自动导入 / 组件类型声明
@@ -619,11 +620,13 @@ VITE_BASE_PATH=/ToolBox/ pnpm build
 
 90. **同源 iframe 探针的两条「假通过」：路径写成 `index.html` 会量到 404 页；Vite 打印的 gzip 列不能用 node 复现**（本轮 390/1280 复测撞的第一条，第二条是体积表口径）。① 预览服务对 `/tools/rmb-uppercase/index.html` 这个 URL **能把文件读出来**（静态资源解析），但 Vue 路由按 `/tools/<id>` 匹配、把带 `index.html` 的路径判成 **404** —— 于是 `documentElement.scrollWidth - innerWidth` 依然是 0、`overflowing` 依然是空数组，**两轮三档的「全绿」量的是一页 404 文案**。而且第一次我还把 `src` 写成 `/toolbox/tools/...`（把线上子目录当成了本地预览前缀，本地 `base:'/'`），那次同样是 0 溢出。**判据必须落在页面内容上**：本轮之后固定加一条 `querySelectorAll('input').length === 2` 与「读法段落文本命中」，再报溢出数字；`src` 用目录形式 `/tools/<id>/`。相关：坑 73、80 那几条讲的都是「探针自己坏了」，本条的区别是**它坏了却返回一个看起来正确的绿灯**，所以比假失败更危险。② 体积表里 Vite 打印的那一列 gzip **不等于** node 的任何一档：入口 `index-*.js` 本轮 Vite 打 80.90，而同一份字节 `zlib.gzipSync(level 9)` = 80.02、默认档 = 80.32（CSS 同：打 28.56 / l9 28.13 / 默认 28.45）。所以**两列不能互相对账**，也不能因为「复算比打印小」就怀疑构建变了 —— 本表以 zlib-9 那列为准（合计也按它求和），Vite 那一列只是抄构建日志。
 
+91. **根目录新增文本文件必须重量一次 CSS：`LICENSE` 实测零影响，而 `README.md` 当年贡献了 1757 B 死规则**（坑 84 的续集，只登记测量结果，机制没去读源码确认）。给仓库补 `LICENSE`（**无扩展名**）并在 `package.json` 加 `"license": "MIT"` 之后跑了一次 `pnpm build` 对账：入口 `index-Cpb9IUeD.js` **269 786 B**、`Badge-Bb9Ha2OK.js` **244 668 B**、`index-DYL3WmTt.css` **216 816 B**、三个 preload **8075 / 293 / 1137** —— 六项**文件名与字节全部与补文件之前相同**（首屏合计 740 775 B / zlib-9 198 061 B，`dist/tools/` 仍 63 份壳），即 Tailwind 没把 `LICENSE` 当内容源。同一目录下的 `README.md` 与 `.github/**` 却是**会被扫的**（那 1757 B 死规则的来源见坑 84，靠 `src/assets/css/main.css` 里 `@source not "../../../README.md"` 这类显式排除解决）。**所以「无扩展名的文件不被扫」是观测到的差异，不是查证过的规则**，别把它推成「加任何根目录文本都安全」：往里丢文本文件之后，按坑 61 的口径量一次 CSS 字节（或做「带 / 不带各 build 一次」的 A/B），真发现进了 CSS 就照那三行 `@source not` 的写法补第四条。
+
 ## 四、License
 
-**当前仓库还没有 `LICENSE` 文件，`package.json` 也没有 `license` 字段（而且标着 `"private": true`）。** 按著作权的默认规则，这意味着**保留所有权利**：别人（也包括未来的自己把它开源出去）拿去用或改，严格来说都缺授权。所以这一节现在只能记录「事实与出处」，不能替站点宣布许可证；真要开放，先补一份 `LICENSE` 文件、把 `package.json` 的 `license` 一并填上，再回来更新本节。
+**许可证：MIT。** 仓库根目录的 `LICENSE` 是标准 MIT 文本（版权人 `cunyu1943`，年份 2026），文末还附了一段第三方数据的出处声明；`package.json` 同步写了 `"license": "MIT"`。`"private": true` **保留**着 —— 它只用来挡住 `pnpm publish` 手滑把站点发到 npm，既不影响 GitHub 识别许可证，也不影响任何人按 MIT 使用这份代码。要改署名或换许可证，改 `LICENSE` 首行的版权人 + `package.json` 的 `license` 字段，然后回到本节同步。
 
-自研部分之外，本站实际依赖的代码与数据如下（版本号与 `license` 字段都是从 `node_modules/*/package.json` 实读的，`pnpm-lock.yaml` 为锁定来源）：
+MIT 覆盖的是**本仓库自研的源码**，下面那张表和两处出处它一概不改写（版本号与 `license` 字段都是从 `node_modules/*/package.json` 实读的，`pnpm-lock.yaml` 为锁定来源）：
 
 | 依赖 | 装到的版本 | 许可证 | 用途 |
 | --- | --- | --- | --- |
@@ -639,7 +642,7 @@ VITE_BASE_PATH=/ToolBox/ pnpm build
 
 两处出处不是「写一句 MIT」就能带过的：
 
-- **繁简转换的字表是派生数据**：`src/tools/chinese-variant/table.ts` 由 `scripts/gen-chinese-variant-table.mjs` 从 **OpenCC（Apache-2.0）** 的 `STCharacters` / `TSCharacters` / `TSPhrases` / `STPhrases`(+`_GeneratedFromRegionalPhrases`) / `TWVariants*` / `HKVariants*` 字典（经 `opencc-js@1.4.2` 随包发布的表）裁切生成，文件头注释已写明来源与「不要手改」。**Apache-2.0 要求保留版权声明与许可证文本**，所以这个仓库若开源，LICENSE / NOTICE 里必须带上 OpenCC 的出处，只声明自己代码的许可证不够。
+- **繁简转换的字表是派生数据**：`src/tools/chinese-variant/table.ts` 由 `scripts/gen-chinese-variant-table.mjs` 从 **OpenCC（Apache-2.0）** 的 `STCharacters` / `TSCharacters` / `TSPhrases` / `STPhrases`(+`_GeneratedFromRegionalPhrases`) / `TWVariants*` / `HKVariants*` 字典（经 `opencc-js@1.4.2` 随包发布的表）裁切生成，文件头注释已写明来源与「不要手改」。**Apache-2.0 要求保留版权声明与许可证文本**，所以 MIT 只授予本仓库自研的代码，**不重新授权这张表** —— 出处声明已经写在 `LICENSE` 文末那一段（以及 `table.ts` 自己的文件头注释）里，改这张表的口径时两处都要跟着改。
 - **图标是 ISC 授权的数据**：整站图标一律来自 Iconify 的 lucide 集合，连 `public/favicon.svg` 也是用 node 读取 `toolbox` 字形生成的品牌图标（不是手画的）。没有自绘 SVG，就没有额外的图标授权问题。
 
 其余 60 多个工具的内核（Base64 / URL / 哈希 / AES / XML / JSON→TS 接口 / diff / 正则 / 颜色 / 中文数字与大写 / 单位表 / 子网与 chmod 速查 …）**全部是本仓库自研**，只用了浏览器与 JS 原生 API（`TextEncoder`、`crypto.subtle`、`crypto.getRandomValues`、`crypto.randomUUID`、`URL`、`FileReader`、`DataView`、`BigInt`、`<canvas>`），除上表 `qrcode`、`js-yaml` 两条外没有第三方代码进产物。复刻旧站（同所有者名下的 `multicalc/`）时**只读参照了它的功能范围与文案口径，没有搬任何源码文件**，本站的页面与内核是按本文档的口径重新实现的。
