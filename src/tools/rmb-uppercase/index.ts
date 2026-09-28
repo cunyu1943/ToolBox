@@ -8,8 +8,19 @@
 
 const DIGITS_CN = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖']
 const SECTION_UNITS = ['', '拾', '佰', '仟']
+/** 普通读法用的数字与节内单位（小写）：一/二/三…、十/百/千 */
+const DIGITS_CN_LOWER = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九']
+const SECTION_UNITS_LOWER = ['', '十', '百', '千']
 /** 四位一节的节权；16 位整数正好用到「万亿」 */
 const GROUP_UNITS = ['', '万', '亿', '万亿']
+
+/** 一套字形（数字 + 节内单位）；节权 万/亿 两套通用，所以不进这里 */
+interface Vocab {
+  digit: string[]
+  unit: string[]
+}
+const UPPER_VOCAB: Vocab = { digit: DIGITS_CN, unit: SECTION_UNITS }
+const LOWER_VOCAB: Vocab = { digit: DIGITS_CN_LOWER, unit: SECTION_UNITS_LOWER }
 
 /** 整数部分最多 16 位（9999 万亿…，即 10^16 − 1 元） */
 export const MAX_INTEGER_DIGITS = 16
@@ -54,7 +65,7 @@ function buildAmount(cents: bigint, negative: boolean, warnings: string[]): Amou
   for (let end = digits.length; end > 0; end -= 4) chunks.unshift(digits.slice(Math.max(0, end - 4), end))
   const groups: AmountGroup[] = chunks.map((chunk, index) => {
     const fromTop = chunks.length - 1 - index
-    return { digits: chunk, unit: GROUP_UNITS[fromTop] ?? `10^${fromTop * 4}`, chinese: sectionToChinese(chunk) }
+    return { digits: chunk, unit: GROUP_UNITS[fromTop] ?? `10^${fromTop * 4}`, chinese: sectionToChinese(chunk, UPPER_VOCAB) }
   })
 
   return {
@@ -71,10 +82,13 @@ function buildAmount(cents: bigint, negative: boolean, warnings: string[]): Amou
   }
 }
 
-/** 接受 `1,234.5`、`￥1234.50`、`１２３４．５`、`-12.3`、`(12.30)`、`12.34元` 等写法 */
-export function parseAmount(input: string): AmountParts {
-  const warnings: string[] = []
-  if (!input || !input.trim()) return failAmount('请输入金额', warnings)
+/**
+ * 抹平书写差异：全角数字、千分位、货币符号、「人民币 / RMB」前缀、
+ * 结尾的「整/正」、小括号负数等，得到纯数字串与符号位。
+ * 财务大写与普通读法共用这一份，保证同一串字符在两条路径上的接受度一致。
+ */
+function normalizeNumeric(input: string, warnings: string[]): { text: string; negative: boolean; error: string } {
+  if (!input || !input.trim()) return { text: '', negative: false, error: '请输入金额' }
 
   let text = input
     .replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
@@ -98,14 +112,22 @@ export function parseAmount(input: string): AmountParts {
   if (text.startsWith('+')) text = text.slice(1)
 
   if (/角|分/.test(text)) {
-    return failAmount('这里只接收阿拉伯数字金额；带「角/分」的中文写法请用下方的「大写转数字」', warnings)
+    return { text: '', negative: false, error: '这里只接收阿拉伯数字金额；带「角/分」的中文写法请用下方的「大写转数字」' }
   }
   if (!/^\d*(\.\d*)?$/.test(text) || !text.replace('.', '')) {
-    return failAmount('只能包含数字、小数点与货币符号', warnings)
+    return { text: '', negative: false, error: '只能包含数字、小数点与货币符号' }
   }
   if (text.startsWith('.')) text = `0${text}`
+  return { text, negative, error: '' }
+}
 
-  const [rawInt = '0', decPart = ''] = text.split('.')
+/** 接受 `1,234.5`、`￥1234.50`、`１２３４．５`、`-12.3`、`(12.30)`、`12.34元` 等写法 */
+export function parseAmount(input: string): AmountParts {
+  const warnings: string[] = []
+  const numeric = normalizeNumeric(input, warnings)
+  if (numeric.error) return failAmount(numeric.error, warnings)
+
+  const [rawInt = '0', decPart = ''] = numeric.text.split('.')
   const intPart = rawInt.replace(/^0+(?=\d)/, '') || '0'
   if (intPart.length > MAX_INTEGER_DIGITS) {
     return failAmount(`整数部分最多 ${MAX_INTEGER_DIGITS} 位（万亿级），当前 ${intPart.length} 位`, warnings)
@@ -117,10 +139,10 @@ export function parseAmount(input: string): AmountParts {
     const rounded = `${(cents / 100n).toString()}.${(cents % 100n).toString().padStart(2, '0')}`
     warnings.push(`小数位超过 2 位，已四舍五入到分：${intPart}.${decPart} → ${rounded}`)
   }
-  return buildAmount(cents, negative, warnings)
+  return buildAmount(cents, numeric.negative, warnings)
 }
 
-function sectionToChinese(section: string): string {
+function sectionToChinese(section: string, vocab: Vocab): string {
   let out = ''
   let zeroPending = false
   for (let i = 0; i < section.length; i++) {
@@ -134,20 +156,20 @@ function sectionToChinese(section: string): string {
       out += '零'
       zeroPending = false
     }
-    out += DIGITS_CN[digit] + (SECTION_UNITS[position] ?? '')
+    out += vocab.digit[digit] + (vocab.unit[position] ?? '')
   }
   return out
 }
 
 /** 亿以内（<10^8）：万节 + 个节，节间不足四位要补「零」 */
-function belowYi(value: bigint): string {
+function belowYi(value: bigint, vocab: Vocab): string {
   const wan = Number(value / 10000n)
   const rest = Number(value % 10000n)
   let out = ''
-  if (wan) out = sectionToChinese(String(wan)) + '万'
+  if (wan) out = sectionToChinese(String(wan), vocab) + '万'
   if (rest) {
     if (out && rest < 1000) out += '零'
-    out += sectionToChinese(String(rest))
+    out += sectionToChinese(String(rest), vocab)
   }
   return out
 }
@@ -155,18 +177,19 @@ function belowYi(value: bigint): string {
 /**
  * 整数部分读法。中文按「四位一节」进位，所以 10^12 是「壹万亿」而不是「壹亿万」：
  * 先按亿切分，亿以上本身再用「万 + 个」两级读法，最后乘上 亿 这个位权。
+ * 默认用财务大写字形；传 `LOWER_VOCAB` 得到普通读法（一千二百三十四）。
  */
-export function integerToChinese(value: bigint): string {
-  if (value === 0n) return '零'
+export function integerToChinese(value: bigint, vocab: Vocab = UPPER_VOCAB): string {
+  if (value === 0n) return vocab.digit[0]
   const yi = value / 100000000n
   const rest = value % 100000000n
   let out = ''
-  if (yi) out = belowYi(yi) + '亿'
+  if (yi) out = belowYi(yi, vocab) + '亿'
   if (rest) {
     if (out && rest < 10000000n) out += '零'
-    out += belowYi(rest)
+    out += belowYi(rest, vocab)
   }
-  return out || '零'
+  return out || vocab.digit[0]
 }
 
 export interface UppercaseResult {
@@ -194,6 +217,40 @@ export function toUppercase(input: string, withSuffix = true): UppercaseResult {
   return { ok: true, error: '', text: negative ? `负${text}` : text, parsed }
 }
 
+export interface ReadingResult {
+  ok: boolean
+  error: string
+  /** 中文普通读法，如 `一千二百三十四点五六` */
+  text: string
+}
+
+/**
+ * 数字 → 中文普通读法（一/二/三…、十/百/千）。与财务大写的两处刻意不同：
+ * 小数按输入逐位读、不进到「分」（所以 1.005 读作「一点零零五」，大写是「壹元零壹分」）；
+ * 10–19 读作「十…十九」，不写「一十」（票据上按规范要写「壹拾元」）。
+ */
+export function toReading(input: string): ReadingResult {
+  const numeric = normalizeNumeric(input, [])
+  if (numeric.error) return { ok: false, error: numeric.error, text: '' }
+
+  const [rawInt = '0', decPart = ''] = numeric.text.split('.')
+  const intPart = rawInt.replace(/^0+(?=\d)/, '') || '0'
+  if (intPart.length > MAX_INTEGER_DIGITS) {
+    return {
+      ok: false,
+      error: `整数部分最多 ${MAX_INTEGER_DIGITS} 位（万亿级），当前 ${intPart.length} 位`,
+      text: ''
+    }
+  }
+
+  const value = BigInt(intPart)
+  let text = integerToChinese(value, LOWER_VOCAB)
+  if (text.startsWith('一十')) text = text.slice(1)
+  if (decPart) text += `点${[...decPart].map((d) => DIGITS_CN_LOWER[Number(d)]).join('')}`
+  const nonzero = value !== 0n || /[1-9]/.test(decPart)
+  return { ok: true, error: '', text: numeric.negative && nonzero ? `负${text}` : text }
+}
+
 export interface LowercaseResult {
   ok: boolean
   error: string
@@ -207,19 +264,20 @@ const CN_TO_DIGIT: Record<string, number> = {
   零: 0, 壹: 1, 贰: 2, 叁: 3, 肆: 4, 伍: 5, 陆: 6, 柒: 7, 捌: 8, 玖: 9,
   〇: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 两: 2
 }
-const CN_SECTION_UNIT: Record<string, number> = { 拾: 10, 佰: 100, 仟: 1000 }
+/** 节内位权：大写与小写字形都能读，所以「一千二百三十四元五角六分」这类小写金额也解得开 */
+const CN_SECTION_UNIT: Record<string, number> = { 拾: 10, 佰: 100, 仟: 1000, 十: 10, 百: 100, 千: 1000 }
 
-/** 中文大写 → 数字。异写（圆/正、〇、一十）与全角都能读；「万亿」按 10^12 处理 */
+/** 中文金额 → 数字。异写（圆/正、〇、一十、一百/壹佰）与全角都能读，小写字形与「三点一四」式读法也认；「万亿」按 10^12 处理 */
 export function fromUppercase(input: string): LowercaseResult {
   const warnings: string[] = []
   const fail = (error: string): LowercaseResult => ({ ok: false, error, decimal: '', cents: 0n, warnings })
 
   const text = input.trim().replace(/\s+/g, '')
-  if (!text) return fail('请输入中文大写金额')
+  if (!text) return fail('请输入中文金额')
 
   const negative = /^负/.test(text)
   const body = text.replace(/^负/, '')
-  if (/[0-9０-９]/.test(body)) return fail('这里只接收中文大写；数字金额请填在上方输入框')
+  if (/[0-9０-９]/.test(body)) return fail('这里只接收中文数字（大写、小写都行）；阿拉伯数字请填在上方输入框')
 
   let total = 0n
   let section = 0n
@@ -228,14 +286,31 @@ export function fromUppercase(input: string): LowercaseResult {
   let jiao: number | null = null
   let fen: number | null = null
   let sawYuan = false
+  /** 「三点一四」这类读法：点后的数字逐位当小数，不再走节内位权 */
+  let sawPoint = false
+  const fracDigits: number[] = []
 
   for (const ch of body) {
     const digit = CN_TO_DIGIT[ch]
     if (digit !== undefined) {
+      if (sawPoint) {
+        fracDigits.push(digit)
+        continue
+      }
       current = BigInt(digit)
       hasDigit = true
       continue
     }
+    if (ch === '点') {
+      if (sawPoint || sawYuan || jiao !== null || fen !== null) return fail('「点」只出现一次，且不与元角分混写')
+      total += section + current
+      section = 0n
+      current = 0n
+      hasDigit = false
+      sawPoint = true
+      continue
+    }
+    if (sawPoint && ch !== '整' && ch !== '正') return fail('「点」写法之后只能接数字')
     const unit = CN_SECTION_UNIT[ch]
     if (unit) {
       // 「拾伍」这类省略系数字的写法，按 1 计
@@ -285,8 +360,20 @@ export function fromUppercase(input: string): LowercaseResult {
   if (jiao !== null && (jiao < 0 || jiao > 9)) return fail('角只能是 0–9')
   if (fen !== null && (fen < 0 || fen > 9)) return fail('分只能是 0–9')
 
-  const cents = (total + section + current) * 100n + BigInt(jiao ?? 0) * 10n + BigInt(fen ?? 0)
-  if (!sawYuan && jiao === null && fen === null) warnings.push('未写「元」，仍按整数金额处理')
+  const integer = total + section + current
+  let cents: bigint
+  if (sawPoint) {
+    const frac = fracDigits.join('')
+    cents = integer * 100n + BigInt((frac + '00').slice(0, 2))
+    if (fracDigits.length > 2 && fracDigits[2] >= 5) {
+      cents += 1n
+      const rounded = `${(cents / 100n).toString()}.${(cents % 100n).toString().padStart(2, '0')}`
+      warnings.push(`小数位超过 2 位，已四舍五入到分：${integer.toString()}.${frac} → ${rounded}`)
+    }
+  } else {
+    cents = integer * 100n + BigInt(jiao ?? 0) * 10n + BigInt(fen ?? 0)
+    if (!sawYuan && jiao === null && fen === null) warnings.push('未写「元」，仍按整数金额处理')
+  }
   const rest = Number(cents % 100n)
   const decimal = `${negative && cents !== 0n ? '-' : ''}${(cents / 100n).toString()}.${String(Math.floor(rest / 10))}${String(rest % 10)}`
   return { ok: true, error: '', decimal, cents, warnings }
@@ -301,5 +388,6 @@ export const RMB_SAMPLES: { label: string; value: string }[] = [
   { label: '只有分', value: '0.04' },
   { label: '负数', value: '-88.8' },
   { label: '三位小数（会进位）', value: '1.005' },
-  { label: '大写示例', value: '壹亿贰仟叁佰肆拾伍万陆仟柒佰捌拾玖元玖角捌分' }
+  { label: '大写示例', value: '壹亿贰仟叁佰肆拾伍万陆仟柒佰捌拾玖元玖角捌分' },
+  { label: '小写示例', value: '一千二百三十四元五角六分' }
 ]

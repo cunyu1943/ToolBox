@@ -270,8 +270,9 @@ export const tools: ToolDefinition[] = [
   {
     id: 'rmb-uppercase',
     name: '人民币大写转换',
-    description: '金额 ↔ 中文大写互转，按票据惯例补「整」，反解核对大小写是否一致',
-    keywords: ['人民币', '大写', '金额', 'rmb', '票据', '支票', '财务', '元角分', 'cncc', '中文数字'],
+    description: '金额 ↔ 中文大写互转，附小写中文读法，按票据惯例补「整」，反解核对大小写是否一致',
+    keywords: ['人民币', '大写', '金额', 'rmb', '票据', '支票', '财务', '元角分', 'cncc', '中文数字',
+      '读法', '读作', '中文读法', '数字转中文', '小写', '一千二百三十四', 'number to chinese'],
     category: 'text',
     icon: 'lucide:banknote'
   },
