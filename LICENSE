@@ -19,18 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party data and its own notices (the MIT grant above covers this
-repository's own source code only; it does not relicense the following):
-
-- src/tools/chinese-variant/table.ts is generated data derived from the
-  OpenCC dictionaries (Apache License 2.0, https://github.com/BYVoid/OpenCC),
-  exported through opencc-js 1.4.2. See scripts/gen-chinese-variant-table.mjs
-  and the header comment of that file for the exact source dictionaries.
-- Icon glyph data comes from the lucide icon set distributed as
-  @iconify-json/lucide (ISC, https://lucide.dev), inlined at build time.
-- Runtime dependencies qrcode and js-yaml are MIT; the TypeScript compiler
-  used at build time is Apache-2.0. None of their code is redistributed here
-  beyond what the built application bundles.

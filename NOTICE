@@ -1,0 +1,34 @@
+ToolBox — third-party attribution notices
+=========================================
+
+The MIT license in `LICENSE` covers this repository's own source code. It does
+not relicense the third-party code and data listed below, which keep their own
+licenses. This file exists so that those notices travel with any copy or
+substantial portion of the project.
+
+1. Traditional / Simplified Chinese conversion table
+   File: src/tools/chinese-variant/table.ts (generated; do not edit by hand)
+   Generator: scripts/gen-chinese-variant-table.mjs
+   Upstream: OpenCC — https://github.com/BYVoid/OpenCC
+             Licensed under the Apache License, Version 2.0
+             (see https://www.apache.org/licenses/LICENSE-2.0)
+   Provenance: the character and phrase tables were read from the dictionaries
+   shipped with opencc-js 1.4.2 — STCharacters, TSCharacters, TSPhrases,
+   STPhrases, STPhrases_GeneratedFromRegionalPhrases, TWVariants,
+   TWVariantsPhrases, TWVariantsRev, HKVariants, HKVariantsPhrases,
+   HKVariantsRev — then pruned and re-encoded. Derived data, so the Apache-2.0
+   attribution obligations still apply to it.
+
+2. Icon glyphs
+   Package: @iconify-json/lucide — https://lucide.dev
+   Licensed under the ISC license.
+   Glyph outlines are inlined into the build output at build time; the deployed
+   site does not request the Iconify API at runtime. This includes the brand
+   mark in public/favicon.svg, which was generated from the "toolbox" glyph.
+
+3. Runtime and build-time dependencies
+   Listed with their versions and licenses in README.md, section
+   "四、License". Only two third-party libraries ship code inside the bundle:
+   qrcode (MIT) and js-yaml (MIT), each loaded on demand by its own page.
+   The TypeScript compiler (Apache-2.0) and vue-tsc (MIT) run at build time
+   only and are not redistributed.
