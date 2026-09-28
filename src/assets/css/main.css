@@ -1,0 +1,270 @@
+/* Tailwind CSS v4 + @nuxt/ui v4 的 CSS-first 主题入口。
+   深色模式由 @nuxt/ui 依据 <html> 上的 .dark 类切换，无需在此重复定义 dark 变体。 */
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* 自动内容扫描会把构建产物当源码读：上一版产物里的类名字符串会生成一批只服务于
+   旧产物的死规则（同一份源码连跑两次 build，CSS 从 214.63 kB 涨到 222.39 kB）。
+   排除构建输出目录后产物尺寸才可复现。
+   README.md 不是产物，但它也是文本、也会被扫：正文里以裸词形式出现的类名同样生成规则。
+   实测这一条排除让 CSS 从 216925 B 降到 215168 B（−1757 B / gzip −182），只少了 10 个选择器、
+   没有任何一条在用规则被误删：title-scroll（源码只用 group-hover/card:title-scroll，裸类本就是死的）、
+   columns-3（源码里只以 lucide:columns-3 出现，冒号被当变体所以本就不生成）、
+   bg-default/85、backdrop-blur-md、sm:inline、sm:p-5、sm:px-3、lg:inline、
+   lg:grid-cols-[minmax(0,…)]（正文里被省略号截断的字符串，Tailwind 仍接受了这个任意值）。
+   .github 同一次扫描里也踩到了：deploy.yml 的 YAML 文本单独让 CSS +27 B，排除后 CSS 回到上面的字节数。 */
+@source not "../../../dist*";
+@source not "../../../README.md";
+@source not "../../../.github";
+
+/* static 必需：Tailwind v4 默认只输出被工具类直接引用的 theme 变量，
+   而 @nuxt/ui 的别名是运行时按 var(--color-brand-500) 间接引用的，
+   不加 static 会被摇掉、--ui-primary 解析为空（主色按钮变透明）。 */
+@theme static {
+  /* 品牌绿。Nuxt UI 取 500 作亮色 primary、400 作暗色 primary，
+     故 400 故意比 500 更亮（#42d392 提亮 vs #42b883）。 */
+  --color-brand-50: #effaf4;
+  --color-brand-100: #d7f3e4;
+  --color-brand-200: #b0e7cb;
+  --color-brand-300: #7fd7ac;
+  --color-brand-400: #42d392;
+  --color-brand-500: #42b883;
+  --color-brand-600: #2f9d6c;
+  --color-brand-700: #267d57;
+  --color-brand-800: #226348;
+  --color-brand-900: #1e523c;
+  --color-brand-950: #0c2a1e;
+
+  /* 辅助深蓝灰 #35495e（secondary 别名，用于徽章/描边等非主色强调） */
+  --color-ink-50: #f2f5f8;
+  --color-ink-100: #e3e9ef;
+  --color-ink-200: #c3d0dc;
+  --color-ink-300: #9ab0c4;
+  --color-ink-400: #6c8aa5;
+  --color-ink-500: #35495e;
+  --color-ink-600: #2c3d4f;
+  --color-ink-700: #24323f;
+  --color-ink-800: #1d2832;
+  --color-ink-900: #171f27;
+  --color-ink-950: #0e141a;
+}
+
+/* 页面底色与正文色 token：覆盖 Nuxt UI 的语义变量，
+   组件内的 bg-default / bg-elevated / text-default / text-muted 全部自动跟随。
+   对比度（正文）：亮 #213547 on #ffffff ≈ 11.5:1，暗 #f6f6f7 on #161618 ≈ 15.6:1。 */
+:root {
+  color-scheme: light;
+  --ui-bg: #ffffff;
+  --ui-bg-elevated: #f7f8fa;
+  --ui-text: #213547;
+  --ui-text-highlighted: #101d2b;
+  --ui-text-muted: #5f6f7f;
+}
+
+.dark {
+  color-scheme: dark;
+  --ui-bg: #161618;
+  --ui-bg-elevated: #1f1f24;
+  --ui-text: #f6f6f7;
+  --ui-text-highlighted: #ffffff;
+  --ui-text-muted: #aab2bd;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 亮色下「品牌绿实心面 + Nuxt UI 默认白字」只有约 2.6:1，不满足 4.5:1；
+   把这类文字改为深绿近黑（#42b883 上约 6.9:1）。
+   暗色 primary 已提亮为 #42d392，Nuxt UI 自带的深色文字足够，故不覆盖。 */
+:root:not(.dark) .bg-primary.text-inverted,
+:root:not(.dark) .bg-primary\/75.text-inverted {
+  color: #0c2a1e;
+}
+
+/* ── 毛玻璃 ─────────────────────────────────────────────────
+   玻璃质感要成立，前提是「背后有东西可糊」：所以先铺一层固定的品牌色渐变，
+   再让表面用半透明 + backdrop-filter 采样其后的内容。两者缺一，blur 就是白花钱。 */
+
+/* 一层不参与布局、也不吃指针事件的装饰底 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(55rem 38rem at 6% -8%, color-mix(in oklab, var(--ui-primary) 18%, transparent), transparent 62%),
+    radial-gradient(48rem 34rem at 100% 0%, color-mix(in oklab, var(--color-ink-400) 16%, transparent), transparent 65%),
+    radial-gradient(42rem 30rem at 50% 118%, color-mix(in oklab, var(--ui-primary) 12%, transparent), transparent 60%);
+}
+
+:root {
+  /* 76%/72% 的底色占比：透出渐变的量控制在 1/4 左右，
+     保证正文与次要文字的最坏对比度仍 ≥4.5:1（详见 README 的对比度表） */
+  --glass-bg: color-mix(in oklab, var(--ui-bg) 76%, transparent);
+  --glass-elevated-bg: color-mix(in oklab, var(--ui-bg-elevated) 72%, transparent);
+  --glass-blur: 14px;
+}
+
+/* @utility 而非 .glass：这样 glass 也能用 hover:/sm: 等变体，且未使用时不进产物 */
+@utility glass {
+  background-color: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+}
+
+@utility glass-card {
+  background-color: var(--glass-elevated-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+}
+
+/* ── 滚动条 ─────────────────────────────────────────────────
+   默认的 Windows 滚动条约 17px 且不跟随主题，压在半透明玻璃上很显眼。
+   统一收成 8px：轨道透明、滑块取 --ui-text-muted 的低透明度衍生色，
+   明暗两套自动跟随，不引入第二份颜色。 */
+
+/* Firefox 走标准属性。必须只给 FF：Chrome 121+ 一旦看到非 auto 的
+   scrollbar-width / scrollbar-color，就会整套忽略下面的 ::-webkit-scrollbar 规则。 */
+@supports (-moz-appearance: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--ui-text-muted) 42%, transparent) transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  /* 2px 透明描边 + padding-box：滑块实际只有 4px 粗，两侧留白显得更轻 */
+  border: 2px solid transparent;
+  background: color-mix(in oklab, var(--ui-text-muted) 32%, transparent) padding-box;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background: color-mix(in oklab, var(--ui-text-muted) 62%, transparent) padding-box;
+}
+
+/* 自定义滚动条在 Windows 上会长出箭头按钮，细条里既挤又难看；
+   隐藏后滚轮、拖拽、键盘滚动全部照常 */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* ── 卡片长文本（标题与简介同治）──────────────────────────────
+   所有卡片必须等高，所以标题与简介各只占一行；超出的部分不换行、不撑高，
+   先单行裁剪（省略号），悬停/键盘聚焦时横向滚出。位移量用容器查询单位算，纯 CSS：
+   100cqi（文本框宽）− 100%（文字自身宽）为负才移动，没溢出的文本恒等于 0px 一动不动，
+   因此不需要 JS 量宽，也不需要「溢出才加类」的判断。 */
+@keyframes tool-title-scroll {
+  to {
+    transform: translateX(min(0px, calc(100cqi - 100%)));
+  }
+}
+
+/* container-type 是 cqi 生效的前提；缺了它 cqi 会退化成视口单位、位移算错 */
+@utility title-marquee {
+  container-type: inline-size;
+  overflow: hidden;
+}
+
+/* 减少动效的开关必须写在 @utility 内部：DOM 上的类名是 group-hover/card:title-scroll，
+   外部再写 .title-scroll 选择器永远匹配不到（未使用的裸类也不会进产物） */
+@utility title-scroll {
+  animation: tool-title-scroll 2.4s ease-in-out infinite alternate;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* 滚不出来的两种场景 —— 触屏（无从悬停）与系统要求减少动效 —— 统一改为手动横滑，
+   这样任何模式下都是「等高卡片 + 信息可达」，不换行、不撑高。
+   overscroll-behavior-x 防止滑动串到浏览器的前进/后退手势。
+   .title-marquee 是模板里的裸类（会进产物），所以这两条未加层规则能覆盖上面的写法；
+   未加层规则优先级高于任何 @layer */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .title-marquee {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .title-marquee::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── 页脚自定义 HTML ────────────────────────────────────────
+   site.config.ts 的 footerHtml 会被 v-html 原样插入（只允许站主自己维护的静态内容）。
+   这里给它与页脚一致的中性排版：13px、次要文字色、链接跟随、内容多时自动换行居中。
+   一律用 :where() 保持零特异性，作者在内联 style 里写的东西要能压过这里。 */
+.footer-html {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem 0.75rem;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ui-text-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (width >= 40rem) {
+  .footer-html {
+    justify-content: flex-start;
+  }
+}
+
+.footer-html :where(a) {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footer-html :where(a:hover, a:focus-visible) {
+  color: var(--ui-text);
+}
+
+/* 备案号/公安备案常配一枚小图标：不许它被 flex 压扁，也不许它撑破行高 */
+.footer-html :where(img, svg) {
+  flex: none;
+  max-height: 1.5rem;
+  width: auto;
+}
+
+/* 系统层要求减少透明度时退回实心：玻璃是观感，不是可读性的代价 */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-bg: var(--ui-bg);
+    --glass-elevated-bg: var(--ui-bg-elevated);
+    --glass-blur: 0px;
+  }
+
+  body::before {
+    display: none;
+  }
+}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="description" content="ToolBox 在线工具箱：编码、格式化、单位换算等常用小工具，全部在浏览器本地完成，不上传数据。" />
+    <title>ToolBox · 在线工具箱</title>
+    <!-- 前置读取主题：必须在首帧之前给 <html> 打上 .dark，否则暗色用户会先看到白屏闪烁 -->
+    <script>
+      ;(function () {
+        var el = document.documentElement
+        var mode
+        try {
+          mode = localStorage.getItem('toolbox:theme')
+        } catch (e) {
+          mode = null
+        }
+        if (mode !== 'light' && mode !== 'dark') mode = 'system'
+        var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        el.classList.toggle('dark', dark)
+        el.style.colorScheme = dark ? 'dark' : 'light'
+        // 与 @nuxt/ui vue-plugin 内部 useDark() 的存储键同步，避免两套逻辑互相覆盖
+        try {
+          localStorage.setItem('vueuse-color-scheme', dark ? 'dark' : 'light')
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
