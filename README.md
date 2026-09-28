@@ -1,5 +1,9 @@
 # ToolBox · 纯前端在线工具箱
 
+> 全文分四章：**一、项目介绍 & 支持功能** ｜ **二、项目技术栈** ｜ **三、基于本项目开发**（启动与目录、新增工具的配方、主题与布局、63 个工具的逐条清单、体积账本、构建与发布、功能清单、90 条坑记）｜ **四、License**
+
+## 一、项目介绍 & 支持功能
+
 聚合常用小工具的站点。每个工具一个独立页面，打开即用，**全部计算/转换在浏览器本地完成，不请求任何后端接口**，偏好与数据存 `localStorage`。
 
 > 当前进度：**阶段 0～4、收尾、以及「复刻旧站全部工具」都已完成** —— 共 **63 个工具 / 11 个分类**，`pnpm build` 产物可直接静态托管（含深链），线上跑的就是这一版。
@@ -17,7 +21,41 @@
 >
 > 复刻的批次记录（`cunyu1943.site/ToolBox/` 共 67 页）：第 1 批 5 个（全角半角 / 摩尔斯电码 / 罗马数字 / Unicode 转义 / ASCII 码表）、第 2 批 5 个（行文本处理 / 查找替换 / HTML ⇄ Markdown / Markdown 表格 / CSS 渐变生成器）、第 3 批 5 个（YAML ⇄ JSON / XML 格式化 / JSON → TS 接口 / AES 加解密 / IP 地址与进制）、第 4 批 5 个（BMI / 基础代谢与每日消耗 / 体脂率估算 / 每日饮水量 / 靶心率区间，新开「健康与体能」分类）、第 5 批 6 个（房贷 / 车贷 / 投资收益与复利 / 五险一金 / 货币换算 / 硬盘容量与分区，新开「金融与理财」分类，硬盘分区归入「网络与运维」）、第 6 批 6 个（年龄计算器 / 身份证信息解析 / 生肖星座查询 / 亲戚称谓推算 / 随机数与抽签 / 百分比计算，新开「生活常用」分类）与**第 7 批的前 3 个（密码强度评估归入「哈希与生成」；对比度检查从颜色工具拆出，归入「颜色与图像」；繁简转换归入「文本处理」，因 `opencc-js` 体积超预算而自研离线字表，见「繁简转换的字表是怎么来的」）以及补差两项（Base32 与按位运算并入进制转换页、数字中文读法并入人民币大写页，工具数都不变）** 已上线；另做了一轮**全项目体检**（修掉颜色页取色器的 8 位 HEX、两对同分类重名图标，移除了多余的 `@types/js-yaml`，并把 `README.md` 排除出 Tailwind 的内容扫描 —— 最后这条让 CSS 少了 1757 B 死规则，也解释清了「同源码重跑 build 却换 hash」的疑案；当轮工具数仍是 62）。**至此第 7 批全部完成**（3 个新工具 + 两项补差：Base32 与按位运算并入进制转换页、数字中文读法并入人民币大写页）—— 旧站的页面按本站口径做了合并与拆分（进制页吸收 Base32 与 `programmer`、人民币大写吸收 `number-words` 的中文读法、对比度从颜色页拆成独立一页），落点是 **63 个工具 / 11 个分类**。详见「功能清单」。
 
-## 技术栈
+### 站点级能力（所有页面共用）
+
+- **一个工具一页 + 深链可分享**：路由 `/tools/<id>`，构建期为每页生成 `dist/tools/<id>/index.html` 静态壳并写本页 `<title>` / `description` / `og:*`，所以纯静态主机（GitHub Pages、OSS、Nginx）直接就能访问深链，不需要任何 rewrite 规则。
+- **全站搜索，一处结果三处同步**：顶栏搜索、首页搜索框、`Cmd`/`Ctrl`+`K` 命令面板共用同一个打分函数（名称 / `id` / 关键词 / 描述 / 分类 / 图标都参与，多词按空格切、AND 语义）。
+- **分类深链**：`/?category=crypto` 直接落到某一类，芯片、抽屉、卡片计数全部由注册表派生。
+- **明暗三态**：跟随系统 / 亮 / 暗，选择持久化；`index.html` 的前置脚本负责首帧上色，不闪白。
+- **观感**：品牌绿 `#42b883` 色板 + 全站毛玻璃、8 px 细滚动条、卡片等高且长名称 hover 才滚、返回顶部浮动按钮、三档断点实测零水平溢出。
+- **状态只留在本机**：每个工具的输入与选项写 `localStorage`（键前缀 `toolbox:`）；**身份证号、AES 口令、待评估口令这三类敏感内容一个字符都不落盘**。
+- **离线可用**：图标（Iconify 的 lucide 字形）在构建期内联进产物，运行时不请求任何远端 API；页面里也没有埋点、没有第三方脚本。
+- **可配置的站点外壳**：站名、页脚首行、页脚自定义 HTML、仓库地址、年份集中在 `src/site.config.ts`。
+- **推送即发布**：`main` 有 push → CI 构建 → 发到 `gh-pages`；线上就是 `https://cunyu1943.site/ToolBox/`。
+
+### 工具级能力（11 个分类 / 63 个工具）
+
+下表按 `src/tools/registry.ts` 的 `category` 逐条数出来（合计 63，与首页芯片读数一致），**逐工具的功能要点见下文「工具清单」那一节，那张表才是权威清单**。
+
+| 分类 | 数量 | 工具 |
+| --- | --- | --- |
+| 编码转换 | 9 | Base64 编解码、URL 编解码与解析、图片转 Base64、JWT 解析、HTML 实体编解码、古典密码（凯撒）、摩尔斯电码、Unicode 转义、ASCII 码表 |
+| 格式化 | 8 | JSON 格式化、文本对比、CSV ↔ JSON、HTML ⇄ Markdown、Markdown 表格、YAML ⇄ JSON、XML 格式化、JSON → TS 接口 |
+| 文本处理 | 8 | 正则测试、命名风格转换、人民币大写转换（附中文读法）、文本统计、全角半角转换、行文本处理、查找替换、繁简转换 |
+| 哈希与生成 | 5 | 哈希计算、UUID 生成器、随机密码生成、密码强度评估、AES 加解密 |
+| 数学与换算 | 5 | 表达式计算器、单位换算（8 组 65 个单位）、进制转换（含 Base32 与按位运算）、浮点数位布局、罗马数字转换 |
+| 时间日期 | 3 | 时间戳转换、日期计算器、crontab 解析 |
+| 颜色与图像 | 4 | 颜色转换器、对比度检查（WCAG）、二维码生成、CSS 渐变生成器 |
+| 网络与运维 | 5 | 子网计算器、文件权限计算（chmod）、HTTP 状态码速查、IP 地址与进制、硬盘容量与分区 |
+| 健康与体能 | 5 | BMI 计算器、基础代谢与每日消耗、体脂率估算、每日饮水量计算、靶心率区间 |
+| 金融与理财 | 5 | 房贷计算器、车贷计算器、投资收益与复利、五险一金计算器、货币换算 |
+| 生活常用 | 6 | 年龄计算器、身份证信息解析、生肖星座查询、亲戚称谓推算、随机数与抽签、百分比计算 |
+
+### 明确不做的
+
+无后端、无数据库、无账号与云同步；不做任何服务端计算或数据采集。**所有计算都在浏览器本地完成，这也是它唯一的卖点。**
+
+## 二、项目技术栈
 
 | 能力 | 选型 | 版本 |
 | --- | --- | --- |
@@ -29,7 +67,12 @@
 | 图标 | Iconify，经 `<UIcon name="lucide:xxx" />` 使用 | `@iconify-json/lucide ^1.2.135` |
 | 二维码编码 | 功能型第三方依赖，只在二维码页按需加载 | `qrcode ^1.5.4` |
 | YAML 编解码 | 第二个功能型第三方依赖，只在 YAML ⇄ JSON 页按需加载 | `js-yaml ^5.4.2` |
+| 类型检查 | TypeScript（`pnpm build` = `vue-tsc -b && vite build`，类型不过就不出产物） | `typescript ~6.0.2`、`vue-tsc ^3.3.11` |
 | 包管理 | pnpm（`packageManager` 已锁定，禁用 npm/yarn） | `pnpm 12.4.2` |
+
+依赖装到的**精确版本**（vue 3.5.43、vite 8.3.0、@nuxt/ui 4.11.1、tailwindcss 4.3.3…）连同各自许可证列在文末「四、License」，那份清单是从 `node_modules/*/package.json` 实读的，不是凭印象；`pnpm-lock.yaml` 是唯一锁定来源，CI 用 `pnpm install --frozen-lockfile`。
+
+对运行环境的要求只有两条：`crypto.subtle`（哈希与 AES 那两页）与 `navigator.clipboard`（各页的复制按钮）**都只在安全上下文里可用**，所以本地必须走 `http://localhost` 或 `127.0.0.1`、线上必须是 HTTPS；不支持时复制会退回 `execCommand` 并提示「请手动复制」，不会静默失败。
 
 其余工具（Base64 / URL / 哈希 / UUID / diff / 正则 / JSON / 颜色 / 时间戳 / 命名转换 / 图片转 Base64 /
 CSV↔JSON / 密码生成 / 日期计算 / 子网计算 / HTML 实体 / crontab / 浮点位布局 / 人民币大写 /
@@ -40,7 +83,29 @@ XML 格式化 / JSON → TS 接口 / AES 加解密 / IP 地址与进制）
 其中 **AES 加解密直接用 `crypto.subtle` 的 PBKDF2 + AES-256-GCM，不引 `crypto-js`（约 60 kB 原始、且已不推荐用于 GCM）**；
 `XML 格式化` 的解析器与 `JSON → TS 接口` 的类型推断都是手写内核（宽容恢复 + 纯函数），只有 YAML 一页用了第三方库（见「依赖与产物体积」）。
 
-## 启动
+## 三、基于本项目开发
+
+一句话流程：装依赖 → `pnpm dev` → 在注册表加一条 → 写纯函数内核 + 页面 → 按下面的纪律验证 → 同步本文档 → 推 `main` 自动发布。下面先给「新增一个工具」的配方，再给逐层的实现细节（每一层都有自己的小节，改动落在哪一层就看那一节）。
+
+### 新增一个工具（六步）
+
+1. **内核**：`src/tools/<id>/index.ts` 只写纯函数 —— 不 import Vue、不碰 DOM、不发请求。这样断言脚本能直接在 node 里跑，也是「同一个逻辑既能被页面用、能被脚本验」的前提。
+2. **注册**：在 `src/tools/registry.ts` 的 `tools` 数组加一条 `ToolDefinition`（`id` / `name` / `description` / `keywords` / `category` / `icon`）。`id` 一处决定四件事：路由 `/tools/<id>`、页面文件名、每页 SEO 文案、构建期静态壳（详见「工具注册表与搜索」）。要新开分类得同时改 `CategoryId` 与 `toolCategories`。**注册了却没有对应页面文件会在模块初始化时直接抛错**，这是刻意设计：宁可启动即失败，也不留一张 404 死卡片。
+3. **页面**：`src/pages/tools/<PascalId>Page.vue`（`json-format` → `JsonFormatPage.vue`，按 `pageNameOf()` 约定解析）。外壳统一用 `<ToolShell tool-id="<id>">`（它负责返回链接、图标、标题、描述、分类徽章），输入与选项用 `useStored('tool.<id>.<field>', 默认值)`，复制用 `<CopyButton :text="…" />`。**结果区不用 `v-html`**；敏感输入（口令、证件号）不接 `useStored`。
+4. **图标**：只用 Iconify，`<UIcon name="lucide:xxx" />`，不手写 SVG。新名字先在 `node_modules/@iconify-json/lucide/icons.json` 的 `icons` + `aliases` 两键里核对存在（`bitwise`、`fraction`、`approximate` 就不在 lucide 里）。注册表里的图标经 `registryIcons` 自动进 `vite.config.ts` 的 `clientBundle.icons`，模板里以**字面量**传入的图标 build-time scan 能抓到，**运行时拼出来的名字（`'lucide:' + v`）必须手登记进 `chromeIcons`**，否则离线渲染为空白。核验只看入口块里的字形表键（如 `"languages":{"width"`），别 grep `lucide:xxx`。
+5. **验证**：临时 `_oracleN.ts` 断言脚本（`node --experimental-strip-types` 跑，绿了删）→ `pnpm typecheck && pnpm build` → 在 `pnpm dev`（5173）走一遍黄金路径，再用同源 iframe 对 `pnpm preview`（4173）的产物做 390 / 768 / 1280 三档溢出复测（**判据必须落在页面内容上**，只看 `scrollWidth` 会量到一页 404，见坑 90）→ 需要体积数字时做 A/B（A 态就是 `git HEAD`，`--outDir dist-a` 才不会污染 Tailwind 的扫描）。
+6. **文档**：本文档同步 —— 「工具清单」加一行、「功能清单」打勾、新坑续编号、体积表按当次构建改表头。
+
+### 阅读顺序
+
+- 环境与命令 → 「启动」；文件在哪 → 「目录结构」
+- 改配色 / 毛玻璃 / 滚动条 / 明暗 → 「主题系统」；改顶栏、抽屉、卡片、断点、页脚 → 「布局与导航」；图标登记规则 → 「图标清单（离线内联）」
+- 改搜索与注册表 → 「工具注册表与搜索」；查某个工具该有什么功能 → 「工具清单」（63 行那张表）
+- 加数据型工具前先读 → 「繁简转换的字表是怎么来的」（构建期生成 + 体积核算的唯一样本）
+- 看体积回归 → 「依赖与产物体积」；发布链路与深链壳 → 「构建与静态托管」
+- 想知道为什么这么写、哪些雷踩过了 → 「功能清单」与「已踩过的坑（维护参考）」
+
+### 启动
 
 ```bash
 pnpm install     # 首次安装依赖
@@ -52,7 +117,7 @@ pnpm preview     # 本地预览构建产物（默认 4173）
 
 端口在 `vite.config.ts` 里以 `strictPort` 固定为 5173，避免与同工作区其他项目串台。
 
-## 目录结构
+### 目录结构
 
 ```
 toolbox/
@@ -96,9 +161,9 @@ toolbox/
 
 约定：**内核逻辑一律放 `src/tools/<id>/index.ts`，是可脱离 DOM 调用的纯函数**；工具页只做输入绑定、结果展示和本地持久化。新增工具只需 ① 在 registry 注册 ② 建 `tools/<id>/index.ts` ③ 建 `pages/tools/<Name>Page.vue`，路由、搜索、卡片、图标、深链壳全部自动跟上。
 
-## 主题系统
+### 主题系统
 
-### 色板
+#### 色板
 
 品牌色定义在 `src/assets/css/main.css` 的 `@theme static` 里，再由 `vite.config.ts` 的
 `ui({ ui: { colors: { primary: 'brand', secondary: 'ink', neutral: 'slate' } } })` 挂到 Nuxt UI 别名上。
@@ -110,7 +175,7 @@ toolbox/
 | `secondary` = `ink` | `--color-ink-500` `#35495e` | `--color-ink-400` `#6c8aa5` | 辅助深蓝灰，用于描边/徽章等非主色强调 |
 | `neutral` = `slate` | Tailwind slate | Tailwind slate | 正文、边框、灰面 |
 
-### 语义 token
+#### 语义 token
 
 页面底色与文字色不写死在组件里，统一覆盖 Nuxt UI 的语义变量，所有组件（`bg-default` / `bg-elevated` /
 `text-muted` / `border-default` …）自动跟随：
@@ -136,7 +201,7 @@ Nuxt UI 实心主色按钮默认用白字，压在 `#42b883` 上只有 2.50:1，
  9.27  亮 secondary #35495e / #ffffff   15.19  暗 正文 / elevated #1f1f24
 ```
 
-### 毛玻璃（backdrop-filter）
+#### 毛玻璃（backdrop-filter）
 
 全站玻璃质感由 `src/assets/css/main.css` 末尾的一段 token + 两个 `@utility` 提供，组件里只写 `glass` / `glass-card` 类名：
 
@@ -147,7 +212,7 @@ Nuxt UI 实心主色按钮默认用白字，压在 `#42b883` 上只有 2.50:1，
 - **对比度已按合色复算**（玻璃面透出的最坏情况是纯色画布）：亮色卡片底 正文 11.56:1 / 次要 4.73:1；暗色 14.26:1 / 7.20:1，均 ≥4.5:1。
 - **降级**：`@media (prefers-reduced-transparency: reduce)` 下把 `--glass-*` 换回不透明实色、`--glass-blur: 0`，并隐藏渐变层；不支持 `backdrop-filter` 的浏览器仍有一层半透明底色，不影响可读性。
 
-### 滚动条
+#### 滚动条
 
 Windows 默认滚动条约 17px、带箭头按钮且不跟随主题，压在半透明玻璃上很抢眼。`main.css` 末尾统一收成 **8px 轨道 + 4px 圆角滑块**（`border: 2px solid transparent` + `background-clip: padding-box` 让滑块两侧留白，比直接写 `width:4px` 更好点），轨道/边角透明，`::-webkit-scrollbar-button` 隐藏箭头：
 
@@ -155,7 +220,7 @@ Windows 默认滚动条约 17px、带箭头按钮且不跟随主题，压在半�
 - **两套写法必须分开**：Chrome 121+ 一旦看到非 `auto` 的 `scrollbar-width` / `scrollbar-color`，就会整套忽略 `::-webkit-scrollbar` 规则（反之 Firefox 完全不认 webkit 伪元素）。所以标准属性只写在 `@supports (-moz-appearance: none)` 里，webkit 伪元素留在外面。
 - 核验不看截图看数字：`window.innerWidth - document.documentElement.clientWidth` 与一个 `overflow:scroll` 探测盒的 `offsetWidth-clientWidth` 都应等于 8。自定义滚动条是「经典（占位）」滚动条，会让 `clientWidth` 少 8px，因此 4 列档单卡宽度实际是 `(1152 − 3×16 − 8)/4 ≈ 278px`，卡片栅格仍零溢出。
 
-### 明暗三态
+#### 明暗三态
 
 `src/composables/useTheme.ts` 是模块级单例，状态 `system | light | dark`：
 
@@ -165,11 +230,11 @@ Windows 默认滚动条约 17px、带箭头按钮且不跟随主题，压在半�
 - **与 Nuxt UI 内置 `useDark()` 共存**：`@nuxt/ui/vue-plugin` 安装时会调用 `@vueuse/core` 的 `useDark()`，它按 `vueuse-color-scheme` 键独立切换 `.dark`。我们的脚本与 composable 每次都会把解析结果同步写进该键，否则两套逻辑会互相覆盖（已用「投毒测试」验证：把 `vueuse-color-scheme` 改成与用户选择相反的值后刷新，页面仍按 `toolbox:theme` 上色）。
 - 切换入口 `AppThemeToggle.vue`：`跟随系统 → 明亮 → 黑暗` 循环，图标 `lucide:monitor / lucide:sun / lucide:moon`；用原生 `<button>` 而非 `UButton`，以便锁定 `size-11`（44px）移动端可点区域。**恒为纯图标**（原 `≥640px 显示汉字` 已按反馈去掉，顶栏不再因语言/模式变宽），中文提示改成只在**鼠标悬停或键盘聚焦**时浮现的小气泡：外层 `group/theme` + `absolute top-full end-0 mt-2` 的 `role="tooltip"` 片段，`opacity-0` 配 `transition-opacity`，`group-hover/theme:` / `group-focus-within/theme:` 时显形。默认还带 `invisible`（不只 `opacity-0`）—— `opacity:0` 的元素仍在无障碍树里，读屏会把隐藏的标签连着播报。刻意**不用 `UTooltip`**：实测会把 Reka Tooltip + `@floating-ui` 塞进入口块，`index-*.js` 从 208.9 kB 涨到 249.8 kB（+41 kB raw / +13 kB gzip），为一条提示不值。自阶段 2 起挂在 `AppHeader` 右上角。
 
-## 布局与导航
+### 布局与导航
 
 三段式骨架在 `src/App.vue`：`AppHeader`（粘性）→ `main`（`max-w-6xl` 居中，`flex-1`）→ `AppFooter`。内容宽度只由 `main` 与顶栏内层容器各一份 `max-w-6xl`（1152px）控制，页面自身不再重复写左右留白。
 
-### 顶栏 `AppHeader.vue`
+#### 顶栏 `AppHeader.vue`
 
 - `sticky top-0 z-30 border-b border-default bg-default/85 backdrop-blur-md`：滚动时贴顶，85% 底色 + 背景模糊，明暗都由 `--ui-bg` 推导，不写死颜色。
 - 高度 `h-14`（56px）+ 1px 下边框，内层 `flex items-center gap-2 px-4 sm:gap-3 sm:px-6`。
@@ -177,7 +242,7 @@ Windows 默认滚动条约 17px、带箭头按钮且不跟随主题，压在半�
 - **搜索入口是真按钮**：≥640px 是 `max-w-sm h-9` 胶囊（`lucide:search` + 「搜索工具…」+ ≥1024px 才显示的 `Ctrl`/`K` `UKbd` 芯片，带 `aria-keyshortcuts`）；<640px 退成一个 44×44 图标按钮。两者都调用 `usePalette().show()` 打开命令面板，不是假链接、也不内嵌输入框。
 - 汉堡按钮带 `aria-haspopup="dialog"` 与 `:aria-expanded="navOpen"`，`aria-label="打开工具分类"`。
 
-### 页脚与站点配置 `site.config.ts`
+#### 页脚与站点配置 `site.config.ts`
 
 站名、页脚文案、自定义 HTML、源码仓库地址集中在 `src/site.config.ts` 一个文件里，改完重新 `pnpm build` 部署即可生效，不需要动组件：
 
@@ -197,14 +262,14 @@ export const siteConfig: SiteConfig = {
 - **安全边界**：`footerHtml` 走 `v-html`，值只可能来自这个构建期常量文件 —— 它不参与任何运行时输入、不读 `localStorage`、不发请求。页脚是「所有访客都要看到」的内容，所以刻意不做成用户可改的本地配置；哪天要把这类文本接成远端数据，必须先过 DOMPurify 之类的净化，否则等于自造 XSS 通道。
 - 实测（`dist` 产物）：`footerLine` 渲染为 `© 2026 ToolBox · 纯前端工具箱…`（`{year}`/`{name}` 已替换、DOM 文本里不含花括号）；把 `footerHtml` 换成一段含 `<a>` + `<img>` 的示例后，页脚多出一个 2 子节点的 flex 容器、链接 `underline` 且取到 `rgb(170,178,189)`、图片 24×24，改回空串后 `.footer-html` 节点消失；两档宽度水平溢出均为 0。
 
-### 分类抽屉
+#### 分类抽屉
 
 `<USlideover side="left">` 由顶栏汉堡触发，`v-model:open` 双向控制：
 
 - 内容为 registry 派生的 11 个分类真链接（`/?category=<id>`），每项显示分类图标、名称与该类工具数量，点击即跳转并自动关闭抽屉。
 - 实测：打开时 `body{overflow:hidden}` 锁滚动、遮罩盖住顶栏（`elementFromPoint` 命中抽屉而非 header）、`Esc` 与自带 Close 按钮都能关闭（`data-state: open → unmounted`），关闭后 `overflow` 复原。自带 Close 按钮是 32×32，小于 44px 触摸目标，属 Nuxt UI 默认值，暂不为它改组件内部样式。
 
-### 返回顶部 `BackToTop.vue`
+#### 返回顶部 `BackToTop.vue`
 
 全站共用的浮动按钮，挂在 `App.vue` 的根片段里（与命令面板同级），因此 63 个页面自动都有，不需要每个工具页各接一次。
 
@@ -216,7 +281,7 @@ export const siteConfig: SiteConfig = {
 - 代价（实产对账见「依赖与产物体积」）：入口 JS +1.10 kB / gzip +0.31，CSS +0.57 kB（新增的那组类），`Badge-*.js` 的 hash 一字未变；**零新依赖**。
 - 实测（**5173 dev** 上的同源 iframe，两档 390 / 1280）：`scrollY` 到 900 时按钮出现、内含已内联的 `<svg>`；点一次对 `scrollTo` 的调用参数恰为 `{ top: 0, behavior: 'smooth' }`（监听器里 spy，不断言真实平滑轨迹，原因见坑 75）；把 `prefers-reduced-motion` 改判为 true 后实际回到 `scrollY === 0`。水平溢出为 0、无细条。产物侧只做了 node 字符串核对（入口块里同时有 `"arrow-up":{"width"` 与「返回顶部」两条串），没有在 4173 上重载一次。
 
-### 卡片栅格 `ToolCard.vue` + `HomePage.vue`
+#### 卡片栅格 `ToolCard.vue` + `HomePage.vue`
 
 栅格 `grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4` —— 手机 1 列、≥640px 2 列、≥1024px 3 列、≥1280px **4 列**（按用户要求每行 4 列；因 `main` 限宽 `max-w-6xl`=1152px，4 列档单卡 261px，再往下压到 `lg` 只有 ~236px、被裁的标题会变多，故第 4 列从 `xl` 起）。
 
@@ -238,7 +303,7 @@ export const siteConfig: SiteConfig = {
 
 卡片数据完全来自 `registry.ts`，首页另提供搜索框 + 12 个芯片（「全部」+ 11 个分类），支持 `?category=` 深链。
 
-### 响应式断点约定
+#### 响应式断点约定
 
 一律移动优先（基础类 = 手机，`sm:` 起增强）。Tailwind v4.3 编译出的区间语法是 `@media (width >= 40rem)` 这类 range 写法，`sm/md/lg/xl = 40/48/64/80rem`，产物里实际出现 `40/48/64/80/96rem` 五档。已按「编译产物里每个工具类落在哪个 `@media` 区间」核验：`sm:hidden`、`sm:flex`、`sm:grid-cols-2`、`sm:flex-row`、`sm:justify-between`、`sm:px-6`、`sm:gap-5`、`sm:p-5`、`sm:inline`、`sm:px-3`、`sm:grid-cols-5` 全在 `>= 40rem`；`md:inline` 在 `>= 48rem`；`lg:inline`、`lg:grid-cols-3`、`lg:grid-cols-2`、`lg:grid-cols-[minmax(0,…)]` 在 `>= 64rem`，`xl:grid-cols-4` 在 `>= 80rem`；基础 `grid-cols-1` 在顶层。故 375 / 768 / 1440 三档分别得到 1 列 + 汉堡 + 页脚纵排、2 列 + 搜索胶囊 + 副标题、4 列 + `Ctrl K` 芯片。
 
@@ -268,11 +333,11 @@ export const siteConfig: SiteConfig = {
 
 补差第 2 项（数字中文读法并入 `rmb-uppercase`，**工具数不变、注册表条目没增**）同法在 **390 / 1280 两档**复测 `pnpm preview` 的 `dist` 产物：两档 `documentElement.scrollWidth` 分别为 **382 / 1272**（`innerWidth` 390 / 1280，那 8 px 是滚动条，**水平溢出 0**）。`main` 内 `scrollWidth > clientWidth` 的元素在 1280 档**一个都没有**，390 档只有反解输入框那一个 `<input>`（`clientWidth 350 / scrollWidth 376`）—— 这是**单行输入框里长文本自身可横向滚动**，不是布局被撑破，正是它该有的行为（要判「撑破」得看 `documentElement`，不是看元素的 `scrollWidth`）。多节那条链路在浏览器里逐条读出，与 `_oracle10.ts` 一致：填 `1000000001000.5` → 大写「壹万亿零壹仟元伍角整」、读法「一万亿零一千点五」、分节核对表 4 行（`万亿|1|壹`、`亿|0000|零`、`万|0000|零`、末节 `1000|壹仟`）、徽章「规范化数字 1000000001000.50」+「合计 100000000100050 分」；反解框填**小写带点**的 `一千二百三十四点五六` → 数字金额 `1234.56`，并因票面规范而亮出「规范写法应为 壹仟贰佰叁拾肆元伍角陆分」。**探针手法本轮纠了一次假通过**（坑 90）：iframe 的 `src` 写成 `/tools/rmb-uppercase/index.html` 时，静态服务器把文件读出来了、`documentElement` 也确实「没有溢出」，但 Vue 路由把这个路径判成 **404 页**（`innerWidth` 正确、页面却只有 404 文案，`querySelectorAll('input').length === 0`）—— 于是第一轮两档「全绿」量的是一页 404。**判据必须落在页面内容上**（本轮固定为 `inputs === 2` 且读法段落文本命中），路径用目录形式 `/tools/rmb-uppercase/`。首页侧：`读法` / `中文读法` / `数字转中文` / `读作` / `一千二百三十四` / `number to chinese` 六个查询各命中 **1** 张卡（`/tools/rmb-uppercase`），`小写` 命中 2 张（本页 + `/tools/uuid`，那是它自己的「小写」关键词，不是同名冲突）；分类芯片仍是「全部 63」「文本处理 8」。控制台 warn + error **0 条**。localStorage 本轮只写过本页那两个既有键（`toolbox:tool.rmb.amount` / `.upper`），探针读数后已还原为默认的 `1234.56` 与「壹亿贰仟叁佰肆拾伍万陆仟柒佰捌拾玖元玖角捌分」，跑前跑后键集合一字不差（坑 80 的还原纪律）。
 
-### 图标清单（离线内联）
+#### 图标清单（离线内联）
 
 `vite.config.ts` 的 `icon.clientBundle.icons` = `[...chromeIcons, ...registryIcons]` 去重：`registryIcons` 由注册表派生（本轮 `node` 现场读注册表数出来是 **63 个工具图标 + 11 个分类图标 = 74 条，去重后 65 个字形** —— 分类图标与工具图标有复用属正常，加图标即自动进包；上一档写的「73 条 / 去重后 62」里那个 62 是更早一轮的测量，按本轮同法回算 62 工具态应为 73 条 / **64** 字形，即少的那一枚正是新增的 `languages`），`chromeIcons` 手挑界面图标 —— `toolbox / menu / search / command / github / sun / moon / monitor / x / arrow-left / arrow-down / arrow-left-right / arrow-down-up / calendar-days / chevron-right / chevron-up / chevron-down / copy / check / circle-alert / info / eraser / refresh-cw / plus / download / upload / play / file-text / clipboard-list / gallery-thumbnails / sparkles / triangle-alert / delete / equal / arrow-down-to-line / square-function / text / arrow-right / undo-2 / shuffle / dices / trash / eye / eye-off / sliders-horizontal / rotate-ccw`。动态字符串传入的图标不会被 `scan` 扫到，漏登记就会在运行时请求 Iconify API（离线即渲染为空白）。核验方式：**读入口块里的图标表键**，每个字形形如 `"<短名>":{"width":24,"height":24,"body":"<svg…`（第 29–33 个工具各带入 1 个新字形；第 34–38 个由注册表带 5 个新字形，另有 8 个页面里以字符串传入的补进了 `chromeIcons`；第 39–43 个由注册表带 5 个（`list-tree / tags / brackets / key-round / route`，均已在 `@iconify-json/lucide/icons.json` 的 `icons` 键下核对存在），第 44–48 个由注册表带 5 个（`scale / flame / ruler / glass-water / heart-pulse`，同法核对存在，实测五个字形各出现 1 次且当时定位到 `Badge-*.js` 里 —— **落点会随 chunk 图变，本批按表键复查时字形表在入口块，别把某一批的落点当定论**；这批页面没有新增任何以字符串传入的界面图标，`circle-alert` / `info` / `eraser` 上一批就登记过了）。**第 55–60 个由注册表带 7 个字形（`cake-slice / id-card / moon-star / network / dices / percent` + 分类 `coffee`），按表键 `"cake-slice":{` 复查，七条全部落在入口块 `index-BWnpsg6x.js`**（与金融批同一落点，六个新页面块里一条都没有 —— 再次印证坑 63「落点会随 chunk 图变」）；其中 `dices` 界面侧早登记过，走 `registryIcons` 派生也带它，重复不影响。这批页面没有新增任何运行时拼出来的图标名。**第 49–54 个由注册表带 7 个（`house / car-front / trending-up / shield-check / circle-dollar-sign / hard-drive` + 分类 `piggy-bank`），核验方式换了**：用 node 遍历 `src/**` 抓出全部出现过的 `lucide:*` 字面量（93 条），再逐个在 `dist/assets/*` 里找 —— 唯一"找不到"的是 `registry.ts` 注释里的 `lucide:xxx`（真缺陷会是 0 命中且不带这种上下文），这条排除掉即全部命中。**但同一次核验差点漏掉真问题**：房贷/社保/货币页有三元写法 `:icon="showRates ? 'lucide:chevron-up' : 'lucide:sliders-horizontal'"` 与 `icon="lucide:rotate-ccw"`，而"页面块里能 grep 到 `lucide:sliders-horizontal`"**并不等于字形数据进了包**（字符串字面量本来就在渲染函数里）—— 必须按表键 `"sliders-horizontal":{` 去定位。按表键定位的结果是这两条**本来就在入口块里**（补进 `chromeIcons` 前后，`index-C1wS4tM1.js` / `Badge-BtoLNcLm.js` / `index-DMhx0cZF.css` 三条 hash 一字未变，即这次登记是冗余的，只作为显式声明保留），说明 scan 对模板里以**字面量**出现的三元分支也能抓到；此前"AES 页的 `eye`/`eye-off` 属动态传入、必须手登记"那条结论对这一类字面量三元而言是过度归因。**真正的规则是**：运行时拼出来的名字（`'lucide:' + someVar`）才必须手登记，本仓库目前没有这种写法。**仍然必须手登记的是运行时拼出来的名字**（`'lucide:' + someVar`），那种在本仓库目前没有），AES 页那个 `:icon="showPassword ? 'lucide:eye' : 'lucide:eye-off'"` 的三元写法属动态传入，已手登记进 `chromeIcons`，实测两个字形落在 `AesPage-*.js` 块里）。注意这段表在产物里的引号写法**不稳定**：早先的构建里它是 `JSON.parse` 模板字面量、引号带反斜杠转义（要按 `\"width\":24` 才数得到），现在的构建直接是明文字符串（`"width":24`，转义版本文 0 个）—— 两种写法都数一遍再下结论，别用一种正则的历史结果当基线。也别用 `grep lucide:name` 判断，页面块里到处是 `lucide:xxx` 字面量，会把「已内联」误判成「缺失」或反之；模板里以 `icon="lucide:xxx"` 属性传入的会被 scan 抓到（`arrow-down-up` 就不在 `chromeIcons` 里也进了包），但 `:icon="变量"` 的动态写法仍必须手登记。再数一遍页面里 `svg` 的数量与尺寸（首页卡片图标均为 20×20、`viewBox="0 0 24 24"`、无空 `<svg>`）。`USlideover`/`UCommandPalette` 自带的关闭、搜索图标已实测渲染为 `<svg>`，无需额外登记。新增图标前先用 `node -e "require('@iconify-json/lucide/icons.json').icons[name]"` 离线核对名字是否存在（例如 `bitwise`、`fraction`、`approximate` 就不在 lucide 里），别凭印象写。**第 61 个（密码强度评估）由注册表带 1 个字形 `lucide:gauge`，按表键 `"gauge":{` 复查，它同样落在入口块 `index-CC8A6tNB.js`（1 次）**，页面里没有新增运行时拼出来的图标名（`lucide:eye` / `lucide:eye-off` 的三元与 `lucide:triangle-alert` 都是既已登记的字形）。**第 62 个（对比度检查）带 1 个字形 `lucide:contrast`，按表键 `"contrast":{"width"` 复查，也是落在入口块 `index-DlS8uDPp.js` 而不是页块**（页块 `ContrastPage-*.js` 里 `grep` 得到的是模板字面量、不是字形数据，正是坑 63 说的那种误判）；该页预览块里的「非文本：边框与图标」标签也用了同一个 `lucide:contrast`，两处共用一张字形表。**第 63 个（繁简转换）带 1 个字形 `lucide:languages`**：先在本地 `node_modules/@iconify-json/lucide/icons.json` 的 `icons` 键核对存在，并确认它没被任何注册表条目占用（`node` 遍历 63 条 `icon` 值，`languages` 不在其中），构建后按表键复查 —— `"languages":{"width"` 在入口块 `index-DCBGX-OX.js` 命中 1 次、整段 **238 B**，`Badge-*.js` 里 0 次（又一次落在入口，与坑 63 一致）。页面里没有新增运行时拼出来的图标名。**体检轮换掉两对同分类重名的图标**：`md-table` 由 `lucide:table` → `lucide:columns-3`（与 `csv-json` 区分）、`aes` 由 `lucide:key-round` → `lucide:lock`（与 `password-gen` 区分）—— 首页是按分类分组渲染的，同分类两张卡并排时原先完全同形。新名字先在本地 `node_modules/@iconify-json/lucide/icons.json` 的 `icons` + `aliases` 两键里核对存在，构建后按表键复查 `"columns-3":{"width"` 与 `"lock":{"width"` 各命中 1 次、都落在入口块（`Badge-*.js` 里 0 次，与坑 63 一致），而被换掉的 `table` / `key-round` 两键仍在（各自另一页在用），所以入口是净增两枚字形 = +560 B。**跨分类另两对重名（`lucide:ruler` = 单位换算 / 体脂率、`lucide:network` = 子网计算 / 亲戚称谓）判定不动**：不同分类在首页不并排，真要为它改字形得从 `chromeIcons` 那侧腾位置，收益不抵首屏。`public/favicon.svg` 同样不是手画的：用 node 一次性读取 `@iconify-json/lucide` 的 `toolbox` 字形、把 `currentColor` 换成白色后叠在 `#42b883` 圆角方块上生成，保持「图标只来自 Iconify」这条约束。
 
-## 工具注册表与搜索
+### 工具注册表与搜索
 
 `src/tools/registry.ts` 是唯一事实来源，`ToolDefinition` 的 `id` 一处决定四件事：
 
@@ -283,7 +348,7 @@ export const siteConfig: SiteConfig = {
 
 搜索打分在 `useToolSearch.ts`：按空格切词，多词取「全部命中之和」，任一词不命中即整体排除（AND 语义）。单词优先级为 `名称/ id 完全相等 100 > 前缀 90 > 包含 75 > 关键词全等 65 > 关键词前缀 55 > 关键词包含 45 > 描述包含 25`，同分按中文名 `localeCompare('zh-CN')`。命令面板与首页共用同一份打分函数，故「顶栏搜索」「首页搜索框」「Cmd/Ctrl+K」三处结果一致；`?category=` 参与过滤但不改变打分。
 
-## 工具清单
+### 工具清单
 
 全部逻辑位于 `src/tools/<id>/index.ts`（纯函数内核），页面在 `src/pages/tools/`。所有输入与选项写入 `localStorage`（键前缀 `toolbox:`），不上传任何数据。分类共 11 个：编码转换（9）、格式化（8）、文本处理（8）、哈希与生成（5）、数学与换算（5）、时间日期（3）、颜色与图像（4）、网络与运维（5）、健康与体能（5）、金融与理财（5）、生活常用（6），合计 **63**（这串数字按 `registry.ts` 的 `category` 逐类数出来的，与浏览器里芯片的读数一致，见上面第 63 个工具那两段）。「网络与运维」原名「网络与地址」，把 `chmod` 与 HTTP 速查收进来后改了名，第 49–54 批的硬盘分区也归它（是「看清一块盘的字节去哪了」，不是理财）；「金融与理财」只登记 5 个工具，因为同批的第 6 个（硬盘容量与分区）去了网络；**「生活常用」是六批复刻里第一次「一批 = 一类」**（六个都归它，没有跨类归属）。**分类描述与标签只在 `registry.ts` 里写一次**，首页芯片、抽屉、命令面板后缀与卡片计数全部由它派生（首页芯片实测为「全部 63 / 编码转换 9 / 文本处理 8 / … / 哈希与生成 5 / … / 生活常用 6」，`?category=crypto` 深链实测只出「哈希与生成」这 5 张卡）。
 
@@ -353,7 +418,7 @@ export const siteConfig: SiteConfig = {
 | 百分比计算 | `/tools/percent` | 四种问法各用一个模式：求 `a%` 的 `b`、`a` 是 `b` 的百分之几、`a → b` 的变化率、已知增减百分比反推原数。**每一步都把算式原文渲染出来**（`15% × 200 = 30`、`(100 − 80) ÷ 80 × 100 = 25%`），给的是可核对的推导而不是一个孤立数字。变化率模式旁边固定挂一句「反向看：从 100 回到 80 是 −20%」——涨 25% 与跌 20% 不对称是最常见的误读；反推原数同时列「增加前」与「减少前」两解，遇 100% 减少无解时只留一条。>100% 时进度条钉在满格并另行提示，基准为 0 与非数字各有独立报错文案 |
 | 繁简转换 | `/tools/chinese-variant` | 字级 + 词级双向，判定顺序**先二字词、再字级默认值、最后叠加台/港追加层**。字表为自研离线数据（`opencc-js` 1.20 MB / gzip 498 kB 超预算；本站字表内容 100 059 B、逐表 gzip 合计 50 989 B，**只有 opencc-js 压缩体积的 10.2%**）：简→繁 3881 字 + 4046 词，繁→简 578 增量字 + 477 词，台式/港式各一张追加层（`TW_CHARS` 39 / `TW_WORDS` 12 / `HK_CHARS` 59 / `HK_WORDS` 272，另各配反向表）。**一字多形逐处可切换**：`發/後/麵/幹/裡` 这类「同一个简体字有多个繁体归宿」的位置切成可点小段，点一下在候选间循环，也可按整词统一改，候选来自 259 字的 `POLY` 表（生成时按**全词表**统计「字级默认值在该字所有词里成立的比例」筛出）。四个预设（简 ↔ 繁台式、简 ↔ 繁港式）+ 双向下拉，结果区纯文本渲染（**不 `v-html`**），五项计数做成徽章（输出字数 / 词组命中 / 一字多形 / 其中按字级默认 / 已手工改）。核对：与 OpenCC 在 9826 条对抗样本上 7343 条逐字一致，**其余 2483 条的差异处全部被标成可选候选**；6000 字真实文书差 7 处（0.12%）、标出密度 11.6 处/100 字。字表来源与生成脚本见「繁简转换的字表是怎么来的」。待转换文本按常规存 `localStorage`（键 `tool.chinese-variant.*`，与其他文本页同口径），全程不联网 |
 
-## 繁简转换的字表是怎么来的
+### 繁简转换的字表是怎么来的
 
 旧站的繁简页直接用 `opencc-js@1.4.2`。本站先量了它的体积：字典 + 运行时**未压缩 1.20 MB、gzip 498 kB** —— 单这一个包压缩后就是全站首屏 gzip（197.99 kB）的 **2.5 倍**，而「不引入体积过大的依赖」是硬约束，所以改为**只借它的数据、不借它的包**。
 
@@ -364,7 +429,7 @@ export const siteConfig: SiteConfig = {
 - **不变式**：与 OpenCC 不一致的输出**必须**出现在候选里（哪怕最终没选它）。这条由一份临时 oracle 脚本核对（**12 449 条断言 / 0 失败**，跑绿后删除），断言里就包含「每个差异点的参考写法必须在 `def` 或 `alts` 中」，因此表格以后重新生成也不会悄悄丢掉可核对性。
 - **已知边界**：简→繁方向的词表条目**全部是二字**（4046 条，键长实测只有 `2`），所以 `TWVariantsPhrases` 里那批三字以上的人名保护（`葉步樑`、`張棟樑` 等）在这个方向判不了 —— 处理方式不是硬猜三字窗口，而是把**地区追加层前后的两种写法同时放进候选**让用户挑（见坑 87）。繁→简方向的词表保留 2–10 字的长词（477 条），不受这个限制；台式 / 港式两层的反向表 `TWVariantsRev`（38 条）/ `HKVariantsRev`（61 条）负责让地区写法回流时不被字表改没。
 
-## 依赖与产物体积
+### 依赖与产物体积
 
 工具实现优先用浏览器原生 API。**功能型第三方依赖只有两个**：`qrcode@1.5.4`（纯 JS、无传递依赖、`@types/qrcode` 在 devDependencies）与 `js-yaml@5.4.2`（YAML 1.2 参考实现，同样是纯 JS 单文件、无传递依赖；**它自己就带 `dist/js-yaml.d.ts`，所以原先跟着装的那份 `@types/js-yaml@4.0.9` 是多余且版本错配的，体检时已 `pnpm remove`** —— 包本身没有依赖，但 TS 走 `exports` 字段永远优先读自带的 `.d.ts`，那份 v4 声明从来没被用上）。两者都只被各自那一页 `import`，因此被打进该路由的懒加载块，不进首屏：
 
@@ -395,7 +460,7 @@ export const siteConfig: SiteConfig = {
 
 已核对：`qrcode` 的特征串（`amount of data is too big`、`maskPattern`）只出现在 `QrCodePage` 块里，未泄漏进共享块；`js-yaml` 同理（`unacceptable kind of an object`、`tag:yaml.org,2002` 两个串在各产物块里 `grep -l` 只命中 `YamlJsonPage-*.js`）。
 
-## 构建与静态托管
+### 构建与静态托管
 
 ```bash
 pnpm build                      # 产物在 dist/，假设部署在域名根
@@ -418,7 +483,7 @@ VITE_BASE_PATH=/ToolBox/ pnpm build
 
 > 注意：`vite preview` 对未知路径是服务端 SPA fallback（返回 200 + index.html），而 GitHub Pages / OSS 静态托管是 **404 + `404.html`**，两者行为不同；线上要按主机的 fallback 机制理解，别拿 preview 的 200 当作托管方行为的证明。
 
-## 功能清单
+### 功能清单
 
 - [x] 阶段 0 · 项目初始化：Vue3 + Vite + TS 脚手架、Nuxt UI v4 / Tailwind v4 / vue-router / lucide 图标接入、目录骨架、首页占位
 - [x] 阶段 1 · 主题系统：品牌绿 `#42b883`（暗色 `#42d392`）+ 辅助 `#35495e` 经 `@theme` + 颜色别名覆盖 `--ui-primary`；`--ui-bg/--ui-text` 等语义 token 覆盖；跟随系统/亮/暗三态持久化 + 首帧前置脚本防闪烁 + 右上角切换按钮
@@ -454,7 +519,7 @@ VITE_BASE_PATH=/ToolBox/ pnpm build
 
 - [ ] **旧深链重定向表（唯一还挂着的复刻项，未开工）**：`/ToolBox/tool/<id>`（旧站单数）→ `/ToolBox/tools/<id>`，做法是在发布分支多写 63 个 `<meta http-equiv="refresh">` 壳（或一张 `tool/*/index.html` + 一段 `history.replaceState`），代价约每壳几百字节、只影响 `gh-pages`，`src/` 与 `pnpm build` 都不碰。**为什么单列**：这是复刻完成后唯一会让用户看到 404 页的路径，其余旧工具内容都已在本站内（三项并页见上面「补差」两条）。做之前先定一件事：**旧站 67 页与本站 63 页不是一一对应**（八个单位换算页并成一页、`text`/`encoding`/`programmer` 各有拆分去处，见开头那段映射表），所以重定向不能按 id 直映 —— 至少 `length|area-units|volume|weight|temperature|time-units|speed-units|storage` → `unit-convert`、`text` → `line-tools`、`encoding` → `number-base`、`programmer` → `number-base`、`number-words` → `rmb-uppercase` 这十三处要单独指。
 
-## 已踩过的坑（维护参考）
+### 已踩过的坑（维护参考）
 
 1. **pnpm 必须扁平安装**：`.npmrc` 与 `pnpm-workspace.yaml` 里的 `node-linker=hoisted` 是 Nuxt UI 内部子路径解析的前提，删掉会白屏报错。
 2. **`@nuxt/ui/vue-plugin` 只有类型入口**：运行时靠 `@nuxt/ui/vite` 插件做 id 别名，所以 `main.ts` 的导入必须和 vite 插件同时存在。
@@ -553,3 +618,28 @@ VITE_BASE_PATH=/ToolBox/ pnpm build
 89. **三条路共用同一份清洗之后，页面的错误分支可以整块省掉 —— 但前提是「恒等」有断言钉着**（本轮的结构性简化，也是它唯一的隐藏风险）。`normalizeNumeric()`（全角 / 千分位 / `￥` / 括号负数 / 尾随「元」）从 `parseAmount` 里抽出来，正向大写、中文读法、反向解数三条路都先过它，于是 `toReading(x).ok === parseAmount(x).ok` 在 1 500 组小数上逐条相等。**页面因此把读法块放进同一个 `<template v-if="parsed.ok">` 里、不写任何读法专属的报错 UI** —— 省是对的，但如果哪天两条路的判据分叉（比如读法放宽支持更多位、而大写仍卡 16 位），表现就是**读法块静默消失**而不是报错。所以这条恒等式必须留在断言里（本轮 `_oracle10.ts` 有专条目），不能只靠「看起来一样」。**反向解数器加「点」时有两条必须显式互斥**：① 「点」只允许出现一次，② 有「点」就不能再有元/角/分，两条混写共用一条文案「「点」只出现一次，且不与元角分混写」（`一元三点五` 和 `三点一四点二` 都走它，别拆成两条近似的话）。小数第 3 位起按分四舍五入并出提示（`一百二十三点五零五` → `123.51` + 「小数位超过 2 位，已四舍五入到分：123.505 → 123.51」）；没写「点」就仍走角分，`二十` 这类无「元」的补一条「未写「元」，仍按整数金额处理」。**最后一条是给用户看的、不是给代码看的**：正向大写会进位而读法不进位（`1.005` → 大写「壹元零壹分」、读法「一点零零五」），同一个数两种写法不一致，页面上必须各写一句说明，否则用户会以为其中一处算错。
 
 90. **同源 iframe 探针的两条「假通过」：路径写成 `index.html` 会量到 404 页；Vite 打印的 gzip 列不能用 node 复现**（本轮 390/1280 复测撞的第一条，第二条是体积表口径）。① 预览服务对 `/tools/rmb-uppercase/index.html` 这个 URL **能把文件读出来**（静态资源解析），但 Vue 路由按 `/tools/<id>` 匹配、把带 `index.html` 的路径判成 **404** —— 于是 `documentElement.scrollWidth - innerWidth` 依然是 0、`overflowing` 依然是空数组，**两轮三档的「全绿」量的是一页 404 文案**。而且第一次我还把 `src` 写成 `/toolbox/tools/...`（把线上子目录当成了本地预览前缀，本地 `base:'/'`），那次同样是 0 溢出。**判据必须落在页面内容上**：本轮之后固定加一条 `querySelectorAll('input').length === 2` 与「读法段落文本命中」，再报溢出数字；`src` 用目录形式 `/tools/<id>/`。相关：坑 73、80 那几条讲的都是「探针自己坏了」，本条的区别是**它坏了却返回一个看起来正确的绿灯**，所以比假失败更危险。② 体积表里 Vite 打印的那一列 gzip **不等于** node 的任何一档：入口 `index-*.js` 本轮 Vite 打 80.90，而同一份字节 `zlib.gzipSync(level 9)` = 80.02、默认档 = 80.32（CSS 同：打 28.56 / l9 28.13 / 默认 28.45）。所以**两列不能互相对账**，也不能因为「复算比打印小」就怀疑构建变了 —— 本表以 zlib-9 那列为准（合计也按它求和），Vite 那一列只是抄构建日志。
+
+## 四、License
+
+**当前仓库还没有 `LICENSE` 文件，`package.json` 也没有 `license` 字段（而且标着 `"private": true`）。** 按著作权的默认规则，这意味着**保留所有权利**：别人（也包括未来的自己把它开源出去）拿去用或改，严格来说都缺授权。所以这一节现在只能记录「事实与出处」，不能替站点宣布许可证；真要开放，先补一份 `LICENSE` 文件、把 `package.json` 的 `license` 一并填上，再回来更新本节。
+
+自研部分之外，本站实际依赖的代码与数据如下（版本号与 `license` 字段都是从 `node_modules/*/package.json` 实读的，`pnpm-lock.yaml` 为锁定来源）：
+
+| 依赖 | 装到的版本 | 许可证 | 用途 |
+| --- | --- | --- | --- |
+| `vue` / `vue-router` | 3.5.43 / 5.3.1 | MIT | 框架与路由 |
+| `@nuxt/ui` | 4.11.1 | MIT | UI 组件（Vue 模式，非 Nuxt 项目） |
+| `tailwindcss` / `@tailwindcss/vite` | 4.3.3 | MIT | 样式 |
+| `vite` / `@vitejs/plugin-vue` | 8.3.0 / 6.0.9 | MIT | 构建 |
+| `typescript` | 6.0.3 | **Apache-2.0** | 类型检查（只在开发期，不进产物） |
+| `vue-tsc` / `@vue/tsconfig` / `@types/node` | 3.3.11 / 0.9.1 / 24.13.6 | MIT | 开发期工具与类型 |
+| `qrcode` | 1.5.4 | MIT | 二维码编码（只在二维码页按需加载） |
+| `js-yaml` | 5.4.2 | MIT | YAML ⇄ JSON（只在该页按需加载） |
+| `@iconify-json/lucide` | 1.2.135 | **ISC** | 图标字形数据（构建期内联，运行时不请求 Iconify API） |
+
+两处出处不是「写一句 MIT」就能带过的：
+
+- **繁简转换的字表是派生数据**：`src/tools/chinese-variant/table.ts` 由 `scripts/gen-chinese-variant-table.mjs` 从 **OpenCC（Apache-2.0）** 的 `STCharacters` / `TSCharacters` / `TSPhrases` / `STPhrases`(+`_GeneratedFromRegionalPhrases`) / `TWVariants*` / `HKVariants*` 字典（经 `opencc-js@1.4.2` 随包发布的表）裁切生成，文件头注释已写明来源与「不要手改」。**Apache-2.0 要求保留版权声明与许可证文本**，所以这个仓库若开源，LICENSE / NOTICE 里必须带上 OpenCC 的出处，只声明自己代码的许可证不够。
+- **图标是 ISC 授权的数据**：整站图标一律来自 Iconify 的 lucide 集合，连 `public/favicon.svg` 也是用 node 读取 `toolbox` 字形生成的品牌图标（不是手画的）。没有自绘 SVG，就没有额外的图标授权问题。
+
+其余 60 多个工具的内核（Base64 / URL / 哈希 / AES / XML / JSON→TS 接口 / diff / 正则 / 颜色 / 中文数字与大写 / 单位表 / 子网与 chmod 速查 …）**全部是本仓库自研**，只用了浏览器与 JS 原生 API（`TextEncoder`、`crypto.subtle`、`crypto.getRandomValues`、`crypto.randomUUID`、`URL`、`FileReader`、`DataView`、`BigInt`、`<canvas>`），除上表 `qrcode`、`js-yaml` 两条外没有第三方代码进产物。复刻旧站（同所有者名下的 `multicalc/`）时**只读参照了它的功能范围与文案口径，没有搬任何源码文件**，本站的页面与内核是按本文档的口径重新实现的。
