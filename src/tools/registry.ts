@@ -656,6 +656,17 @@ export const tools: ToolDefinition[] = [
     ],
     category: 'life',
     icon: 'lucide:percent'
+  },
+  {
+    id: 'chinese-variant',
+    name: '繁简转换',
+    description: '字级＋词级双向转换，台式／港式用字分列，一字多形逐处可切换',
+    keywords: [
+      '繁简', '简体', '繁体', '简转繁', '繁转简', '汉字转换', 'opencc', '一字多形', '台式', '港式',
+      '發', '後', '麵', '幹', '裡', '台', 's2t', 't2s', '繁体中文', '简体字', '繁简对照'
+    ],
+    category: 'text',
+    icon: 'lucide:languages'
   }
 ]
 
