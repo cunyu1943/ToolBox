@@ -28,7 +28,7 @@ substantial portion of the project.
 
 3. Runtime and build-time dependencies
    Listed with their versions and licenses in README.md, section
-   "四、License". Only two third-party libraries ship code inside the bundle:
+   "十、License 与第三方出处". Only two third-party libraries ship code inside the bundle:
    qrcode (MIT) and js-yaml (MIT), each loaded on demand by its own page.
    The TypeScript compiler (Apache-2.0) and vue-tsc (MIT) run at build time
    only and are not redistributed.

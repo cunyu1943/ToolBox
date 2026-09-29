@@ -1,651 +1,456 @@
 # ToolBox · 纯前端在线工具箱
 
-> 全文分四章：**一、项目介绍 & 支持功能** ｜ **二、项目技术栈** ｜ **三、基于本项目开发**（启动与目录、新增工具的配方、主题与布局、63 个工具的逐条清单、体积账本、构建与发布、功能清单、90 条坑记）｜ **四、License**
+聚合常用小工具的纯静态站点：**63 个工具 / 11 个分类**，一个工具一个页面，打开即用。
+所有计算与转换都在浏览器本地完成，**不请求任何后端接口、没有埋点、没有第三方脚本**，偏好与输入只写 `localStorage`。
 
-## 一、项目介绍 & 支持功能
+- 线上地址：<https://cunyu1943.site/ToolBox/>
+- 源码仓库：<https://github.com/cunyu1943/ToolBox>
 
-聚合常用小工具的站点。每个工具一个独立页面，打开即用，**全部计算/转换在浏览器本地完成，不请求任何后端接口**，偏好与数据存 `localStorage`。
+## 目录
 
-> 当前进度：**阶段 0～4、收尾、以及「复刻旧站全部工具」都已完成** —— 共 **63 个工具 / 11 个分类**，`pnpm build` 产物可直接静态托管（含深链），线上跑的就是这一版。
->
-> **唯一还挂着的一项**：旧站深链是 `/ToolBox/tool/<id>`（单数），本站是 `/ToolBox/tools/<id>`，所以推送之后旧链接一律落到 SPA 的兜底 404 页（`NotFoundPage.vue`，不是白屏、也不是硬 404）；要平滑过渡得单独生成一张 `tool/ → tools/` 重定向表（63 个 meta-refresh 壳，只影响发布分支）。见「功能清单」末条与坑 85。
->
-> **旧站 67 页 ↔ 本站 63 页不是一一对应**（本轮把映射逐条查过：两侧都按注册表 + 页面文件比，不凭印象）：
-> - 旧站**八个单位换算页**（`length` / `area-units` / `volume` / `weight` / `temperature` / `time-units` / `speed-units` / `storage`）并成本站一页 `unit-convert`，该页八个维度标签逐条对得上。
-> - 旧 `encoding`（Base64 / Base32 / URL / HTML 实体 / Unicode）与旧 `programmer`（进制 / 位运算 / 字长 / ASCII）两页，被本站按主题拆成 `number-base`（进制 + Base32 + 按位运算 = 两项补差的落点）、`base64`、`html-entity` 三页（URL 与 Unicode 各自另有同名对应页）。
-> - 旧 `text`（大小写 + 去重排序去空行 + 统计）没有单独新家，被 `line-tools`、`case-convert`、`text-stats` 三页分掉。
-> - 旧 `number-words`（大写金额 + 中文读法）→ 本站 `rmb-uppercase`（本轮补差第 2 项）。
-> - **旧站没有、本站多出来的只有三个**：`float-bits`、`caesar-cipher`、`chmod-calc`。
->
-> 所以准确的说法是「旧站每一页的功能在本站都有落点」，而不是「67 页少了 4 页」——那 4 页的差全部来自合并与拆分的口径（八个单位页并一页、`encoding`/`programmer`/`text` 各被按主题重切），而本站反向多出的 `float-bits`、`caesar-cipher`、`chmod-calc` 又是三个旧站没有的，所以「67 − 4 = 63」这个式子本身没有意义，别拿它当核对依据。
->
-> 复刻的批次记录（`cunyu1943.site/ToolBox/` 共 67 页）：第 1 批 5 个（全角半角 / 摩尔斯电码 / 罗马数字 / Unicode 转义 / ASCII 码表）、第 2 批 5 个（行文本处理 / 查找替换 / HTML ⇄ Markdown / Markdown 表格 / CSS 渐变生成器）、第 3 批 5 个（YAML ⇄ JSON / XML 格式化 / JSON → TS 接口 / AES 加解密 / IP 地址与进制）、第 4 批 5 个（BMI / 基础代谢与每日消耗 / 体脂率估算 / 每日饮水量 / 靶心率区间，新开「健康与体能」分类）、第 5 批 6 个（房贷 / 车贷 / 投资收益与复利 / 五险一金 / 货币换算 / 硬盘容量与分区，新开「金融与理财」分类，硬盘分区归入「网络与运维」）、第 6 批 6 个（年龄计算器 / 身份证信息解析 / 生肖星座查询 / 亲戚称谓推算 / 随机数与抽签 / 百分比计算，新开「生活常用」分类）与**第 7 批的前 3 个（密码强度评估归入「哈希与生成」；对比度检查从颜色工具拆出，归入「颜色与图像」；繁简转换归入「文本处理」，因 `opencc-js` 体积超预算而自研离线字表，见「繁简转换的字表是怎么来的」）以及补差两项（Base32 与按位运算并入进制转换页、数字中文读法并入人民币大写页，工具数都不变）** 已上线；另做了一轮**全项目体检**（修掉颜色页取色器的 8 位 HEX、两对同分类重名图标，移除了多余的 `@types/js-yaml`，并把 `README.md` 排除出 Tailwind 的内容扫描 —— 最后这条让 CSS 少了 1757 B 死规则，也解释清了「同源码重跑 build 却换 hash」的疑案；当轮工具数仍是 62）。**至此第 7 批全部完成**（3 个新工具 + 两项补差：Base32 与按位运算并入进制转换页、数字中文读法并入人民币大写页）—— 旧站的页面按本站口径做了合并与拆分（进制页吸收 Base32 与 `programmer`、人民币大写吸收 `number-words` 的中文读法、对比度从颜色页拆成独立一页），落点是 **63 个工具 / 11 个分类**。详见「功能清单」。
+- [一、特性](#一特性)
+- [二、快速开始](#二快速开始)
+- [三、技术栈](#三技术栈)
+- [四、目录结构](#四目录结构)
+- [五、工具清单](#五工具清单)
+- [六、开发指南](#六开发指南)
+- [七、构建与部署](#七构建与部署)
+- [八、体积预算](#八体积预算)
+- [九、维护约定（踩坑沉淀）](#九维护约定踩坑沉淀)
+- [十、License 与第三方出处](#十license-与第三方出处)
 
-### 站点级能力（所有页面共用）
+## 一、特性
 
-- **一个工具一页 + 深链可分享**：路由 `/tools/<id>`，构建期为每页生成 `dist/tools/<id>/index.html` 静态壳并写本页 `<title>` / `description` / `og:*`，所以纯静态主机（GitHub Pages、OSS、Nginx）直接就能访问深链，不需要任何 rewrite 规则。
-- **全站搜索，一处结果三处同步**：顶栏搜索、首页搜索框、`Cmd`/`Ctrl`+`K` 命令面板共用同一个打分函数（名称 / `id` / 关键词 / 描述 / 分类 / 图标都参与，多词按空格切、AND 语义）。
-- **分类深链**：`/?category=crypto` 直接落到某一类，芯片、抽屉、卡片计数全部由注册表派生。
-- **明暗三态**：跟随系统 / 亮 / 暗，选择持久化；`index.html` 的前置脚本负责首帧上色，不闪白。
-- **观感**：品牌绿 `#42b883` 色板 + 全站毛玻璃、8 px 细滚动条、卡片等高且长名称 hover 才滚、返回顶部浮动按钮、三档断点实测零水平溢出。
-- **状态只留在本机**：每个工具的输入与选项写 `localStorage`（键前缀 `toolbox:`）；**身份证号、AES 口令、待评估口令这三类敏感内容一个字符都不落盘**。
-- **离线可用**：图标（Iconify 的 lucide 字形）在构建期内联进产物，运行时不请求任何远端 API；页面里也没有埋点、没有第三方脚本。
-- **可配置的站点外壳**：站名、页脚首行、页脚自定义 HTML、仓库地址、年份集中在 `src/site.config.ts`。
-- **推送即发布**：`main` 有 push → CI 构建 → 发到 `gh-pages`；线上就是 `https://cunyu1943.site/ToolBox/`。
+### 站点级（所有页面共用）
 
-### 工具级能力（11 个分类 / 63 个工具）
+- **深链可分享**：路由是 `/tools/<id>`，构建期为每页生成 `dist/tools/<id>/index.html` 静态壳并逐页改写
+  `<title>` / `description` / `og:*`，因此 GitHub Pages、OSS、Nginx 这类纯静态主机直接就能访问深链，不需要 rewrite 规则。
+- **搜索一处写、三处用**：顶栏入口、首页搜索框、`Cmd`/`Ctrl`+`K` 命令面板共用同一份打分函数
+  （名称 / `id` / 关键词 / 描述 / 分类 / 图标都参与，多词按空格切分、AND 语义）。
+- **分类深链**：`/?category=crypto` 直接落到某一类；芯片、抽屉、卡片计数全部由注册表派生，不重复维护。
+- **明暗三态**：跟随系统 / 亮 / 暗，选择持久化；`index.html` 里的前置脚本在首帧之前上色，不闪白。
+- **外观**：品牌绿 `#42b883`（暗色 `#42d392`）+ 全站毛玻璃 + 8px 细滚动条 + 卡片等高 + 返回顶部浮动按钮；
+  375 / 768 / 1440 三档实测零水平溢出。
+- **离线可用**：lucide 图标字形在构建期内联进产物，运行时不请求 Iconify API。
+- **可配置的站点外壳**：站名、页脚文案、页脚自定义 HTML、仓库地址、年份都集中在 `src/site.config.ts`。
+- **推送即发布**：`main` 有 push → CI 构建 → 校验产物 → 发到 `gh-pages`。
 
-下表按 `src/tools/registry.ts` 的 `category` 逐条数出来（合计 63，与首页芯片读数一致），**逐工具的功能要点见下文「工具清单」那一节，那张表才是权威清单**。
+### 工具级（11 个分类 / 63 个工具）
+
+分类与数量由 `src/tools/registry.ts` 的 `category` 逐条数出，与首页芯片读数一致；逐工具说明见[工具清单](#五工具清单)。
 
 | 分类 | 数量 | 工具 |
 | --- | --- | --- |
-| 编码转换 | 9 | Base64 编解码、URL 编解码与解析、图片转 Base64、JWT 解析、HTML 实体编解码、古典密码（凯撒）、摩尔斯电码、Unicode 转义、ASCII 码表 |
+| 编码转换 | 9 | Base64 编解码、URL 编解码与解析、图片转 Base64、JWT 解析、HTML 实体编解码、古典密码、摩尔斯电码、Unicode 转义、ASCII 码表 |
 | 格式化 | 8 | JSON 格式化、文本对比、CSV ↔ JSON、HTML ⇄ Markdown、Markdown 表格、YAML ⇄ JSON、XML 格式化、JSON → TS 接口 |
-| 文本处理 | 8 | 正则测试、命名风格转换、人民币大写转换（附中文读法）、文本统计、全角半角转换、行文本处理、查找替换、繁简转换 |
+| 文本处理 | 8 | 正则测试、命名风格转换、人民币大写转换、文本统计、全角半角转换、行文本处理、查找替换、繁简转换 |
 | 哈希与生成 | 5 | 哈希计算、UUID 生成器、随机密码生成、密码强度评估、AES 加解密 |
-| 数学与换算 | 5 | 表达式计算器、单位换算（8 组 65 个单位）、进制转换（含 Base32 与按位运算）、浮点数位布局、罗马数字转换 |
+| 数学与换算 | 5 | 表达式计算器、单位换算（8 组 65 个单位）、进制转换、浮点数位布局、罗马数字转换 |
 | 时间日期 | 3 | 时间戳转换、日期计算器、crontab 解析 |
-| 颜色与图像 | 4 | 颜色转换器、对比度检查（WCAG）、二维码生成、CSS 渐变生成器 |
-| 网络与运维 | 5 | 子网计算器、文件权限计算（chmod）、HTTP 状态码速查、IP 地址与进制、硬盘容量与分区 |
+| 颜色与图像 | 4 | 颜色转换器、对比度检查、二维码生成、CSS 渐变生成器 |
+| 网络与运维 | 5 | 子网计算器、文件权限计算、HTTP 状态码速查、IP 地址与进制、硬盘容量与分区 |
 | 健康与体能 | 5 | BMI 计算器、基础代谢与每日消耗、体脂率估算、每日饮水量计算、靶心率区间 |
 | 金融与理财 | 5 | 房贷计算器、车贷计算器、投资收益与复利、五险一金计算器、货币换算 |
 | 生活常用 | 6 | 年龄计算器、身份证信息解析、生肖星座查询、亲戚称谓推算、随机数与抽签、百分比计算 |
 
-### 明确不做的
+### 明确不做
 
-无后端、无数据库、无账号与云同步；不做任何服务端计算或数据采集。**所有计算都在浏览器本地完成，这也是它唯一的卖点。**
+无后端、无数据库、无账号与云同步，不做任何服务端计算或数据采集。**所有计算都在浏览器本地完成，这是它唯一的卖点。**
 
-## 二、项目技术栈
+> **已知遗留项**：旧站的深链是 `/ToolBox/tool/<id>`（单数），本站是 `/ToolBox/tools/<id>`，所以旧链接会落到 SPA 兜底 404 页
+> （`NotFoundPage.vue`，不是白屏、也不是硬 404）。要平滑过渡需在发布分支额外生成一张 `tool/ → tools/` 重定向表（63 个 meta-refresh 壳）。
+> 另外旧站 67 页与本站 63 页不是一一对应：八个单位换算页并成 `unit-convert`，`encoding` / `programmer` 拆成 `number-base` / `base64` / `html-entity`，
+> `text` 分给 `line-tools` / `case-convert` / `text-stats`，`number-words` 并入 `rmb-uppercase`；本站反向多出 `float-bits` / `caesar-cipher` / `chmod-calc`。
+> 映射关系要比对注册表与页面文件，别按 id 直映。
 
-| 能力 | 选型 | 版本 |
-| --- | --- | --- |
-| 框架 | Vue 3（`<script setup>` + TypeScript） | `vue ^3.5.42` |
-| 构建 | Vite | `vite ^8.3.0` |
-| 路由 | Vue Router | `vue-router ^5.3.1` |
-| UI 组件 | Nuxt UI v4（Vue 模式，非 Nuxt 项目） | `@nuxt/ui ^4.11.1` |
-| 样式 | Tailwind CSS v4（`@tailwindcss/vite`） | `tailwindcss ^4.3.3` |
-| 图标 | Iconify，经 `<UIcon name="lucide:xxx" />` 使用 | `@iconify-json/lucide ^1.2.135` |
-| 二维码编码 | 功能型第三方依赖，只在二维码页按需加载 | `qrcode ^1.5.4` |
-| YAML 编解码 | 第二个功能型第三方依赖，只在 YAML ⇄ JSON 页按需加载 | `js-yaml ^5.4.2` |
-| 类型检查 | TypeScript（`pnpm build` = `vue-tsc -b && vite build`，类型不过就不出产物） | `typescript ~6.0.2`、`vue-tsc ^3.3.11` |
-| 包管理 | pnpm（`packageManager` 已锁定，禁用 npm/yarn） | `pnpm 12.4.2` |
+## 二、快速开始
 
-依赖装到的**精确版本**（vue 3.5.43、vite 8.3.0、@nuxt/ui 4.11.1、tailwindcss 4.3.3…）连同各自许可证列在文末「四、License」，那份清单是从 `node_modules/*/package.json` 实读的，不是凭印象；`pnpm-lock.yaml` 是唯一锁定来源，CI 用 `pnpm install --frozen-lockfile`。
-
-对运行环境的要求只有两条：`crypto.subtle`（哈希与 AES 那两页）与 `navigator.clipboard`（各页的复制按钮）**都只在安全上下文里可用**，所以本地必须走 `http://localhost` 或 `127.0.0.1`、线上必须是 HTTPS；不支持时复制会退回 `execCommand` 并提示「请手动复制」，不会静默失败。
-
-其余工具（Base64 / URL / 哈希 / UUID / diff / 正则 / JSON / 颜色 / 时间戳 / 命名转换 / 图片转 Base64 /
-CSV↔JSON / 密码生成 / 日期计算 / 子网计算 / HTML 实体 / crontab / 浮点位布局 / 人民币大写 /
-文本统计 / 古典密码 / 文件权限 / HTTP 速查 / 全角半角 / 摩尔斯电码 / 罗马数字 / Unicode 转义 / ASCII 码表 / 行文本处理 / 查找替换 / HTML ⇄ Markdown / Markdown 表格 / CSS 渐变 /
-XML 格式化 / JSON → TS 接口 / AES 加解密 / IP 地址与进制）
-全部基于浏览器与 JS 原生 API（`TextEncoder`、`crypto.subtle`、
-`crypto.getRandomValues`、`crypto.randomUUID`、`URL`、`Date.UTC`、`FileReader`、`DataView`、`BigInt`、`String.fromCodePoint`、`<canvas>`）自研，零额外依赖。
-其中 **AES 加解密直接用 `crypto.subtle` 的 PBKDF2 + AES-256-GCM，不引 `crypto-js`（约 60 kB 原始、且已不推荐用于 GCM）**；
-`XML 格式化` 的解析器与 `JSON → TS 接口` 的类型推断都是手写内核（宽容恢复 + 纯函数），只有 YAML 一页用了第三方库（见「依赖与产物体积」）。
-
-## 三、基于本项目开发
-
-一句话流程：装依赖 → `pnpm dev` → 在注册表加一条 → 写纯函数内核 + 页面 → 按下面的纪律验证 → 同步本文档 → 推 `main` 自动发布。下面先给「新增一个工具」的配方，再给逐层的实现细节（每一层都有自己的小节，改动落在哪一层就看那一节）。
-
-### 新增一个工具（六步）
-
-1. **内核**：`src/tools/<id>/index.ts` 只写纯函数 —— 不 import Vue、不碰 DOM、不发请求。这样断言脚本能直接在 node 里跑，也是「同一个逻辑既能被页面用、能被脚本验」的前提。
-2. **注册**：在 `src/tools/registry.ts` 的 `tools` 数组加一条 `ToolDefinition`（`id` / `name` / `description` / `keywords` / `category` / `icon`）。`id` 一处决定四件事：路由 `/tools/<id>`、页面文件名、每页 SEO 文案、构建期静态壳（详见「工具注册表与搜索」）。要新开分类得同时改 `CategoryId` 与 `toolCategories`。**注册了却没有对应页面文件会在模块初始化时直接抛错**，这是刻意设计：宁可启动即失败，也不留一张 404 死卡片。
-3. **页面**：`src/pages/tools/<PascalId>Page.vue`（`json-format` → `JsonFormatPage.vue`，按 `pageNameOf()` 约定解析）。外壳统一用 `<ToolShell tool-id="<id>">`（它负责返回链接、图标、标题、描述、分类徽章），输入与选项用 `useStored('tool.<id>.<field>', 默认值)`，复制用 `<CopyButton :text="…" />`。**结果区不用 `v-html`**；敏感输入（口令、证件号）不接 `useStored`。
-4. **图标**：只用 Iconify，`<UIcon name="lucide:xxx" />`，不手写 SVG。新名字先在 `node_modules/@iconify-json/lucide/icons.json` 的 `icons` + `aliases` 两键里核对存在（`bitwise`、`fraction`、`approximate` 就不在 lucide 里）。注册表里的图标经 `registryIcons` 自动进 `vite.config.ts` 的 `clientBundle.icons`，模板里以**字面量**传入的图标 build-time scan 能抓到，**运行时拼出来的名字（`'lucide:' + v`）必须手登记进 `chromeIcons`**，否则离线渲染为空白。核验只看入口块里的字形表键（如 `"languages":{"width"`），别 grep `lucide:xxx`。
-5. **验证**：临时 `_oracleN.ts` 断言脚本（`node --experimental-strip-types` 跑，绿了删）→ `pnpm typecheck && pnpm build` → 在 `pnpm dev`（5173）走一遍黄金路径，再用同源 iframe 对 `pnpm preview`（4173）的产物做 390 / 768 / 1280 三档溢出复测（**判据必须落在页面内容上**，只看 `scrollWidth` 会量到一页 404，见坑 90）→ 需要体积数字时做 A/B（A 态就是 `git HEAD`，`--outDir dist-a` 才不会污染 Tailwind 的扫描）。
-6. **文档**：本文档同步 —— 「工具清单」加一行、「功能清单」打勾、新坑续编号、体积表按当次构建改表头。
-
-### 阅读顺序
-
-- 环境与命令 → 「启动」；文件在哪 → 「目录结构」
-- 改配色 / 毛玻璃 / 滚动条 / 明暗 → 「主题系统」；改顶栏、抽屉、卡片、断点、页脚 → 「布局与导航」；图标登记规则 → 「图标清单（离线内联）」
-- 改搜索与注册表 → 「工具注册表与搜索」；查某个工具该有什么功能 → 「工具清单」（63 行那张表）
-- 加数据型工具前先读 → 「繁简转换的字表是怎么来的」（构建期生成 + 体积核算的唯一样本）
-- 看体积回归 → 「依赖与产物体积」；发布链路与深链壳 → 「构建与静态托管」
-- 想知道为什么这么写、哪些雷踩过了 → 「功能清单」与「已踩过的坑（维护参考）」
-
-### 启动
+运行环境只需要 Node 与 pnpm（`packageManager` 已锁定，**禁用 npm / yarn**）：
 
 ```bash
 pnpm install     # 首次安装依赖
 pnpm dev         # 开发服务器 http://localhost:5173
 pnpm typecheck   # vue-tsc 类型检查
-pnpm build       # 类型检查 + 产物输出到 dist/（已含深链静态壳）
+pnpm build       # 类型检查 + 产物输出到 dist/（已含深链静态壳与 404.html）
 pnpm preview     # 本地预览构建产物（默认 4173）
 ```
 
 端口在 `vite.config.ts` 里以 `strictPort` 固定为 5173，避免与同工作区其他项目串台。
 
-### 目录结构
+两条运行时依赖决定了**必须走安全上下文**：`crypto.subtle`（哈希、AES 两页）与 `navigator.clipboard`（各页复制按钮）只在
+`http://localhost` 或 HTTPS 下可用。不可用时复制会退回 `execCommand` 并提示「请手动复制」，不会静默失败。
+
+## 三、技术栈
+
+| 能力 | 选型 | 版本 |
+| --- | --- | --- |
+| 框架 | Vue 3（`<script setup>` + TypeScript） | `vue ^3.5.42` |
+| 构建 | Vite | `vite ^8.3.0` |
+| 路由 | Vue Router（`createWebHistory`，懒加载工具页） | `vue-router ^5.3.1` |
+| UI 组件 | Nuxt UI v4（Vue 模式，非 Nuxt 项目） | `@nuxt/ui ^4.11.1` |
+| 样式 | Tailwind CSS v4（`@tailwindcss/vite`，CSS-first 主题） | `tailwindcss ^4.3.3` |
+| 图标 | Iconify，写作 `<UIcon name="lucide:xxx" />`，构建期内联 | `@iconify-json/lucide ^1.2.135` |
+| 二维码编码 | 功能型第三方依赖，只在二维码页按需加载 | `qrcode ^1.5.4` |
+| YAML 编解码 | 功能型第三方依赖，只在 YAML ⇄ JSON 页按需加载 | `js-yaml ^5.4.2` |
+| 类型检查 | `pnpm build` = `vue-tsc -b && vite build`，类型不过就不出产物 | `typescript ~6.0.2`、`vue-tsc ^3.3.11` |
+| 包管理 | pnpm | `pnpm 12.4.2` |
+
+**功能型第三方依赖只有 `qrcode` 与 `js-yaml` 两个**，都只被各自那一页 `import`，因此进的是路由懒加载块、不进首屏。
+其余工具一律基于浏览器与 JS 原生 API 自研（`TextEncoder`、`crypto.subtle`、`crypto.getRandomValues`、`crypto.randomUUID`、
+`URL` / `URLSearchParams`、`Date.UTC`、`FileReader`、`DataView`、`BigInt`、`String.fromCodePoint`、`<canvas>`），零额外依赖。
+几个刻意的取舍：AES 直接走 `crypto.subtle` 的 PBKDF2 + AES-256-GCM（不引 `crypto-js`）；XML 解析器与 JSON→TS 类型推断是手写内核；
+繁简转换自研离线字表（`opencc-js` 压缩后 498 kB，超体积预算）。
+
+`pnpm-lock.yaml` 是唯一的版本锁定来源，CI 用 `pnpm install --frozen-lockfile`。
+
+## 四、目录结构
 
 ```
 toolbox/
-├─ index.html                 # 入口 HTML，<head> 内的前置主题脚本负责首帧上色（防闪白）
-├─ vite.config.ts             # vue + tailwindcss + @nuxt/ui/vite + staticHosting 四个插件、颜色别名、~ 别名
+├─ index.html                 # 入口 HTML，<head> 内联前置主题脚本（首帧上色，防闪白）
+├─ vite.config.ts             # vue + tailwindcss + @nuxt/ui/vite + staticHosting 四个插件、base、~ 别名
 ├─ pnpm-workspace.yaml        # nodeLinker: hoisted（Nuxt UI 子路径解析必需）
-├─ .npmrc                     # node-linker=hoisted
-├─ LICENSE                    # 标准 MIT 文本，一字不改（附加内容会破坏 GitHub 的许可证识别，见坑 92）
-├─ NOTICE                     # 第三方数据与字形的出处声明：OpenCC 派生字表（Apache-2.0）、lucide 图标（ISC）
-├─ public/                    # favicon.svg（由 lucide:toolbox 生成的品牌图标）、.nojekyll
-├─ scripts/                   # 构建期代码生成器（不参与 `pnpm build`）：`gen-chinese-variant-table.mjs` 是繁简字表 `src/tools/chinese-variant/table.ts` 的唯一来源，见「繁简转换的字表是怎么来的」
-├─ types/                     # 由插件生成的自动导入 / 组件类型声明
+├─ LICENSE / NOTICE           # 标准 MIT 全文 / 第三方数据与字形出处声明
+├─ public/                    # favicon.svg（由 lucide:toolbox 字形生成）、.nojekyll
+├─ scripts/                   # 构建期代码生成器（不参与 pnpm build）：繁简字表的唯一来源
+├─ types/                     # 插件生成的自动导入 / 组件类型声明
 └─ src/
    ├─ main.ts                 # createApp + vue-router + @nuxt/ui/vue-plugin
-   ├─ App.vue                 # 根组件：AppHeader + <main><RouterView /></main> + AppFooter 三段式骨架
-   ├─ site.config.ts          # 站点级构建期配置：站名 / 页脚首行 / 自定义 HTML / 仓库地址 / 年份，页脚组件唯一读取方
-   ├─ assets/css/main.css     # 品牌色板（@theme static）、--ui-* 语义 token 覆盖、on-primary 文字色、毛玻璃 token 与 @utility glass/glass-card、细滚动条、卡片标题滚动 @utility
+   ├─ App.vue                 # 三段式骨架：AppHeader → main(RouterView) → AppFooter，外加命令面板与返回顶部
+   ├─ site.config.ts          # 站点级构建期配置（站名 / 页脚 / 仓库地址 / 年份），页脚组件唯一读取方
+   ├─ assets/css/main.css     # 品牌色板 @theme static、--ui-* 语义 token、毛玻璃 @utility、细滚动条、卡片滚动动画、@source not 排除
    ├─ composables/
-   │  ├─ useTheme.ts          # 跟随系统 / 亮 / 暗 三态，持久化 localStorage，模块级单例
+   │  ├─ useTheme.ts          # 明暗三态，模块级单例，持久化 toolbox:theme
    │  ├─ useToolSearch.ts     # 搜索打分与排序（registry 的唯一消费入口）
-   │  ├─ usePalette.ts        # 命令面板开关/查询词，模块级单例
-   │  ├─ useHotkey.ts         # window 级快捷键，作用域销毁自动解绑（Cmd/Ctrl+K）
-   │  ├─ useStored.ts         # ref ↔ localStorage（JSON 序列化、deep watch、读写异常静默退化为内存值）
-   │  └─ useCopy.ts           # 复制：clipboard 与超时竞速，失败回退 execCommand，保证 UI 一定有反馈
-   ├─ components/
-   │  ├─ AppHeader.vue        # 粘性顶栏：汉堡 + 站名 + 搜索入口（真实按钮，非占位）+ 主题切换
-   │  ├─ AppFooter.vue        # 页脚：读 site.config.ts —— 首行文案（{year}/{name} 占位符）+ 自定义 HTML + 只显示图标的仓库链接
-   │  ├─ AppCommandPalette.vue# Cmd/Ctrl+K 命令面板（UCommandPalette），结果与首页共用打分逻辑
-   │  ├─ ToolCard.vue         # 工具卡片（等高两行：图标瓷砖 + 18px 标题行带钉右的徽章 + 13px 简介行，长文本单行裁剪 + 悬停/聚焦横向滚出）
-   │  ├─ BackToTop.vue        # 全站「返回顶部」浮动按钮（挂在 App.vue，滚过 480px 出现，进出场只用 Tailwind 过渡类）
-   │  ├─ ToolShell.vue        # 工具页统一外壳：返回链接 + 图标 + h1 + 描述 + 分类徽章 + 插槽
-   │  ├─ CopyButton.vue       # 带「已复制」反馈的复制按钮
-   │  └─ AppThemeToggle.vue   # 主题切换按钮（原生 button + UIcon，44×44 纯图标 + 悬停浮现文字）
+   │  ├─ usePalette.ts        # 命令面板开关 / 查询词
+   │  ├─ useHotkey.ts         # 作用域销毁自动解绑的快捷键（Cmd/Ctrl+K）
+   │  ├─ useStored.ts         # ref ↔ localStorage（JSON 序列化 + deep watch，读写异常退化为内存值）
+   │  └─ useCopy.ts           # 复制：clipboard 与超时竞速，失败回退 execCommand
+   ├─ components/             # AppHeader / AppFooter / AppCommandPalette / ToolCard / BackToTop / ToolShell / CopyButton / AppThemeToggle
    ├─ pages/
    │  ├─ HomePage.vue         # hero + 搜索框 + 分类芯片 + 1/2/3/4 列卡片栅格
    │  ├─ NotFoundPage.vue     # 404
    │  └─ tools/<Name>Page.vue # 63 个工具页，文件名 = registry id 的 PascalCase + Page
    ├─ router/index.ts         # 由 registry 生成的路由表 + 每页 title/description + og 同步
    └─ tools/
-      ├─ registry.ts          # 唯一事实来源：分类、工具元信息、id→页面名、图标清单
+      ├─ registry.ts          # 唯一事实来源：分类、工具元信息、id→页面名约定、图标清单
       └─ <tool-id>/index.ts   # 纯函数内核（无 Vue 依赖），页面只负责交互与展示
 ```
 
-约定：**内核逻辑一律放 `src/tools/<id>/index.ts`，是可脱离 DOM 调用的纯函数**；工具页只做输入绑定、结果展示和本地持久化。新增工具只需 ① 在 registry 注册 ② 建 `tools/<id>/index.ts` ③ 建 `pages/tools/<Name>Page.vue`，路由、搜索、卡片、图标、深链壳全部自动跟上。
+约定：**内核逻辑一律放 `src/tools/<id>/index.ts`，是可脱离 DOM 调用的纯函数**；工具页只做输入绑定、结果展示与本地持久化。
+新增工具只需 ① 注册 ② 建内核 ③ 建页面，路由、搜索、卡片、抽屉、图标、深链壳全部自动跟上。
+
+## 五、工具清单
+
+逻辑在 `src/tools/<id>/index.ts`，页面在 `src/pages/tools/`。以下按分类列出（工具名 → 路由 → 要点）。
+
+**编码转换（9）**
 
-### 主题系统
-
-#### 色板
-
-品牌色定义在 `src/assets/css/main.css` 的 `@theme static` 里，再由 `vite.config.ts` 的
-`ui({ ui: { colors: { primary: 'brand', secondary: 'ink', neutral: 'slate' } } })` 挂到 Nuxt UI 别名上。
-**改品牌色只需同时改这两处**：色阶缺 50/100…950 或别名对不上，都会让 `--ui-primary` 解析为空（表现为按钮变透明）。
-
-| 别名 | 亮色取值 | 暗色取值 | 说明 |
-| --- | --- | --- | --- |
-| `primary` = `brand` | `--color-brand-500` `#42b883` | `--color-brand-400` `#42d392` | Nuxt UI 固定「亮色取 500、暗色取 400」，故 400 刻意比 500 更亮 |
-| `secondary` = `ink` | `--color-ink-500` `#35495e` | `--color-ink-400` `#6c8aa5` | 辅助深蓝灰，用于描边/徽章等非主色强调 |
-| `neutral` = `slate` | Tailwind slate | Tailwind slate | 正文、边框、灰面 |
-
-#### 语义 token
-
-页面底色与文字色不写死在组件里，统一覆盖 Nuxt UI 的语义变量，所有组件（`bg-default` / `bg-elevated` /
-`text-muted` / `border-default` …）自动跟随：
-
-| token | 亮色 | 暗色 |
-| --- | --- | --- |
-| `--ui-bg`（画布） | `#ffffff` | `#161618` |
-| `--ui-bg-elevated`（卡片/浮层） | `#f7f8fa` | `#1f1f24` |
-| `--ui-text`（正文） | `#213547` | `#f6f6f7` |
-| `--ui-text-highlighted`（标题） | `#101d2b` | `#ffffff` |
-| `--ui-text-muted`（次要文字） | `#5f6f7f` | `#aab2bd` |
-
-另有一条 `:root:not(.dark) .bg-primary.text-inverted { color: #0c2a1e }`：
-Nuxt UI 实心主色按钮默认用白字，压在 `#42b883` 上只有 2.50:1，亮色下改为深绿近黑后 6.16:1。
-暗色 primary 是提亮的 `#42d392`，Nuxt UI 自带的深色文字已有 9.32:1，不需要覆盖。
-
-实测 WCAG 对比度（正文阈值 4.5:1，全部通过）：
-
-```
-12.61  亮 正文 #213547 / #ffffff        16.73  暗 正文 #f6f6f7 / #161618
- 5.16  亮 次要 #5f6f7f / #ffffff         8.44  暗 次要 #aab2bd / #161618
- 6.16  亮 按钮文字 / 品牌绿              9.32  暗 按钮文字 / 提亮绿
- 9.27  亮 secondary #35495e / #ffffff   15.19  暗 正文 / elevated #1f1f24
-```
-
-#### 毛玻璃（backdrop-filter）
-
-全站玻璃质感由 `src/assets/css/main.css` 末尾的一段 token + 两个 `@utility` 提供，组件里只写 `glass` / `glass-card` 类名：
-
-- **底色来自语义 token**：`--glass-bg = color-mix(in oklab, var(--ui-bg) 76%, transparent)`、`--glass-elevated-bg = …var(--ui-bg-elevated) 72%…`、`--glass-blur: 14px`。因此明暗切换、`--ui-bg` 改动都会自动带到玻璃面上，没有第二份颜色。
-- **必须有可透视的背景**，否则 `backdrop-filter` 无从生效：`body::before` 是一层 `position: fixed; inset: 0; z-index: -1; pointer-events: none` 的品牌色径向渐变（三束 `color-mix(… var(--ui-primary)/var(--color-ink-400) …)` 光晕），亮暗两套都靠同一组 token 推导。
-- 用 `@utility glass` / `@utility glass-card` 而不是 `.glass` 普通类：这样 `hover:`、`sm:` 等变体可用，且未被引用时会被 Tailwind v4 摇掉。
-- **落点**：`AppHeader`（`glass` + 原有 `border-b`）、`AppFooter`（`glass`）、`ToolCard` 与首页分类芯片/空态（`glass-card`）。Nuxt UI 的浮层自带不透明底，用 slot `ui` 覆写：命令面板 `UModal` 与抽屉 `USlideover` 传 `content: 'bg-default/80! backdrop-blur-2xl'`（Tailwind v4 的 `!` 后缀 = important，才能压过组件默认的 `bg-default`）。实测两处浮层的计算样式为 `oklab(... / 0.8)` + `blur(40px)`。
-- **对比度已按合色复算**（玻璃面透出的最坏情况是纯色画布）：亮色卡片底 正文 11.56:1 / 次要 4.73:1；暗色 14.26:1 / 7.20:1，均 ≥4.5:1。
-- **降级**：`@media (prefers-reduced-transparency: reduce)` 下把 `--glass-*` 换回不透明实色、`--glass-blur: 0`，并隐藏渐变层；不支持 `backdrop-filter` 的浏览器仍有一层半透明底色，不影响可读性。
-
-#### 滚动条
-
-Windows 默认滚动条约 17px、带箭头按钮且不跟随主题，压在半透明玻璃上很抢眼。`main.css` 末尾统一收成 **8px 轨道 + 4px 圆角滑块**（`border: 2px solid transparent` + `background-clip: padding-box` 让滑块两侧留白，比直接写 `width:4px` 更好点），轨道/边角透明，`::-webkit-scrollbar-button` 隐藏箭头：
-
-- 滑块颜色取 `color-mix(in oklab, var(--ui-text-muted) 32%, transparent)`，悬停/拖拽时提到 62% —— 跟着 `--ui-*` 走，明暗两套自动适配，不新增第二份颜色。
-- **两套写法必须分开**：Chrome 121+ 一旦看到非 `auto` 的 `scrollbar-width` / `scrollbar-color`，就会整套忽略 `::-webkit-scrollbar` 规则（反之 Firefox 完全不认 webkit 伪元素）。所以标准属性只写在 `@supports (-moz-appearance: none)` 里，webkit 伪元素留在外面。
-- 核验不看截图看数字：`window.innerWidth - document.documentElement.clientWidth` 与一个 `overflow:scroll` 探测盒的 `offsetWidth-clientWidth` 都应等于 8。自定义滚动条是「经典（占位）」滚动条，会让 `clientWidth` 少 8px，因此 4 列档单卡宽度实际是 `(1152 − 3×16 − 8)/4 ≈ 278px`，卡片栅格仍零溢出。
-
-#### 明暗三态
-
-`src/composables/useTheme.ts` 是模块级单例，状态 `system | light | dark`：
-
-- 持久化键 `toolbox:theme`，默认 `system`；`system` 下监听 `prefers-color-scheme` 变化实时重算，用户显式选择后不再响应系统变化。
-- 生效方式：给 `<html>` 增删 `.dark` 类并写 `style.colorScheme`，Nuxt UI 的 dark 变体即整体切换。
-- **防首帧闪烁**：`index.html` 的 `<head>` 内联脚本在任何渲染之前完成同样的判定（它在 `#app` 之前执行），`main.ts` 只是事后对齐状态。
-- **与 Nuxt UI 内置 `useDark()` 共存**：`@nuxt/ui/vue-plugin` 安装时会调用 `@vueuse/core` 的 `useDark()`，它按 `vueuse-color-scheme` 键独立切换 `.dark`。我们的脚本与 composable 每次都会把解析结果同步写进该键，否则两套逻辑会互相覆盖（已用「投毒测试」验证：把 `vueuse-color-scheme` 改成与用户选择相反的值后刷新，页面仍按 `toolbox:theme` 上色）。
-- 切换入口 `AppThemeToggle.vue`：`跟随系统 → 明亮 → 黑暗` 循环，图标 `lucide:monitor / lucide:sun / lucide:moon`；用原生 `<button>` 而非 `UButton`，以便锁定 `size-11`（44px）移动端可点区域。**恒为纯图标**（原 `≥640px 显示汉字` 已按反馈去掉，顶栏不再因语言/模式变宽），中文提示改成只在**鼠标悬停或键盘聚焦**时浮现的小气泡：外层 `group/theme` + `absolute top-full end-0 mt-2` 的 `role="tooltip"` 片段，`opacity-0` 配 `transition-opacity`，`group-hover/theme:` / `group-focus-within/theme:` 时显形。默认还带 `invisible`（不只 `opacity-0`）—— `opacity:0` 的元素仍在无障碍树里，读屏会把隐藏的标签连着播报。刻意**不用 `UTooltip`**：实测会把 Reka Tooltip + `@floating-ui` 塞进入口块，`index-*.js` 从 208.9 kB 涨到 249.8 kB（+41 kB raw / +13 kB gzip），为一条提示不值。自阶段 2 起挂在 `AppHeader` 右上角。
-
-### 布局与导航
-
-三段式骨架在 `src/App.vue`：`AppHeader`（粘性）→ `main`（`max-w-6xl` 居中，`flex-1`）→ `AppFooter`。内容宽度只由 `main` 与顶栏内层容器各一份 `max-w-6xl`（1152px）控制，页面自身不再重复写左右留白。
-
-#### 顶栏 `AppHeader.vue`
-
-- `sticky top-0 z-30 border-b border-default bg-default/85 backdrop-blur-md`：滚动时贴顶，85% 底色 + 背景模糊，明暗都由 `--ui-bg` 推导，不写死颜色。
-- 高度 `h-14`（56px）+ 1px 下边框，内层 `flex items-center gap-2 px-4 sm:gap-3 sm:px-6`。
-- 从左到右：汉堡按钮（仅 <640px）→ 站名 `RouterLink`（`lucide:toolbox` + ToolBox，≥768px 追加「在线工具箱」副标题）→ 中部搜索入口 → `AppThemeToggle`。
-- **搜索入口是真按钮**：≥640px 是 `max-w-sm h-9` 胶囊（`lucide:search` + 「搜索工具…」+ ≥1024px 才显示的 `Ctrl`/`K` `UKbd` 芯片，带 `aria-keyshortcuts`）；<640px 退成一个 44×44 图标按钮。两者都调用 `usePalette().show()` 打开命令面板，不是假链接、也不内嵌输入框。
-- 汉堡按钮带 `aria-haspopup="dialog"` 与 `:aria-expanded="navOpen"`，`aria-label="打开工具分类"`。
-
-#### 页脚与站点配置 `site.config.ts`
-
-站名、页脚文案、自定义 HTML、源码仓库地址集中在 `src/site.config.ts` 一个文件里，改完重新 `pnpm build` 部署即可生效，不需要动组件：
-
-```ts
-export const siteConfig: SiteConfig = {
-  name: 'ToolBox',
-  footerLine: '© {year} {name} · 纯前端工具箱，数据只留在你的浏览器里',
-  footerHtml: '',                                            // 备案/友链/统计代码等任意 HTML，留空则整块不渲染
-  github: 'https://github.com/cunyu1943/ToolBox',            // 留空字符串则连图标链接都不渲染
-  year: null                                                 // null = {year} 取访问者本地当前年份
-}
-```
-
-- **`footerLine` / `footerHtml` 都支持 `{year}`、`{name}` 占位符**（`AppFooter.vue` 里 `fill()` 用 `/g` 正则替换，所以一行里写两次 `{name}` 也可以）；两者为空时对应节点直接 `v-if` 掉，不会留下空盒子。
-- **仓库链接只显示图标**：`lucide:github` 的 20px 图标放在 `size-11`（44×44）的可点区里，中文说明交给 `title` + `aria-label`（读屏与悬停仍能读到「查看 ToolBox 源码仓库」），可见文字为 0 —— 实测 `a.innerText === ''`、`getBoundingClientRect()` 为 44×44、`rel="noopener noreferrer"` 保留。
-- **自定义 HTML 的排版**由 `main.css` 的 `.footer-html` 兜住：`display:flex + flex-wrap + gap`（多段内容自动换行、<640px 居中、≥640px 左对齐）、13px、`--ui-text-muted`，链接继承同色并加下划线、hover 升到 `--ui-text`，`img/svg` 限 `max-height:1.5rem` 且 `flex:none`（备案徽标图不被压扁也不撑高行）。规则一律用 `:where()` 写成零特异性，你在 HTML 里内联的 `style` 能直接压过它。
-- **安全边界**：`footerHtml` 走 `v-html`，值只可能来自这个构建期常量文件 —— 它不参与任何运行时输入、不读 `localStorage`、不发请求。页脚是「所有访客都要看到」的内容，所以刻意不做成用户可改的本地配置；哪天要把这类文本接成远端数据，必须先过 DOMPurify 之类的净化，否则等于自造 XSS 通道。
-- 实测（`dist` 产物）：`footerLine` 渲染为 `© 2026 ToolBox · 纯前端工具箱…`（`{year}`/`{name}` 已替换、DOM 文本里不含花括号）；把 `footerHtml` 换成一段含 `<a>` + `<img>` 的示例后，页脚多出一个 2 子节点的 flex 容器、链接 `underline` 且取到 `rgb(170,178,189)`、图片 24×24，改回空串后 `.footer-html` 节点消失；两档宽度水平溢出均为 0。
-
-#### 分类抽屉
-
-`<USlideover side="left">` 由顶栏汉堡触发，`v-model:open` 双向控制：
-
-- 内容为 registry 派生的 11 个分类真链接（`/?category=<id>`），每项显示分类图标、名称与该类工具数量，点击即跳转并自动关闭抽屉。
-- 实测：打开时 `body{overflow:hidden}` 锁滚动、遮罩盖住顶栏（`elementFromPoint` 命中抽屉而非 header）、`Esc` 与自带 Close 按钮都能关闭（`data-state: open → unmounted`），关闭后 `overflow` 复原。自带 Close 按钮是 32×32，小于 44px 触摸目标，属 Nuxt UI 默认值，暂不为它改组件内部样式。
-
-#### 返回顶部 `BackToTop.vue`
-
-全站共用的浮动按钮，挂在 `App.vue` 的根片段里（与命令面板同级），因此 63 个页面自动都有，不需要每个工具页各接一次。
-
-- **阈值 480px**（约一屏的三分之一）：`window.scrollY > 480` 才出现。多数工具页首屏就够用，短页面不该凭空多一个遮住内容的控件；`scroll` 监听用 `{ passive: true }`，且只在跨越阈值时才改 ref，避免每次滚动都触发一次渲染。
-- **层级 `z-20`**：顶栏是 sticky `z-30`，按钮永远在它之下，滚到任何位置都不会压住导航。位置 `fixed right-4 bottom-5`（≥640px 为 `sm:right-6 sm:bottom-6`），尺寸 `size-11` = **44×44**，与页脚仓库图标同一触摸目标标准。
-- 样式沿用既有语汇：`glass` 毛玻璃 + `rounded-full` + `border border-default` + `text-muted hover:text-highlighted` + `shadow-lg`，图标 `<UIcon name="lucide:arrow-up" class="size-5" />`（不是手画 SVG；`arrow-up` 已显式写进 `chromeIcons`，见「图标清单」）。`aria-label="返回顶部"`、`type="button"`。
-- **进出场是纯 Tailwind 的**：`<Transition>` 的六个 `*-class` 属性（`translate-y-3 opacity-0` ↔ `translate-y-0 opacity-100`，进 200 ms / 出 150 ms），`main.css` 一行没加。**`leave-active-class` 里带 `pointer-events-none`**：离场动画期间按钮视觉上已经透明，不该还能被点到（在后台标签页里 leave 动画根本不会跑完，见坑 75）。
-- **尊重系统减少动效**：`prefers-reduced-motion: reduce` 时 `behavior: 'auto'` 直接跳顶，否则 `smooth`。
-- 代价（实产对账见「依赖与产物体积」）：入口 JS +1.10 kB / gzip +0.31，CSS +0.57 kB（新增的那组类），`Badge-*.js` 的 hash 一字未变；**零新依赖**。
-- 实测（**5173 dev** 上的同源 iframe，两档 390 / 1280）：`scrollY` 到 900 时按钮出现、内含已内联的 `<svg>`；点一次对 `scrollTo` 的调用参数恰为 `{ top: 0, behavior: 'smooth' }`（监听器里 spy，不断言真实平滑轨迹，原因见坑 75）；把 `prefers-reduced-motion` 改判为 true 后实际回到 `scrollY === 0`。水平溢出为 0、无细条。产物侧只做了 node 字符串核对（入口块里同时有 `"arrow-up":{"width"` 与「返回顶部」两条串），没有在 4173 上重载一次。
-
-#### 卡片栅格 `ToolCard.vue` + `HomePage.vue`
-
-栅格 `grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4` —— 手机 1 列、≥640px 2 列、≥1024px 3 列、≥1280px **4 列**（按用户要求每行 4 列；因 `main` 限宽 `max-w-6xl`=1152px，4 列档单卡 261px，再往下压到 `lg` 只有 ~236px、被裁的标题会变多，故第 4 列从 `xl` 起）。
-
-卡片是**横向两段**（对齐用户给的设计稿）：`RouterLink`（`<a>`，`group/card glass-card flex items-start gap-3 p-4`）→ 左侧 40px 图标瓷砖（`rounded-lg bg-primary/10 text-primary`，图标 `size-5`）→ 右侧文本块（`min-w-0 flex-1`），只有两行：
-
-1. 「标题 + 分类徽章」`flex items-center gap-1`（**不换行**）。标题 `title-marquee min-w-0 flex-1 text-base font-bold leading-6 text-highlighted text-ellipsis text-nowrap sm:text-lg group-hover/card:text-clip group-focus-within/card:text-clip`（≥640px 为 **18px**，按用户要求放大），徽章 `UBadge size="sm" variant="subtle" class="shrink-0"` 靠 `flex-1 + min-w-0` 钉在行尾。
-2. 简介 `title-marquee mt-1 text-xs leading-relaxed text-muted text-ellipsis text-nowrap sm:text-[13px] group-hover/card:text-clip group-focus-within/card:text-clip`（**13px**，按用户要求缩小）。
-
-两行的文字各自包在一个 `<span class="inline-block group-hover/card:title-scroll group-focus-within/card:title-scroll">` 里。hover 只把描边换成 40% 主色，不做位移阴影。
-
-**所有卡片尺寸必须一致，长文本一律靠滚动展示**（用户连续两轮的取向：先是「分类标签固定在右上角，不要因为工具名过长而挤到下一行」，再是「所有卡片尺寸保持一致，工具名/简介过长通过滚动展示，进详情页看完整介绍」）：
-
-- 标题与简介各占**一行**（`text-nowrap` + `text-ellipsis` + `title-marquee` 的 `overflow:hidden`），既不换行也不撑高 → 同一宽度档内 20 张卡片的 `getBoundingClientRect()` 宽高完全相同（实测 1440/1280 都是 `261×82.27`、1024 是 `312×82.27`、820 是 `372×82.27`、390 是 `350.29×80.64`，`80.64` 只差在 `<640px` 简介用 12px 字号，与内容无关）。被裁掉的文本靠详情页承载：`ToolShell` 头部显示完整 `name + description`。
-- 滚动是纯 CSS 的：`title-marquee` 给该行打 `container-type: inline-size`，`@keyframes tool-title-scroll` 只有一条 `to { transform: translateX(min(0px, calc(100cqi - 100%))) }`。`100cqi` 是文本框宽、`100%` 是文字自身宽，**没溢出时这个差为正、`min()` 取到 0px，文字一动不动**，所以不需要 JS 量宽、也不需要「溢出才加类」的判断 —— 标题和简介共用这一条规则，谁长谁滚。
-- 动画只经 `group-hover/card:` 与 `group-focus-within/card:` 两个变体挂上（鼠标悬停与键盘 Tab 等价），同时把 `text-overflow` 从 `ellipsis` 切成 `clip`（滚动中不该还带省略号）。实测：未悬停未聚焦时 40 个 `<span>` 的 `getAnimations().length` 全为 0（空闲零开销）；聚焦「哈希计算」这张卡时标题与简介同时挂上 `tool-title-scroll`，那条最长的简介（超出 145.07px）跑到终点（`currentTime=2400`）时右缘停在 175.84px，正好贴住 176px 的框，即完整露出且不冲出去；未溢出的「哈希计算」标题位移恒为 0。
-- 各档被裁数量（判据是「文字自身宽 > 框宽」，不能用 `scrollWidth`，见坑 30）：**简介在 ≥1024px 时 20/20 都需要滚动，820/390 档 17/20**（三条特别短的如「逐行比对两段文本…」在宽卡下能整行显示）；**标题只在最窄的 4 列档被裁 1 张**（`URL 编解码与解析`）。
-- 降级分支合并成一条 `@media (hover: none), (prefers-reduced-motion: reduce)`：触屏无从悬停、系统要求减少动效时，都不做自动滚动，而是把该行换成 `overflow-x: auto` 让用户手动横滑，`overscroll-behavior-x: contain` 防止手势串到浏览器前进/后退，并禁掉这两个盒子自己的滚动条。这样**任何模式下卡片都保持等高**，早先「减少动效就让标题换行」的写法已废弃（那会破坏等高）。
-- `gap-1` 而非 `gap-2`：4 列档里「Base64 编解码」「表达式计算器」这类名字只差 2～2.6px 就放得下，被裁时会挂一个误导性的省略号，省下的 4px 让它们直接完整显示；短标题右侧本就有留白，视觉上不吃紧。
-
-卡片数据完全来自 `registry.ts`，首页另提供搜索框 + 12 个芯片（「全部」+ 11 个分类），支持 `?category=` 深链。
-
-#### 响应式断点约定
-
-一律移动优先（基础类 = 手机，`sm:` 起增强）。Tailwind v4.3 编译出的区间语法是 `@media (width >= 40rem)` 这类 range 写法，`sm/md/lg/xl = 40/48/64/80rem`，产物里实际出现 `40/48/64/80/96rem` 五档。已按「编译产物里每个工具类落在哪个 `@media` 区间」核验：`sm:hidden`、`sm:flex`、`sm:grid-cols-2`、`sm:flex-row`、`sm:justify-between`、`sm:px-6`、`sm:gap-5`、`sm:p-5`、`sm:inline`、`sm:px-3`、`sm:grid-cols-5` 全在 `>= 40rem`；`md:inline` 在 `>= 48rem`；`lg:inline`、`lg:grid-cols-3`、`lg:grid-cols-2`、`lg:grid-cols-[minmax(0,…)]` 在 `>= 64rem`，`xl:grid-cols-4` 在 `>= 80rem`；基础 `grid-cols-1` 在顶层。故 375 / 768 / 1440 三档分别得到 1 列 + 汉堡 + 页脚纵排、2 列 + 搜索胶囊 + 副标题、4 列 + `Ctrl K` 芯片。
-
-20 个工具页与首页做了一轮「同页多宽度」实测（用同源 iframe 加载 `dist` 产物，读子文档的 `scrollWidth - clientWidth` 与栅格轨道数）：**1440 / 1280 / 1024 / 820 / 390 五档下首页卡片栅格分别为 4 / 4 / 3 / 2 / 1 列，水平溢出全部为 0**，首页卡片（当前 24 张）在各档下全部渲染、图标全部为 20px 的 `<svg>`（无空图标）；卡片栅格那四条断言（同档内卡片宽高唯一、徽章与标题同区间、徽章距右缘 16px、被裁文本数）见上一节。新增的 4 页（CSV↔JSON、密码生成、日期计算、子网计算）另在 390 / 820 两档复测，水平溢出同样为 0，其中子网页的拆分表格靠 `overflow-x-auto + min-w-[46rem]` 在窄屏横向滚动而非撑破页面。颜色/对比度、文本对比、二维码、图片转 Base64 这四页的双栏 `lg:` 布局在 375/768 收到 1 栏、1440 展开为 2 栏，任意值网格（`lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]` 等）确认编译进了 `@media (width>=64rem)`。
-
-第 21–24 个工具页（HTML 实体、crontab 解析、浮点位布局、人民币大写）在同一方法下于 **390 / 820 两档复测，`documentElement` 与 `body` 的水平溢出均为 0**：crontab 的逐字段表用 `overflow-x-auto + min-w-[34rem]`、大写的分节表用 `min-w-[26rem]` 在窄屏内滚动，浮点页的尾数串（binary64 有 52 位）靠 `overflow-x-auto + whitespace-nowrap` 横向滚动，都不撑破页面。
-
-第 25–28 个工具页（文本统计、古典密码、文件权限计算、HTTP 状态码速查）同法在 **390 / 820 两档并行加载 8 个同源 iframe 复测，溢出仍全为 0**。窄屏不撑破的关键是三处：状态码列表用 `max-h-[28rem] overflow-y-auto` 的内滚动容器（66 行长表不把页面撑高）、方法表用 `overflow-x-auto + min-w-[34rem]`、密码页的 26 行破解候选每行 `truncate` 且分数/位移列 `shrink-0`。权限页的九宫格勾选行用 `flex-wrap + gap-x-4`，390 档下 r/w/x 三个复选框自动折到第二行而不裁切。
-
-复刻第 1 批（第 29–33 个：全角半角、摩尔斯、罗马数字、Unicode 转义、ASCII 码表）在 **4173 产物与 5173 dev 上两档复测（390 / 820），`documentElement` 的 `scrollWidth === clientWidth`（382 / 812，差值是滚动条）即零水平溢出**。三处窄屏手法：ASCII 页的 13 行记法表 `overflow-x-auto + min-w-[34rem]`（同 crontab 页那一套）、128 个码位不是表格而是 `grid grid-cols-4 sm:grid-cols-8 lg:grid-cols-12` 的芯片墙（配 `max-h-[28rem] overflow-y-auto` 内滚动，窄屏 4 列也不会撑破）、符号芯片与摩尔斯码组用 `flex-wrap`；Unicode 页的非法片段清单是 `ul` + `code` 自然换行，长序列（`\ud842\udfb7`）不撑宽。首页 `<noscript>` 清单与卡片栅格同批从 28 涨到 33。
-
-复刻第 2、3 批（第 34–43 个）合并复测：同源 iframe 在 **390 / 1280 两档**逐个加载这 10 张页面，`documentElement` 的 `scrollWidth === clientWidth`（390 档读到 382、1280 档读到 1192，差值都是那条 8px 经典滚动条），**水平溢出全部为 0**。第 3 批的窄屏手法：IP 页的「等价写法」不用 `<table>` 而是 `ul` + 每行 `flex flex-wrap`（标签 `w-36 shrink-0`、值 `min-w-0 flex-1 break-all`、说明另起一行），最长的逐段二进制串因此折行而不是撑宽；XML 页的报错清单是 `max-h-40 overflow-auto` 的 `UAlert` 且只列前 20 条（「…另有 N 处未列出」），66 条错也不把页面撑高；JSON→TS 页的 7 个开关放在 `flex flex-wrap gap-2` 里，390 档自动折成多行。AES 页刻意**不给「口令 / 明文 / 载荷」任何一个 `useStored`**（见坑 55），刷新即丢是特性不是缺陷。
-
-复刻第 4 批（第 44–48 个：BMI、基础代谢、体脂率、饮水量、靶心率）同法在 **390 / 1280 两档**逐个用同源 iframe 加载这五页：首轮 390 档就抓到一处**真溢出**——饮水页那行「需要喝已扣掉 20% 食物供水」的说明是 `min-w-0 flex-1` 的弹性项，390 档被两侧统计挤成 11px 宽的细条，自身 `scrollWidth` 47px 撑破容器（`documentElement` 溢出 21px），改成 `min-w-0 basis-full` 让它恒定占满一整行后归零；顺带说明「flex-1 的长文本项」在这类「数字 + 说明」混排行里不可靠，要么 `basis-full` 要么给它一个 `min-w-*`。修完复测五页两档溢出全部为 0，且每页都过了一遍「窄于 40px 却 `scrollWidth > 60`」的细条探测，结果为空。同批还查出一个**只在真实 DOM 里才看得见**的文案缺陷：五个内核的说明条目有四条写了 Markdown 的 `**…**` 强调，而结果区是纯文本渲染（不用 `v-html`，见坑 53），星号就原样出现在页面上——已改成「」引号，复测 `body.innerText` 不含 `**`。功能侧在 5173 dev 上逐页点样本按钮核对数值（BMI 页英制样本 150 lb / 69 in → 68 kg / 1.75 m、BMI Prime 0.89；BMR 页无体脂样本只出两式、TDEE 五档 = 1825/2190/2509/2829/3148/3468 kcal 与 `1825 × 1.55 = 2829` 手算一致；体脂页女·运动员样本出 17%（实测）与 25.2%（Deurenberg）两条路径 + 6 档目标体重 56.6–68.7 kg；饮水页勾选妊娠/哺乳后总量按 300/700 ml 逐项变化 2120→2680→2920 ml，与内核的 `+300/+700` 加成逐项吻合；心率页四个估算式与 Z1–Z5 两列区间正常渲染），命令面板按数字关键词搜 `18.5` / `220-年龄` / `7700` 分别命中 BMI / 靶心率 / 基础代谢，`?category=health` 深链只出这 5 张卡，控制台除 Vite HMR 连接日志外零消息。探针把 `useStored` 种下的 25 条 `toolbox:tool.<新 id>.*` 键在收尾全部删除（坑 43 那条纪律）。
-
-复刻第 5 批（第 49–54 个：房贷、车贷、投资收益、五险一金、货币换算、硬盘分区）同法在 **390 / 1280 两档**逐个用同源 iframe 加载这六页，**六页两档的 `documentElement` 水平溢出全部为 0**——房贷页那两张宽表（年度汇总 `min-w-105`、逐月明细 `min-w-115`）是刻意超出 390 视口的，但外层 `overflow-x-auto` 把它们关在自己的滚动容器里，所以按「元素右边界 > 文档宽度」探测会命中表格本身、而文档 `scrollWidth === clientWidth`，**判溢出必须以文档为准、把可滚动容器内的宽表单独看待**（新坑 64）。数值抽查全部用**页面内独立复算的闭式公式**去比对渲染文本，六页各自命中：房贷默认 100 万 / 3.1% / 30 年 → 月供 `4,270.16`、总息 `537,259.04`、总还 `1,537,259.04`（且 4,270.16 × 360 与总还吻合到分）；车贷 14 万 / 3 年 / 年利率 4.5% → 月供 `4,164.57`；投资 1 万本金 + 2000 元月投 / 20 年 / 8% → `1,227,308.86 元`（闭式取整 1,227,309）；五险一金基数 12 000 → 个人 `2,700.00` / 单位 `4,704.00` / 合计 `7,404.00`；货币 100 USD → `720.00 CNY` 且快照日期徽章显示 `2026-09-18`；硬盘 1000 GB → `931.32` GiB、30/40/30 → `279 / 372 / 280` GiB、首块 `0 – 285,696` MiB（= 279 × 1024，即天然 1 MiB 对齐）。内核侧仍是「临时 `_oracle5.ts` → 跑绿 → 删除」，本批 **363 条断言**，它抓到一个我这次自己写出来的**真缺陷**：`allocate()` 重构后漏了 `assigned += sizeGiB`，导致最后一块分区吃掉整块盘、三块合计 1582 GiB > 931 GiB —— 页面肉眼看不出来（占比列仍是 30/40/30），只有对总和断言才炸（坑 65）。首页侧同批复核：54 张卡、11 个芯片计数为「全部 54 / 编码转换 9 / 格式化 8 / 文本处理 7 / 哈希与生成 4 / 数学与换算 5 / 时间日期 3 / 颜色与图像 3 / 网络与运维 5 / 健康与体能 5 / 金融与理财 5」，`?category=finance` 深链只出这 5 张卡，搜索框按数字与缩写搜 `931` / `IRR` / `4.9` / `公积金` / `复利` 分别命中硬盘分区 / 车贷 / 房贷 / （社保 + 房贷）/ 投资页。图标核验换了方法（见「图标清单」一节末尾，坑 63）。**控制台本批没有新增缺陷**：唯一反复出现的是一条 `Invalid prop: type check failed for prop "ariaHidden". Expected Boolean, got String with value "true"`，调用栈全在 Nuxt UI 的 `SelectItemIndicator` → `UIcon` 内部（我们的代码只出现在最外层的 `<USelect>`），旧页（BMI、饮水）同样会报，且 Vue 的 prop 类型校验是 dev-only、生产构建不执行 —— 记为**上游 dev 噪音**，不为本它给每个 `USelect` 包一层。探针全程只读，本批六页**没有往 localStorage 写入任何 `toolbox:tool.<新 id>.*` 键**（区别于健康批那次要清 25 条），收尾无需还原。
-
-复刻第 6 批（第 55–60 个：年龄计算器、身份证信息解析、生肖星座查询、亲戚称谓推算、随机数与抽签、百分比计算）同法在 **390 / 1280 两档**逐个用同源 iframe 加载这六页，**六页两档的 `documentElement` 水平溢出全部为 0**，且每页都过了一遍「窄于 40px 却 `scrollWidth > 60`」的细条探测，结果为空。交互抽查逐页命中：年龄页默认样本出 `30 岁` 与「今天正是生日」那条 note，点「差 1 天满 1 万天」后里程碑里的 `2026-09-25` 出现在页面上（修示例前这里渲染的是 `2026-10-17`，与按钮文案相反）；称谓页默认链「爸爸的哥哥的儿子」出 `堂兄 / 堂弟` 两解、反向同时给 `堂弟 / 堂兄`，往输入框里直接敲 `妯娌` 现在也能推出「老公 的 哥哥 的 老婆」；身份证页三个样本（合法 / 校验位错一位 / 15 位一代证）各自的徽章与说明文案都渲染正确，**且 `localStorage` 里查不到任何 `toolbox:tool.id-card.*` 键**（号码用 `ref` 而非 `useStored`，见坑 72）；抽签页连点两次「开始抽取」结果不同（默认 `crypto` 随机源，切「固定种子」后才可复现）；百分比页默认 15 / 200 渲染出算式 `15% × 200 = 30`，进度条内层 `style="width: 15%"` 与 `barPercent` 一致。**生肖页的两处回填交互（出生日期文本框、「读取日期」按钮）本轮没做抽查**，它只过了溢出与渲染，正确性依赖内核侧的 `signOfYearMonthDay` 与 60 甲子、12 星座边界断言。首页侧：60 张卡、**12 个芯片**（「全部 60」+ 11 类，`?category=life` 深链实测恰好 6 张新卡）。**这一批的探针手法有两个坑**（已记到坑 73、74）：单次 `evaluate_script` 里塞 4 个冷 iframe 必然撞 15 s 超时（每调用两页是实测上限），而首页芯片是 `BUTTON` 不是 `<a>`，按 `a[href*="category="]` 选会得到 0 条；样本按钮要按 `textContent.trim() === '15 位一代证'` 精确匹配，用 `includes` 首轮点了没反应。收尾把探针种下的 `toolbox:tool.{age-calc,zodiac,kinship,percent,random-pick}.*` 键全部还原成进入前的值。
-
-复刻第 7 批的第 1 个（第 61 个：密码强度评估）同法在 **390 / 1280 两档**复测，**两档 `documentElement` 水平溢出均为 0**、无细条，页内 10 个内联 `<svg>`。数值与渲染逐条读出（同源 iframe，五样本 + 空态）：`password123` → 很弱、`19900101` → 理论 `26.6 bit` 折到判级 `15.2 bit`、平均尝试 `10^4.3` 次；`Wang2026` → `47.6 → 31.5`、渲染出「内嵌年份「2026」」与「已按模式折损」两行；`Tr0ub4dor&3` → `72.3 bit`（无折损）、≈`10^3.0` 年；随机 20 位 → `131.4 bit`、「远超宇宙年龄」。空输入态不出进度条与徽章、只给「尚未输入密码」的建议；点样本会把 `type` 从 `password` 切到 `text`（`visible` 随 `useSample` 打开）；**结果区无 Markdown 星号残留**（`innerText` 不含 `**`，见坑 59 同类），且 `localStorage` 键列表为空 —— 待评估的口令一个字符都不落盘。首页侧：61 张卡、12 个芯片（「全部 61」+ 11 类，其中「哈希与生成」由 4 涨到 5），`?category=crypto` 深链恰好 5 张卡。**这一批的探针手法新增两个坑**（A/B 口径与备份事故记到 76，后台标签页的异步探针记到 77）：后台标签页把 `setTimeout` 节流到几乎不返回，含多个 `await` 的探针必撞 15 s 上限，改成「一次调用只做一次动作 + 全同步读 DOM」才稳；A/B 体积若只摘注册表条目会**同时低估 CSS 与页块**（Tailwind 仍扫得到被移走的 `.vue`、rollup 仍会为 `import.meta.glob` 里那条路径发块），必须把页面文件一起挪开。
-
-复刻第 7 批的第 2 个（第 62 个：对比度检查）在 **390 / 768 / 1280 三档**用同源 iframe 加载 `pnpm preview` 的 `dist` 产物复测，**三档 `documentElement` 水平溢出均为 0**，输入栅格轨道数分别为 1 / 2 / 2（`sm:grid-cols-2`），判定表 `table.scrollWidth − 容器.clientWidth = 0`（容器带 `overflow-hidden`，一旦溢出就会被静默裁掉，所以专门量了这一项）。数值链路逐条对上 `_oracle8.ts`：默认 `#767676 / #ffffff` 渲染 `4.54`；预设「slate-400 压白」→ `2.56`、五行判定全不通过、建议色 `#6b7685（4.61:1）`且标「压暗 28%」，点「换成这个前景」后输入框变 `#6b7685`、比值 4.61、正文 AA 转「通过」、建议块整体消失；「交换前景 / 背景」后 `bg` 写入 `#6b7685`；「半透明黑压白」预设 → 比值 `3.95`（合成后等于 `#808080` 压白）、透明度说明出现、建议色正好是 `#767676（4.54:1，压暗 8%）` —— **这一条等于用外部已知值（那个「AA 最小灰」）反证了插值搜索写对了**。非法输入 `zzz` → 只出「前景色：无法识别，试试 …」一行、结果区与预览整体不渲染、非法那侧的取色器回落 `#000000`。首页侧实测：**62 张卡**（`a[href*="/tools/"]` 去重）、芯片「全部 62」与「颜色与图像 4」、关键词 `a11y` 只筛出 `/tools/contrast` 一张；产物侧 `dist/index.html` 的 `<noscript>` 62 条链接、62 份路由壳、`"contrast":{"width"` 字形表键在入口块命中 1 次。控制台 warn + error **0 条**。探针在 5173 源种下的 `toolbox:tool.contrast.{fg,bg}` 两键收尾时按「只删本轮创建的两项」还原（另 20 个既有键一字未动），4173 源全程无写入。**本轮新增坑 79（`v-model` 绑到数组里的 ref 元素上不会自动解包）与坑 80（串行多 iframe 探针的假失败）** 。
-
-补差第 1 项（Base32 + 按位运算并入 `number-base`，**工具数不变、注册表条目没增**）同法在 **390 / 1280 两档**复测 `pnpm preview` 的 `dist` 产物：两档 `documentElement` 水平溢出均为 **0**，1280 档操作数栅格实测 3 列（`443 / 160 / 443` px，即 `lg:grid-cols-[1fr_10rem_1fr]`），390 档退回单列；**64 位位串在 390 档不换破页是靠 `break-all` + 4 位分组**（`groupByFour` 插的空格本身也提供了断行点）。数值逐条对上 `_oracle9.ts`：默认 `255`（十进制）→ 页面 Base32 行 `H7`；「Base32 反读」默认 `AJ4=` → 十进制 `316` / 十六进制 `13C` / 二进制 `1 0011 1100` / 回写 `J4`（**前导 `A`(=0) 被规范化掉，这是「整数的数字表示」的正常行为**，页面上「回写」那一行就是把这条规则摊开给用户看）；按位区默认 `240 & 15` → 位串 `1111 0000` / `0000 1111` / `0000 0000`、`HEX F0` / `F` / `0`；运算符换成左移、B 改 4 → 结果 `0` 且出「左移有溢出：高位被截掉」徽章、B 行的标签同步改成「B（位移量）」；位宽换 64、A 改 `-1`、运算符 NOT → A 行 64 个 1 / 无符号 `18446744073709551615` / `HEX FFFFFFFFFFFFFFFF`，结果行 `0`，**B 行按 arity 正确消失**。两条非法输入各管各的：Base32 框填 `1` → 只有反读区出「`「1」不是 Base32的合法数字（…）`」；主输入框填 `1G` → 上方「各进制表示 / 位宽 / Base32 行 / 按权展开」整体不渲染并出 10 进制的报错，**而下面两块照常工作**（这正是把它们放在 `v-else` 之外的原因），同时验证了把 `parseInBase` 的累加循环抽成 `accumulate()` 之后**报错文案一字未变**。首页侧：搜索 `base32` 恰好命中 1 张卡（`/tools/number-base`），芯片仍是「全部 62」「数学与换算 5」「颜色与图像 4」。控制台 warn + error **0 条**。localStorage 收尾：本轮在 4173 源新建的 6 个 `toolbox:tool.base.*` 键全部按名删掉，跑前跑后都只剩既有的 4 个（`multicalc:currency`、`multicalc:currency:updated`、`toolbox:theme`、`vueuse-color-scheme`）；5173 源本轮未碰。**A/B 的做法比前几轮多了一态**（A₂ 旧文案旧页 / A 新文案旧页 / B 全改），因此定位到「注册表文案进 Badge 共享块」这条归属，记坑 81。
-
-复刻第 7 批的第 3 个（第 63 个：繁简转换）在 **390 / 1280 两档**用同源 iframe 加载 `pnpm preview` 的 `dist` 产物复测：**两档 `documentElement` 水平溢出均为 0**，390 档栅格如期塌成单列，1280 档结果列宽 544 px。功能侧在同一份产物上逐项点过：双向（简 → 繁台式、繁 → 简）、四个预设按钮（活动态由 `from`/`to` 推出，不按文案匹配）、可疑位置**逐处循环切换**（点 `葉步樑` 那一处能在 `樑 / 梁` 之间走一圈再回到原值）、按整词统一改（只对该组候选里真的含此写法的位置生效，其余位置不动）、五项徽章计数、`to === 'cn'` 时那条方向说明，以及结果区 `data-testid="result"` 的**纯文本**渲染（全站规矩：结果区不 `v-html`）。首页侧：搜索 `繁简` 恰好命中这张卡，分类芯片随之变为「全部 63」「文本处理 8」（`category` 逐类计一次：encode 9 / text 8 / format 8 / life 6 / network·math·health·finance·crypto 各 5 / visual 4 / time 3 = **63 条、11 个分类，无空类**）。控制台 warn + error **0 条**。localStorage 这一页只有三个键（`toolbox:tool.chinese-variant.source` / `.from` / `.to`），**手工切换的候选刻意不落盘**（`ref` 而非 `useStored`）—— 每次转换都以「自动判定」为起点，避免旧选择在换输入后悄悄生效；探针把 `to` 改成 `hk` 后已还原为 `tw`，既有键一个没动（坑 80 的还原纪律）。
-
-补差第 2 项（数字中文读法并入 `rmb-uppercase`，**工具数不变、注册表条目没增**）同法在 **390 / 1280 两档**复测 `pnpm preview` 的 `dist` 产物：两档 `documentElement.scrollWidth` 分别为 **382 / 1272**（`innerWidth` 390 / 1280，那 8 px 是滚动条，**水平溢出 0**）。`main` 内 `scrollWidth > clientWidth` 的元素在 1280 档**一个都没有**，390 档只有反解输入框那一个 `<input>`（`clientWidth 350 / scrollWidth 376`）—— 这是**单行输入框里长文本自身可横向滚动**，不是布局被撑破，正是它该有的行为（要判「撑破」得看 `documentElement`，不是看元素的 `scrollWidth`）。多节那条链路在浏览器里逐条读出，与 `_oracle10.ts` 一致：填 `1000000001000.5` → 大写「壹万亿零壹仟元伍角整」、读法「一万亿零一千点五」、分节核对表 4 行（`万亿|1|壹`、`亿|0000|零`、`万|0000|零`、末节 `1000|壹仟`）、徽章「规范化数字 1000000001000.50」+「合计 100000000100050 分」；反解框填**小写带点**的 `一千二百三十四点五六` → 数字金额 `1234.56`，并因票面规范而亮出「规范写法应为 壹仟贰佰叁拾肆元伍角陆分」。**探针手法本轮纠了一次假通过**（坑 90）：iframe 的 `src` 写成 `/tools/rmb-uppercase/index.html` 时，静态服务器把文件读出来了、`documentElement` 也确实「没有溢出」，但 Vue 路由把这个路径判成 **404 页**（`innerWidth` 正确、页面却只有 404 文案，`querySelectorAll('input').length === 0`）—— 于是第一轮两档「全绿」量的是一页 404。**判据必须落在页面内容上**（本轮固定为 `inputs === 2` 且读法段落文本命中），路径用目录形式 `/tools/rmb-uppercase/`。首页侧：`读法` / `中文读法` / `数字转中文` / `读作` / `一千二百三十四` / `number to chinese` 六个查询各命中 **1** 张卡（`/tools/rmb-uppercase`），`小写` 命中 2 张（本页 + `/tools/uuid`，那是它自己的「小写」关键词，不是同名冲突）；分类芯片仍是「全部 63」「文本处理 8」。控制台 warn + error **0 条**。localStorage 本轮只写过本页那两个既有键（`toolbox:tool.rmb.amount` / `.upper`），探针读数后已还原为默认的 `1234.56` 与「壹亿贰仟叁佰肆拾伍万陆仟柒佰捌拾玖元玖角捌分」，跑前跑后键集合一字不差（坑 80 的还原纪律）。
-
-#### 图标清单（离线内联）
-
-`vite.config.ts` 的 `icon.clientBundle.icons` = `[...chromeIcons, ...registryIcons]` 去重：`registryIcons` 由注册表派生（本轮 `node` 现场读注册表数出来是 **63 个工具图标 + 11 个分类图标 = 74 条，去重后 65 个字形** —— 分类图标与工具图标有复用属正常，加图标即自动进包；上一档写的「73 条 / 去重后 62」里那个 62 是更早一轮的测量，按本轮同法回算 62 工具态应为 73 条 / **64** 字形，即少的那一枚正是新增的 `languages`），`chromeIcons` 手挑界面图标 —— `toolbox / menu / search / command / github / sun / moon / monitor / x / arrow-left / arrow-down / arrow-left-right / arrow-down-up / calendar-days / chevron-right / chevron-up / chevron-down / copy / check / circle-alert / info / eraser / refresh-cw / plus / download / upload / play / file-text / clipboard-list / gallery-thumbnails / sparkles / triangle-alert / delete / equal / arrow-down-to-line / square-function / text / arrow-right / undo-2 / shuffle / dices / trash / eye / eye-off / sliders-horizontal / rotate-ccw`。动态字符串传入的图标不会被 `scan` 扫到，漏登记就会在运行时请求 Iconify API（离线即渲染为空白）。核验方式：**读入口块里的图标表键**，每个字形形如 `"<短名>":{"width":24,"height":24,"body":"<svg…`（第 29–33 个工具各带入 1 个新字形；第 34–38 个由注册表带 5 个新字形，另有 8 个页面里以字符串传入的补进了 `chromeIcons`；第 39–43 个由注册表带 5 个（`list-tree / tags / brackets / key-round / route`，均已在 `@iconify-json/lucide/icons.json` 的 `icons` 键下核对存在），第 44–48 个由注册表带 5 个（`scale / flame / ruler / glass-water / heart-pulse`，同法核对存在，实测五个字形各出现 1 次且当时定位到 `Badge-*.js` 里 —— **落点会随 chunk 图变，本批按表键复查时字形表在入口块，别把某一批的落点当定论**；这批页面没有新增任何以字符串传入的界面图标，`circle-alert` / `info` / `eraser` 上一批就登记过了）。**第 55–60 个由注册表带 7 个字形（`cake-slice / id-card / moon-star / network / dices / percent` + 分类 `coffee`），按表键 `"cake-slice":{` 复查，七条全部落在入口块 `index-BWnpsg6x.js`**（与金融批同一落点，六个新页面块里一条都没有 —— 再次印证坑 63「落点会随 chunk 图变」）；其中 `dices` 界面侧早登记过，走 `registryIcons` 派生也带它，重复不影响。这批页面没有新增任何运行时拼出来的图标名。**第 49–54 个由注册表带 7 个（`house / car-front / trending-up / shield-check / circle-dollar-sign / hard-drive` + 分类 `piggy-bank`），核验方式换了**：用 node 遍历 `src/**` 抓出全部出现过的 `lucide:*` 字面量（93 条），再逐个在 `dist/assets/*` 里找 —— 唯一"找不到"的是 `registry.ts` 注释里的 `lucide:xxx`（真缺陷会是 0 命中且不带这种上下文），这条排除掉即全部命中。**但同一次核验差点漏掉真问题**：房贷/社保/货币页有三元写法 `:icon="showRates ? 'lucide:chevron-up' : 'lucide:sliders-horizontal'"` 与 `icon="lucide:rotate-ccw"`，而"页面块里能 grep 到 `lucide:sliders-horizontal`"**并不等于字形数据进了包**（字符串字面量本来就在渲染函数里）—— 必须按表键 `"sliders-horizontal":{` 去定位。按表键定位的结果是这两条**本来就在入口块里**（补进 `chromeIcons` 前后，`index-C1wS4tM1.js` / `Badge-BtoLNcLm.js` / `index-DMhx0cZF.css` 三条 hash 一字未变，即这次登记是冗余的，只作为显式声明保留），说明 scan 对模板里以**字面量**出现的三元分支也能抓到；此前"AES 页的 `eye`/`eye-off` 属动态传入、必须手登记"那条结论对这一类字面量三元而言是过度归因。**真正的规则是**：运行时拼出来的名字（`'lucide:' + someVar`）才必须手登记，本仓库目前没有这种写法。**仍然必须手登记的是运行时拼出来的名字**（`'lucide:' + someVar`），那种在本仓库目前没有），AES 页那个 `:icon="showPassword ? 'lucide:eye' : 'lucide:eye-off'"` 的三元写法属动态传入，已手登记进 `chromeIcons`，实测两个字形落在 `AesPage-*.js` 块里）。注意这段表在产物里的引号写法**不稳定**：早先的构建里它是 `JSON.parse` 模板字面量、引号带反斜杠转义（要按 `\"width\":24` 才数得到），现在的构建直接是明文字符串（`"width":24`，转义版本文 0 个）—— 两种写法都数一遍再下结论，别用一种正则的历史结果当基线。也别用 `grep lucide:name` 判断，页面块里到处是 `lucide:xxx` 字面量，会把「已内联」误判成「缺失」或反之；模板里以 `icon="lucide:xxx"` 属性传入的会被 scan 抓到（`arrow-down-up` 就不在 `chromeIcons` 里也进了包），但 `:icon="变量"` 的动态写法仍必须手登记。再数一遍页面里 `svg` 的数量与尺寸（首页卡片图标均为 20×20、`viewBox="0 0 24 24"`、无空 `<svg>`）。`USlideover`/`UCommandPalette` 自带的关闭、搜索图标已实测渲染为 `<svg>`，无需额外登记。新增图标前先用 `node -e "require('@iconify-json/lucide/icons.json').icons[name]"` 离线核对名字是否存在（例如 `bitwise`、`fraction`、`approximate` 就不在 lucide 里），别凭印象写。**第 61 个（密码强度评估）由注册表带 1 个字形 `lucide:gauge`，按表键 `"gauge":{` 复查，它同样落在入口块 `index-CC8A6tNB.js`（1 次）**，页面里没有新增运行时拼出来的图标名（`lucide:eye` / `lucide:eye-off` 的三元与 `lucide:triangle-alert` 都是既已登记的字形）。**第 62 个（对比度检查）带 1 个字形 `lucide:contrast`，按表键 `"contrast":{"width"` 复查，也是落在入口块 `index-DlS8uDPp.js` 而不是页块**（页块 `ContrastPage-*.js` 里 `grep` 得到的是模板字面量、不是字形数据，正是坑 63 说的那种误判）；该页预览块里的「非文本：边框与图标」标签也用了同一个 `lucide:contrast`，两处共用一张字形表。**第 63 个（繁简转换）带 1 个字形 `lucide:languages`**：先在本地 `node_modules/@iconify-json/lucide/icons.json` 的 `icons` 键核对存在，并确认它没被任何注册表条目占用（`node` 遍历 63 条 `icon` 值，`languages` 不在其中），构建后按表键复查 —— `"languages":{"width"` 在入口块 `index-DCBGX-OX.js` 命中 1 次、整段 **238 B**，`Badge-*.js` 里 0 次（又一次落在入口，与坑 63 一致）。页面里没有新增运行时拼出来的图标名。**体检轮换掉两对同分类重名的图标**：`md-table` 由 `lucide:table` → `lucide:columns-3`（与 `csv-json` 区分）、`aes` 由 `lucide:key-round` → `lucide:lock`（与 `password-gen` 区分）—— 首页是按分类分组渲染的，同分类两张卡并排时原先完全同形。新名字先在本地 `node_modules/@iconify-json/lucide/icons.json` 的 `icons` + `aliases` 两键里核对存在，构建后按表键复查 `"columns-3":{"width"` 与 `"lock":{"width"` 各命中 1 次、都落在入口块（`Badge-*.js` 里 0 次，与坑 63 一致），而被换掉的 `table` / `key-round` 两键仍在（各自另一页在用），所以入口是净增两枚字形 = +560 B。**跨分类另两对重名（`lucide:ruler` = 单位换算 / 体脂率、`lucide:network` = 子网计算 / 亲戚称谓）判定不动**：不同分类在首页不并排，真要为它改字形得从 `chromeIcons` 那侧腾位置，收益不抵首屏。`public/favicon.svg` 同样不是手画的：用 node 一次性读取 `@iconify-json/lucide` 的 `toolbox` 字形、把 `currentColor` 换成白色后叠在 `#42b883` 圆角方块上生成，保持「图标只来自 Iconify」这条约束。
-
-### 工具注册表与搜索
-
-`src/tools/registry.ts` 是唯一事实来源，`ToolDefinition` 的 `id` 一处决定四件事：
-
-1. 路由：`/tools/<id>`；页面组件按约定解析 —— `import.meta.glob('../pages/tools/*Page.vue')` + `pageNameOf(id)`（`json-format` → `JsonFormat` → `JsonFormatPage.vue`），**注册了却没有对应页面文件会在模块初始化时直接抛错**，属于刻意设计：宁可构建/启动即失败，也不留 404 死卡片。
-2. 搜索与展示：`name / description / keywords / category / icon` 同时喂给首页卡片、分类抽屉、命令面板。
-3. 每页 SEO：路由 `meta.title` / `meta.description` 由 `pageTitle()` / `pageDescription()` 生成，`afterEach` 同步 `<title>`、`description`、`og:title`、`og:description`、`og:url`；同一对函数也被构建期用来逐页改写静态壳（见「构建与静态托管」）。
-4. 构建产物：`staticHosting()` 按 `tools` 逐个写 `dist/tools/<id>/index.html`（见「构建与静态托管」）。
-
-搜索打分在 `useToolSearch.ts`：按空格切词，多词取「全部命中之和」，任一词不命中即整体排除（AND 语义）。单词优先级为 `名称/ id 完全相等 100 > 前缀 90 > 包含 75 > 关键词全等 65 > 关键词前缀 55 > 关键词包含 45 > 描述包含 25`，同分按中文名 `localeCompare('zh-CN')`。命令面板与首页共用同一份打分函数，故「顶栏搜索」「首页搜索框」「Cmd/Ctrl+K」三处结果一致；`?category=` 参与过滤但不改变打分。
-
-### 工具清单
-
-全部逻辑位于 `src/tools/<id>/index.ts`（纯函数内核），页面在 `src/pages/tools/`。所有输入与选项写入 `localStorage`（键前缀 `toolbox:`），不上传任何数据。分类共 11 个：编码转换（9）、格式化（8）、文本处理（8）、哈希与生成（5）、数学与换算（5）、时间日期（3）、颜色与图像（4）、网络与运维（5）、健康与体能（5）、金融与理财（5）、生活常用（6），合计 **63**（这串数字按 `registry.ts` 的 `category` 逐类数出来的，与浏览器里芯片的读数一致，见上面第 63 个工具那两段）。「网络与运维」原名「网络与地址」，把 `chmod` 与 HTTP 速查收进来后改了名，第 49–54 批的硬盘分区也归它（是「看清一块盘的字节去哪了」，不是理财）；「金融与理财」只登记 5 个工具，因为同批的第 6 个（硬盘容量与分区）去了网络；**「生活常用」是六批复刻里第一次「一批 = 一类」**（六个都归它，没有跨类归属）。**分类描述与标签只在 `registry.ts` 里写一次**，首页芯片、抽屉、命令面板后缀与卡片计数全部由它派生（首页芯片实测为「全部 63 / 编码转换 9 / 文本处理 8 / … / 哈希与生成 5 / … / 生活常用 6」，`?category=crypto` 深链实测只出「哈希与生成」这 5 张卡）。
-
-| 工具 | 路由 | 要点 |
-| --- | --- | --- |
-| JSON 格式化 | `/tools/json-format` | 美化/压缩/校验，保留键序、可选按键名排序，报错给出行列与上下文；标准解析失败后走容错解析（剥行注释、块注释、尾随逗号）；统计字符/键/值/最大深度 |
-| 时间戳转换 | `/tools/timestamp` | Unix 秒/毫秒与本地时间互转，自动判定单位，附相对时间、常用时区一览与「取当前时间」 |
-| Base64 编解码 | `/tools/base64` | 正确处理 UTF-8（`TextEncoder` 而非逐字符 `charCodeAt`），支持标准/URL 安全字符表与 data URL 剥离 |
-| URL 编解码 | `/tools/url` | `encodeURIComponent` 语义的分段编解码 + 查询参数拆解/重组（`URLSearchParams`），协议/主机/端口/路径分段展示 |
-| 颜色转换器 | `/tools/color` | HEX/RGB/HSL 互转（含 alpha 的 4/8 位十六进制），WCAG 对比度与 AA/AAA 判定、10 级色阶（点击复制） |
-| 对比度检查 | `/tools/contrast` | 从颜色工具拆出来的专页：前景与背景各吃 HEX / RGB / HSL（含 alpha，**前景先按 alpha 合成到背景上再算比值**，背景自身的透明度按不透明处理并明说），五条判定（正文 AA 4.5 / AAA 7、大字 AA 3 / AAA 4.5、非文本 3）+ 24 px / 正文 / 小字三档实时预览与一个边框图标样例；不达标时给**改动最小的可用前景色**（向白、向黑各等分 40 步插值，取最早达标且改动更小的一侧；两端都够不到就直说「得改背景」），附一行可复制的 `color` / `background-color` |
-| 正则测试 | `/tools/regex` | 实时匹配高亮、捕获组明细、替换预览、常用标志位，非法表达式即时报错，内置若干示例 |
-| 哈希计算 | `/tools/hash` | MD5（本地实现，Web Crypto 不提供）+ SHA-1/256/384/512（走 `crypto.subtle`），一次给出全部摘要与位数 |
-| UUID 生成 | `/tools/uuid` | `crypto.randomUUID` 批量 v4、自实现 v7（时间有序），可选大小写、去连字符与分隔符批量输出 |
-| 文本对比 | `/tools/diff` | 逐行 LCS 差异，忽略空白/大小写、仅显示差异（折叠相同行为可展开的折叠块），可复制 unified patch（`@@ -a,b +c,d @@`） |
-| 图片转 Base64 | `/tools/image-base64` | 拖拽或选择本地图片 → data URL，探测尺寸/原始体积/Base64 体积，生成 HTML/CSS/Markdown 引用片段；>5 MB 拒绝、>2 MB 警告 |
-| 二维码生成 | `/tools/qr-code` | 容错等级 L/M/Q/H、边距、前景/背景色、256/512/1024 宽度；导出 PNG（下载）与 SVG（下载/复制），超容量时给出中文提示 |
-| 命名风格转换 | `/tools/case-convert` | camelCase / PascalCase / snake_case / kebab-case / CONSTANT_CASE / Title Case 互转，按词切分保留数字与缩写边界 |
-| 表达式计算器 | `/tools/calculator` | 递归下降解析 `+ - * / % ^ ( )`、一元负号与 13 个函数（`sqrt/cbrt/abs/round/floor/ceil/ln/log/log2/exp/pow/min/max`），常量 `pi/tau/e`；全角 `（）×÷` 与千分位逗号先归一； `%` 是取余；结果按 12 位有效数字舍入并加千分位，>1e12 或 <1e-6 转科学计数法；键盘输入 + 24 键面板 + 光标处插入 + 20 条历史（可回填续算） |
-| 单位换算 | `/tools/unit-convert` | 8 组 65 个单位：长度/面积/体积/质量/温度/时间/速度/数据存储。线性单位按倍率、温度走偏移公式（°C/°F/K/°Ré），存储同时给 1000 与 1024 两套；换组自动回落合法默认单位，附「全表」一次看清该组所有单位 |
-| 进制转换 | `/tools/number-base` | 2–36 进制互转（2/8/10/16 常显 + 自定义源进制），`BigInt` 逐位累加不受 2⁵³−1 限制，展示位宽/字节数/按权展开，忽略 `0x 0b 0o` 前缀与空格下划线，非法数字给出该进制允许的数字集；**另含两块并入功能**：RFC 4648 字母表的 Base32 双向（整数的数字表示，不做字节填充）与 8/16/32/64 位定点按位运算 AND/OR/XOR/NOT/左移/右移（负操作数按补码截断、有符号与无符号并列、左移截掉高位时标出溢出） |
-| JWT 解析 | `/tools/jwt-decode` | base64url 拆 header/payload（UTF-8 严格解码，中文 claim 正常），pretty-print + 复制，`exp/iat/nbf` 转本地时间与相对时间并标「已过期 / 尚未生效」，容忍 `Bearer ` 前缀；**只解码不验签**（HMAC 验签需要密钥，放前端等于公开） |
-| CSV ↔ JSON | `/tools/csv-json` | 双向转换。CSV 侧按 `RFC 4180` 逐字符状态机解析：引号包裹、`""` 转义、字段内逗号与换行、CRLF、前导零保留为字符串；分隔符支持自动识别（只看前 10 行且跳过引号区）与 `, ; Tab |` 手选，表头缺失时补 `列N`/`a_2`。JSON 侧接受对象数组 / 二维数组 / 标量数组 / 「列名→等长数组」的列式对象，反方向只在必要时加引号，故 **CSV → JSON → CSV 无损往返**；未闭合引号等异常以警告呈现 |
-| 随机密码生成 | `/tools/password-gen` | `crypto.getRandomValues` + **拒绝采样**（`floor(2³²/max)*max` 上界）消除取模偏差，`everyClass` 用 Fisher–Yates 洗牌保证「每类至少一个」且位置随机；6–128 位、四类字符开关、自定义符号集、排除易混淆字符（`Il1|O0oZ2zS5B8b`）与任意字符；实时给出字符集大小、熵 `length·log₂(pool)`、平均尝试 `10ⁿ` 次与按 10¹¹ 次/秒折算的离线破解时间（>10¹² 年显示「远超宇宙年龄」），批量最多 50 条 |
-| 密码强度评估 | `/tools/password-strength` | 给**自己写的**口令估算熵与离线破解耗时，与上一行共用 `rateEntropy()`，所以同一个熵值在两页得到同一个等级（28/45/64/80/100 五个阈值）。字符池按类累加（小写 26 / 大写 26 / 数字 10 / 符号 33 / 空格 1 / **汉字 3500**（通用规范汉字表一级字表）/ 其他非 ASCII 100，码点区间判类，故全角 `Ａ`、假名、`£`、emoji 都归「其他」），再对**人能写出的结构**做折损：75 条常见弱口令表（整串命中，以及 ≥6 位子串内嵌命中，避免 `test` 误伤 `latest`）、码点连续与键盘行正逆序（`abcdef`、`qwerty`，≥4 位且占全长一半才折）、整段重复（`abcabc` 按周期计、`aaaa` 退化为单字符）、日期与年份（整串或内嵌，年份只按 201 种、日期按 36525 种），命中即在「评估要点」里逐条写明 `理论 X bit → 判级用 Y bit`。平均尝试取 `2^(bits−1)`（密钥空间的一半），破解耗时按离线每秒 10¹¹ 次折算；五个样本按钮各自标了预期等级（断言里逐条核过），**口令只在内存里参与计算，用 `ref` 而非 `useStored`，不写 localStorage、不发请求** |
-| 日期计算器 | `/tools/date-diff` | 全部按 **UTC 日历日**（`Date.UTC`）计算，不涉及时区/夏令时。支持 `2026-09-23`、`2026/9/23`、`2026年9月23日`、`20260923`、`23/9/2026`（仅年在后的斜杠写法才做月/日互换，两者都 ≤12 时给歧义警告）并剥掉时间后缀。输出相差天数/周余天/整月数/「N 年 M 月 D 天」、星期、ISO 周与全年周数（12-28 规则）、年内第几天、季度、距今天数；日期推算「先加年月并按月末截断再加天数」；工作日统计可扣周末与自定义节假日清单，附七个星期几各多少天 |
-| 子网计算器 | `/tools/ip-subnet` | 接受 `IP/24`、`IP/255.255.255.0`、`IP 255.255.255.0` 与裸 IP（按 `/32`），非连续掩码直接报错。一次给出 CIDR、网络/广播/首个与末个可用地址、掩码与反掩码（含点分二进制）、地址总数与可用主机数（`/31→2`、`/32→1`、其余「总数−2」）、有类别归属、特殊用途段（RFC 1918/6598/1122/3927/6890/5737/2544/5771 标注）、RFC 2317 反向解析域。借 1–8 位拆分并列出子网边界（最多 32 行，超出提示「共 N 个、每块递增 M」），另有「需要 N 台主机 → 能装下的最小前缀 + 余量」规划器 |
-| HTML 实体编解码 | `/tools/html-entity` | 双向。编码方向只转结构字符（文本 `& < >`，属性模式再加 `" '`），可另开「非 ASCII 转 `&#xNN;`」把中文/emoji 变成数字引用（只承载 ASCII 的通道用）；解码方向内置 **167 个命名实体**（Latin-1 重音、常用标点与符号、希腊字母、数学符号，加载时用 `pairTable` 断言名字数与字符数一致）+ 数字引用（十六进制/十进制），并按 HTML 规范把 NUL、UTF-16 代理区、>U+10FFFF 的码点替换为 `U+FFFD`、支持 `&amp`/`&lt` 这类**历史无分号**写法（最长前缀匹配，余下字符留在原地）；认不出的引用原样保留并列出，输入「已像编码过」时提示避免二次编码 |
-| crontab 解析 | `/tools/cron-parse` | 5 段（分 时 日 月 周）解析：`* ?`、`a-b`、`a,b`、`[*]/n` 与 `a-b/n`、`a/n`（Vixie 语义等价 `a–末/n`）、`jan…dec`/`sun…sat` 缩写、周 7→0、`@yearly` 等 7 个宏。逐字段列出取值并标「未限定」，日与周**都被限定时取并集**；给「每周三 09:15 运行」式中文摘要，并推算接下来 5/10/20 次触发时刻（本地墙上时钟、逐日跳跃 + 日内枚举，**5 年上限**故 `0 0 30 2 *` 能正确报「永不触发」）、判定任一起算时刻是否命中。6 段（含秒）与 `L`/`#` 直接提示不支持而不是猜 |
-| 浮点数位布局 | `/tools/float-bits` | 十进制 ↔ IEEE 754 位串互看，一次给出 binary16 / binary32 / binary64 三视图：按「符号 · 指数 · 尾数」上色的位布局、偏指数→真指数、`(−1)^s × 有效数 × 2^e` 还原式、**该位模式的精确十进制展开**（`BigInt` 长除 `mant × 5^shift / 10^shift`）、最短往返值、1 ulp、nextUp/nextDown、实际有效位数，并标「可精确表示 / 只能近似 / 溢出为无穷」。`NaN`/`Infinity` 给各格式 qNaN 与全 1 指数模式；binary16 由本模块手写编解码（JS 无 half 类型，round-half-even、65520 中点→∞、次正规走 `abs × 2²⁴`），并声明「无法精确表示时位布局展示的是最近偶数舍入后的真实存储值」 |
-| 人民币大写转换 | `/tools/rmb-uppercase` | 双向。正向接受 `1,234.5`、`￥1234.50`、全角 `１２３４．５`、`12.34元`、`(12.30)`（会计负数）等写法，先归一为以**分**为单位的 `BigInt`（第三位小数按票据惯例四舍五入并提示具体进位结果，整数部分超 16 位直接报错不静默截断），输出票据体大写：`零` 的插入规则、`0/0→元整`、`jiao 0→元零N分`、`fen 0→N角整`、负数前缀「负」、可选不补「整」。节权按中文习惯**「万」嵌在「亿」里**（10¹² 读「壹万亿」而非「壹兆」），另有四位一节的分节核对表。**同一页还输出小写中文读法**（`toReading()`，与大写共用同一套节权，只换字形：`1000000001000.5` → 「一万亿零一千点五」），差别在两处口径 —— 10–19 读作「十…十九」而不写「一十…十九」，**小数按输入逐位读、不进位到分**（读法框里 `1.005` 是「一点零零五」，大写框里才是「壹元零壹分」的进位结果）。反向「中文 → 数字」现在同时吃**大写与小写**，并且除 `圆/正/〇/一十/壹拾` 与全角外还认「点」式小数（`一千二百三十四点五六` → `1234.56`，第 3 位起按分四舍五入并提示），用于核对票面大小写，并再做一次正向转换判定「写法是否规范」（不规范时出「规范写法应为 …」徽章） |
-| 文本统计 | `/tools/text-stats` | 八项计数一次给全：字符（**按 Unicode 码点**，emoji/代理对算 1 个）、不含空白、UTF-8 字节、UTF-16 单元（即 JS 的 `length`）、词、句、段、行。词数 = 拉丁词 + 中日韩逐字（中文分词需要词典，纯前端不做，页面上写明这一点）；句子按「中文句读 `。！？…` + 西文 `.!?` 只在后接空白或行尾时算句末」的启发式切分，所以 `3.14`、`v1.2.3` 不会被切碎。另有中英占比条（CJK 标点单独计，不混进字数）、空白构成（存在制表符时提示缩进混用风险）、排除 127 个停用词/单字母/纯数字后的英文高频词，以及按中文 300 字/分、英文 200 词/分折算的阅读时长；「复制统计报告」输出一份可直接粘进稿件的纯文本摘要 |
-| 古典密码 | `/tools/caesar-cipher` | 凯撒（位移 −25~25，越界按 26 取模并提示归一结果）、ROT13、Atbash、维吉尼亚、Beaufort 五种算法的双向加解密。只变换 ASCII 字母并保留大小写，数字/标点/中文原样穿过并计数（含「其中中日韩文字 N 个」提示）；**只有字母推进密钥流**，所以中间插标点不改变后续字母的密钥位置；Beaufort `C = K − P` 自身互逆，故解密方向不能再取负号，三种自互逆算法的方向选择被锁定。附带 26 位移暴力破解（按英文单字母频率算对数似然均值排序、点一行即复制该候选），少于 20 个字母时明示「排序几乎等于随机」；每次结果再做一次反向换算并标「往返一致」，用来暴露位移/密钥填错 |
-| 文件权限计算 | `/tools/chmod-calc` | 12 位 mode 的全景视图。一个输入框同时吃 `755` / `0755` / `4755` 与 9 或 10 位符号串（`-rwxr-xr-x` 会提示「首位是文件类型，已忽略」，`7558` 这类则精确指出哪个数字不合法），输出三位/四位八进制、符号串、`ls -l` 的普通文件与目录两种渲染和可复制的权限摘要；逐位勾选（改一位即回写基准，有特殊位时写成四位）与 setuid/setgid/sticky 的中文语义说明、10 个预设（`600` SSH 私钥、`1777` 公共目录等）附风险提示。符号表达式 `u+x,g-w,a=r` 按**从左到右依次作用在同一 mode** 逐步推演，每步显示前后 `mode` 与作用范围（省略 who 时注明等价于 `a`）；`a=`、`go=` 这类「清空该节」是合法写法，而 GNU 的大写 `X`、`g=u`（以其他 who 为权限来源）明确报不支持而不是静默忽略 |
-| HTTP 状态码速查 | `/tools/http-status` | 66 条状态码：RFC 9110 §15 为主线，另收 WebDAV（RFC 4918/5842）、RFC 2324 茶壶码与 nginx/IIS 约定扩展（`444`/`499`/`599`，出处列已标明非标准，不该写进对外契约），每条给「中文名 / 英文原因短语 / 一句话摘要 / 实战注意 / 出处」。搜索按「纯数字 → 先精确后前缀，否则 zh 60 / en 55 / 摘要 25 / 详情 15 / 出处 10」打分，配 17 个常显码芯片与 1xx–5xx 类别筛选、逐类计数。另有 9 个请求方法的 safe / 幂等 / 是否带请求体属性表、42 条扩展名 ↔ 媒体类型互查，以及按 RFC 9110 参数语法手工扫描的 `Content-Type` 解析器：引号内的 `;` 与反斜杠转义不会被误当成参数边界，参数名统一小写，空参数（连续 `;`）跳过并提示 |
-| 全角半角转换 | `/tools/fullwidth` | 双向。半角 → 全角按 Unicode 偏移 `0xFEE0`（`U+0021–U+007E` ↔ `U+FF01–U+FF5E`）外加 `U+3000 ↔ U+0020`，**已经是全角的字符原样保留**（半角→全角方向不再二次处理）。中文标点是另一回事：`。、《》「」` 等在全角区没有半角同位字符（它们落在 `U+3000` 区），所以另立一张显式对照表走开关（默认关，开启后列出被改写的具体字符），拿不准归属的一律计入「未转换」而不是硬转。实时给全角/半角/未转换/空白四项计数，用于核对「为什么少转了一个」 |
-| 摩尔斯电码 | `/tools/morse` | 51 个字符的 ITU 表（26 字母 + 10 数字 + 15 标点）。编码用空格分字符、`/` 分词；解码前先归一符号 —— `·` `•` `∙` `⋅` `・` 成 `.`，`‑ – — −` 成 `-`，`|` `｜` `／` 成 `/`，否则从文档里粘出来的电码整段解不出。电码与文本双向都列出未能识别的字符/码组而非静默丢弃。计时按 PARIS 标准：划 = 3 单位、字符内间隔 1、字符间 3、词间 7（每词末尾再补 7），故 `PARIS` 恰好 50 单位；`1 单位 = 1200 / WPM` ms，5/10/20/30 WPM 四档实时给出点/划数量、总单位数与发送时长 |
-| 罗马数字转换 | `/tools/roman-numeral` | 1–3999 双向，负数以 `-XIV` 形式支持。正向用贪心 + **回编比对**（13 项标准减法表 `M CM D CD C XC L XL X IX V IV I`）：`IIII`、`IL` 这类能读但不规范的写法照样给值，同时按规则定位违背了哪一条（同一符号连用超三次、减数只能 `I/X/C`、`IC`/`XD` 这类跨档减法）并附「规范写法是 …」；`0`、>3999、非整数直接报错不静默截断。反向对非 `IVXLCDM` 字符逐个点名（小写统一按大写读法处理），并给出逐符号拆解（`MCMXCIV = 1000 + (1000−100) + (100−10) + (5−1)`）与 7 个常用符号速查 |
-| Unicode 转义 | `/tools/unicode-escape` | 双向。正向两种口径：`\uXXXX` 逐 UTF-16 码元（增补平面字符拆成一对代理项，`𠮷` → `\ud842\udfb7`）与 ES2015 的 `\u{20bb7}`（页面写明 JSON 规范和 Java/C 都不认这种写法），可切「只转非 ASCII」与十六进制大小写。**反斜杠自身永远转义成 `\\`**，即使开着「只转非 ASCII」——否则它紧跟一条 `\uXXXX` 时会被解码方读成「转义符 + 文本」而吃掉后面那条序列。反向同时认 `\uXXXX`/`\u{…}`/`\xNN`，并分开上报三类问题：孤立代理项（单独的 `\ud83d` 不是合法字符）、>U+10FFFF、位数不足或含非十六进制字符（连「第 N 个字符处」一起列出，原样保留不吞） |
-| ASCII 码表 | `/tools/ascii-table` | 0–127 全表（十进制/十六进制/字符/名称/中文说明/分类），33 个控制字符给 `NUL…DEL` 名称与用途提示，`^` 控制记法（`ctrlCombo`）另算。查询框按 6 种写法解析 —— `65`、`0x41`、`41h`、`U+0041`、`&#65;`/`&#x41;`、单个字符本身，也认名称（`tab`/`newline`）与中文子串（`换行`、`回车`），配 全部/控制字符/空白/可打印 四档筛选；选中一行展开 **13 种记法**（十进制、十六进制、八进制、二进制、`U+` 码点、HTML 数字/命名实体、CSS 转义、URL 百分号、JS 字符串、UTF-8 与 UTF-16LE 字节、字符本身）并逐条注明坑（HTML 实体不写分号会解析错位、CSS 转义尾部那个空格是终止符、只有 5 个字符有命名实体）。附 0–31 / 32–126 / 127 三段分区说明 |
-| 行文本处理 | `/tools/line-tools` | 六个一步到位的行操作：去重（判定口径可选完全相同 / 忽略首尾空白 / 忽略空白与大小写，保留首条或末条）、删空行（真空行或纯空白行）、逐行裁剪空白（两端 / 行首 / 行尾）、排序（字典升降 / 行内首个数字 / 长度 / 整体反转，可顺带去重）、加序号（`1.` `1)` `1` `[1]` `-` 五种样式 + 起始/步长/补零位数 + 空行是否编号）、随机打乱（带种子，同种子结果可复现）。换行符按输入里出现最多的那种自动识别、输出保持一致；被删掉的行给前 5 条预览，「用结果替换输入」可串成流水线 |
-| 查找替换 | `/tools/find-replace` | 字面量与正则两种模式，各带区分大小写与全字匹配开关。**全字匹配对中文有效**：`\b` 的词只认 `[A-Za-z0-9_]`，`\bID\b` 匹配不到「用户ID是 12」里的 `ID`，这里改用前后瞻（拉丁字母/数字相邻才算词内）。实时显示编译后的 `/模式/flags`、捕获组数、命中总数与逐条命中表（行号、列号、命中内容、`$1=`…），正则报错原样显示且不出结果；`$&`、`$1` 反向引用与 `$$` 字面 dollar 的行为在页脚注明 |
-| HTML ⇄ Markdown | `/tools/html-md` | 双向。HTML → Markdown 用宽容解析器（标签不闭合自动补、多余闭合标签只告警），表格转管道表、合并单元格或嵌套块的复杂表降级为 HTML 代码块、`<script>`/`<style>`/表单等无等价物的标签只留文字并逐条列名，链接可行内或引用式、`<br>` 可保留为行尾两空格硬换行。Markdown → HTML 支持 GFM 表格、任务列表、删除线、setext 标题、引用式链接、标题补 id、段内换行转 `<br>` 等开关。**结果区只显示源码文本，不 `v-html`**（粘贴来的 Markdown 里若有 `<script>` 不该被执行）。定义列表转出的 `术语 / : 释义` 是单向写法，反向不解析 |
-| Markdown 表格 | `/tools/md-table` | Markdown ⇄ CSV / TSV / JSON 互转，外加行列互换。补空格按**显示宽度**算：中日韩与 emoji 记 2 格、组合记号记 0 格，因此对齐后的竖线在编辑器里真是齐的；对齐策略可沿用源、自动把数字列右对齐、或不补齐。CSV 处理引号包裹、双写转义内嵌分隔符、CRLF 与裸换行；JSON 支持对象数组 / 数组的数组 / 列式对象三种形态与缩进；解析失败给出行号，单元格里的制表符会提示改用 CSV |
-| CSS 渐变生成器 | `/tools/gradient` | 线性 / 径向 / 锥形三类，`repeating` 开关、角度与 `to top right` 这类关键字方向（后者优先）、径向的形状与 4 档尺寸、中心位置，色标可增删排序、每格颜色同时给取色器与文本框（支持 hex / `rgb()` / `hsl()` / 命名色 / `hwb()` 等函数式写法，命名色表 148 个 CSS 关键字仅此一页按需加载）。输出 `background-image` 与 `background-color` 底色回退两行，可从现有 CSS 字符串反解回填，还能把渐变等距取样成 2–32 格色板（含按相对亮度自动选黑白文字的色块） |
-| YAML ⇄ JSON | `/tools/yaml-json` | 双向。YAML → JSON 用 `loadAll`：多文档可合成数组，报错带行列并剥掉 js-yaml 的 code frame 噪声只留「第 N 行第 M 列：原因」。JSON → YAML 可调缩进、`flowLevel`、键排序、强制引号、80 列自动换行。**每次转换都实测一次往返**（输出 YAML 回读后与输入做稳定序列化比对），不一致就点名是哪个键 —— 纯数字键、`.inf`、超 2⁵³ 的整数这三类丢精度/丢类型的写法在页脚单列，`<<` 合并键按 YAML 1.2 的默认行为**不展开**、原样留成一个叫 `<<` 的键 |
-| XML 格式化 | `/tools/xml-format` | 美化 / 压缩 / 转 JSON 三态。自研宽容解析器不抛异常：标签错配、未闭合、裸 `&` 都记成带行列号的问题清单（最多列 20 条 + 「另有 N 处」）并尽量恢复出树，坏 XML 也还能格式化；实体只认 5 个内置加数字引用，`&nbsp;` 这类要 DTD 才有效、离线一律按未转义报错。统计元素/属性/文本/注释/CDATA/最大深度与命名空间前缀。混合内容（文本夹标签）整体压一行且**保留标签之间的词间空格**（去掉就改了文本），关掉「纯文本压一行」时提示换行被压成空格；格式化幂等。转 JSON 的 `attrsKey` / `textKey` 可改（默认 `_attributes` / `_text`，属性收在一个对象下而非 `@_` 前缀） |
-| JSON → TS 接口 | `/tools/json-ts` | 支持多份样本（NDJSON 逐行读入后合并推断）。逐键记 `seen`、对象记 `count`，**`seen < count` 才是可选**、`null` 并进联合而不是当可选（把 null 标成可选会让调用方漏掉运行时判空）；对象一律提升为具名接口并按结构指纹复用（同形状只生成一个名字，`{items:[…],list:[…]}` 元素同构时共用）；7 个开关：行尾分号 / `readonly` / `export` / 缺键标可选 / 短字符串集合成字面量联合 / 定长混合数组出元组 / 键排序 |
-| AES 加解密 | `/tools/aes` | `crypto.subtle` 的 PBKDF2-SHA256（默认 210 000 次迭代）+ AES-256-GCM。载荷是 6 段点分字段 `aes256-gcm.v1.迭代.salt.iv.密文`，salt 16 字节与 IV 12 字节每次随机并写进载荷，故同明文两次加密必然不同。解密前先就地自检载荷（版本段是不是本工具写的、迭代字段、base64 有没有被截断、密文是否短于一个 16 字节认证标签），**格式错与口令错分开报**；GCM 验签不过时两种失败同形，页面上写明。载荷记录的迭代数与你填的不同时按载荷的值推导并提示。**口令、明文、密文都不写 localStorage**，只有模式与迭代数持久化 |
-| IP 地址与进制 | `/tools/ip-base` | IPv4/IPv6 与十进制整数、十六进制、逐段八进制/二进制互转。IPv4 简写按 C 库 `inet_aton` 规则展开（`10.1` → `10.0.0.1`），前导 0 当八进制处理且一定给警告；IPv6 压缩按 RFC 5952（只压最长最靠前的全零段、字母小写），`::` 只代替 1 组零时提示「这种省略不该出现」并照常解析。附归属（RFC 1918/6598、文档段、TEST-NET 1/3、组播…带 CIDR）、位宽、`in-addr.arpa` 与半字节反写的 `ip6.arpa` 反向域、6to4 与 `::ffff:` 里内嵌的 IPv4，以及每种等价写法的逐条复制（回去都能被本页重新解析） |
-| BMI 计算器 | `/tools/bmi` | 公制与英制两套输入（英制走 `703 × 磅 / 英寸²`，与先换算成公斤/米再算的结果在 20 组体重×身高的交叉核对里差 ≤0.1）。**同时按 WHO（1995 TRS 728）与中国 WS/T 428—2013 两套标准分级**，两者门槛差 1 个 BMI，结论不同就明确写出来（`70 kg / 168 cm` 就是「WHO 正常 / 中国超重」）。另给正常体重区间（18.5–24.9 反解，回代验过）、还差多少公斤、BMI Prime、Ponderal 指数（kg/m³）。超界判定刻意严格（身高 50–272 cm、体重 2–400 kg），因为绝大多数畸形输入是单位填错 |
-| 基础代谢与每日消耗 | `/tools/bmr` | 四个公式并排：Mifflin–St Jeor、Harris–Benedict 修订（Roza & Shizgal 1984）、Katch–McArdle、Cunningham；后两支只看去脂体重，**没有体脂率输入时不硬算**，而是留一条「需要体脂率」的跳过原因。有体脂率则以 Katch 为推荐值、否则回落 Mifflin。TDEE 用 ACSM 五档系数 1.2/1.375/1.55/1.725/1.9，再按 1 kg ≈ 7700 kcal 把「每周 ±公斤」折成每日缺口并给建议摄入；目标 ≥1 kg/周、算出的摄入低于 BMR、目标为 0 这三种情况各有不同措辞的提示。年龄下限 16 岁（这些式的验证样本是成年人） |
-| 体脂率估算 | `/tools/body-fat` | 两条路径同屏：填了实测值就以实测为准（来源标「实测值（优先采用）」），否则走 Deurenberg 1991 回归 `1.2×BMI + 0.23×年龄 − 10.8×性别 − 5.4`，两者分歧时写明差几个百分点。由体脂率反算脂肪量与去脂体重，再按 `去脂体重 / (1 − 目标体脂)` 给 15/18/20/22/25/30% 六档目标体重（回代验过）。风险侧给腰围（中国 WS/T 428 男 90 / 女 85 与 WHO 男 102 / 女 88 两个切点）、腰高比 0.5、腰臀比三项。**刻意不实现美国海军围度法**：它的常数与单位绑定、流传的几版互相矛盾，同一个人能算出 10.1% 与 23.0% 两种结果，不可离线核对（见工具目录头注释） |
-| 每日饮水量计算 | `/tools/water-intake` | 主体 `35 ml/kg`，再按运动（500 ml/小时）、高温干燥 +700、高海拔 +500、供暖室内 +300、妊娠 +300、哺乳 +700、发热每升 1 ℃ +300（阈值 37.5 ℃ 以下不计）逐项加成并列明细，**最后扣掉约 20% 的食物供水**才得到「要喝多少」——多数计算器把总需水量当饮水量报，杯数因此偏高。附 IOM 适宜摄入量对照（男 3.7 L / 女 2.7 L）、从 8:00 起每两小时一档的提醒分配、尿色五档判读（琥珀色直接建议就医）。页脚写明限液治疗人群不能照这个数字喝 |
-| 靶心率区间 | `/tools/target-heart-rate` | 最大心率给 Fox / Tanaka / Gellish / Nes 四个估算式对照、默认采用 Tanaka（`208 − 0.7×年龄`），填了实测值则一律覆盖且不再标注「采用」。**每个区间两种算法并排**：%HRmax 与 Karvonen 储备心率法（`(HRmax − HRrest) × % + HRrest`），同一百分比能差 10 次/分以上；Z1–Z5 各带主观感受与用途，并标出「中等强度 = Z3、高强度 = Z4」对应每周 150–300 分钟那档建议。静息心率越界、或储备心率 ≤20 时直接报错而不是硬算区间。页脚澄清「燃脂区」是占比不是总消耗，并列出 β 受体阻滞剂等让年龄公式全部失效的情形 |
-| 房贷计算器 | `/tools/mortgage` | 等额本息 `M = P·i·(1+i)ⁿ/((1+i)ⁿ−1)` 与等额本金 `P/n + 余额×i` **两方案同屏并列**（说明条目里直接算给你看：等额本息多付多少总利息、等额本金的首月月供高出多少），**末期用「剩余本金」结算**以吸收分（0.01 元）级残差，使逐期本金求和恰好等于贷款额、余额归零。年度汇总 + 可切逐月明细（`min-w-105` 的表在 390 档横向滚动），附「月供不超过月收入 50%」的收入门槛（按 100 元向上取整）、年化利率换算成实际年利率 EAR `(1+i)¹²−1`、CSV 导出（前置 `\ufeff` BOM 让 Excel 认 UTF-8）。四个样本含 4.9% 存量与 2.85% 公积金两档 |
-| 车贷计算器 | `/tools/car-loan` | 两种分期模式：`年利率`（等额本息，复用房贷内核的 `buildPlan`）与**「等本等息」分期费率**——后者每月都按原始本金计费，实际年化要用 IRR 反解（对 `P = c·(1−(1+i)^−n)/i` 做 80 次二分），**月费率 0.25%（标称年化 3.00%）在 1–5 年期上反解出的真实年化是 5.49 / 5.66 / 5.68 / 5.67 / 5.64 %，即标称费率的约 1.8–1.9 倍（0.2%–0.6% 费率 × 1–5 年全测下来落在 1.78–1.96 倍），峰值在 3 年附近、并不随期数单调上升**；这一档页面用 warning 色把「标称费率 / 真实年化 / 实际年成本（EAR）」三行并排列出，等额本息档则不显示。落地价 = 车价 + 购置税 + 保险 + 上牌，购置税按 `发票价 ÷ 1.13 × 10%` 估并**取整到 100 元**（35 万 → 31 000）并写明燃油车减半、新能源免征等政策不在本页口径内 |
-| 投资收益与复利 | `/tools/investment` | 逐月推演（不是只用闭式公式）：`期末 = 上年末×(1+i) + 月投×((1+i)^12−1)/i`，**期初定投另乘 `(1+i)`**（闭式核对：30 年期期初比期末多 328.46 元，与 `P·g·i` 一项吻合），最后一年不满 12 个月也照常出账。给倍数、总收益率、按通胀折现的实际购买力与通胀损失、72 法则 vs 精确 `ln2/ln(1+r)` 的对翻倍数（年化 2% 时 36 年 vs 35 年、8% 时 9 年 vs 9.01 年，**利率越高 72 法则偏得越多**）、到达目标额的月数、以及「要 N 年到目标」的反解月投额（回代验证）。年化 −100%～100%、本金与月投同时为 0 直接报错 |
-| 五险一金计算器 | `/tools/social-insurance` | 六项默认比例按常见口径写死（养老 8/16、医疗 2/9.5、失业 0.5/0.5、工伤 0/0.4、生育 0/0.8、公积金 5%～12% 可选档），**每项都能就地改**，改完给个人合计、单位合计、总成本、个人承担占工资比。基数 12 000 的核对结果：个人 2 700.00 / 单位 4 704.00 / 合计 7 404.00，税前 9 300、公积金账户入账 2 880（双边 12%）。5%–12% 八档公积金阶梯、逐月表、以及「把年薪当月薪」的越界提醒（基数 >100 万单独报错） |
-| 货币换算 | `/tools/currency-convert` | 16 个币种全部以 **对 CNY 的比值**存一份快照，交叉汇率由 `rate_from / rate_to` 现算（因此任意两币兑换无需第二张表、也不会出现两套互相矛盾的汇率）；JPY/KRW/THB/RUB 按 0 位小数显示。汇率表就地可改并即时校验（重复代码、非正数、CNY 必须是锚点且等于 1，错误合并成一条报出来），换算结果旁给双向交叉表。页面上标了快照日期（默认 `2026-09-18`）并写明这不是实时行情 |
-| 硬盘容量与分区 | `/tools/disk-partition` | 先解释「1 TB 只有 931 GiB」：厂商三段十进制/二进制换算的**恒定 6.87% 损耗**（`capacity(1000).gib = 931.32`；TB↔TiB 9.05%、PB↔PiB 11.18%，KB↔KiB 才是 2.34%）。再按百分比切分：整数 GiB 分配、余数归最后一块（931 GiB 按 30/40/30 → 279/372/280，合计恰好 931），因为 1 GiB 本身是 1 MiB 的整数倍所以天然 4K 对齐，故每块都给 `起始/结束 MiB`（第一块 0–285 696）。占比合计不等于 100 时报错并把实际数字回显；六个预设含 Linux 的 EFI/swap/root/home 方案，另给 NTFS 4 KiB 簇、ext4 `tune2fs -m` 预留、APFS 容器共享、MBR/GPT 分区数上限等说明 |
-| 年龄计算器 | `/tools/age-calc` | 复用 `date-diff` 的 UTC 日历日库（不碰时区）。「岁 / 个月 / 天」按**先数整月、再按锚点补天数**，所以 1 月 31 日到 3 月 1 日是「1 个月 1 天」，而「先减年减月再借位」的写法会算出负的剩余天数。生日对应日走《民法典》期间计算的口径：**当月没有该日取月末**（2 月 29 日出生在平年按 2 月 28 日满周岁），这与 JS `Date` 自动溢出到 3 月 1 日不同，故这里不出现 `new Date(y, 1, 29)`。**「下次生日」按年求对应日**、不复用按月锚点（见坑 70）。另给总天数/周数/整月数、出生那天的星期、上次与下次生日及其星期与倒计时、以及 3650/7300/10 000/20 000/30 000 天五档里程碑（未到期也列出日期）；三个样本按钮一次填两格 |
-| 身份证信息解析 | `/tools/id-card` | GB 11643—1999 的 **MOD 11-2** 校验位（七位权重 + 余数→`1 0 X 9 8 7 6 5 4 3 2`）、34 条省级归属地码、出生日与其星期、第 17 位奇偶定性别、周岁（闰日出生统一钳到月末判定）、15 位一代证升 18 位并标「由 15 位升位得到」。**校验位不符时仍然继续解析**（`ok: true` + `checksumOk: false` + 期望校验位），因为「查错」正是这一页的用途，报错口径逐条分开（位数、格式、非法日期、出生晚于参考日、早于 1900）。页面对号码打码（`110105********002X`）并可切换显隐；**输入不落 `localStorage`**（与 AES 页的口令/明文同一条隐私口径，见坑 72），全程不联网、不含任何姓名库 |
-| 生肖星座查询 | `/tools/zodiac` | 生肖走干支纪年的**一条公式**：`n = mod(year − 1984, 60)`，天干 `n % 10`、地支与生肖 `n % 12`，于是一次推出干支（`丙午`）、生肖（马）、天干五行（火）与本命年三连（`last = refYear − mod(refYear − year, 12)` → 2026/2038/2050），60 甲子互不重复由断言全量核对。星座不用 12 个 `if`：按月切点表 `SIGN_CUTS`（白羊起）加 `(month + 8) % 12` 索引，边界日（1/19 ↔ 1/20）逐个断言。附十二地支 ↔ 生肖 ↔ 时辰（子时 23:00–00:59）与 12 星座区间两张速查表，当前命中的行高亮；生肖按**公历年份**近似，页脚据此注明「实际以春节（部分流派以立春）为界，1—2 月间出生的人生肖可能属于上一年」 |
-| 亲戚称谓推算 | `/tools/kinship` | 自研**原子模型**而不是照搬旧站的 15.7 kB 关系边表：10 个原子（父/母/子/女/兄/弟/姐/妹/夫/妻）+ 5 条只在链尾两原子上做的重写规则（`H W` 抵消、父母的异性配偶即父/母本身、手足的父母即自己的父母、后代的父母即上一环的自己、手足的手足按有无父系前缀决定塌缩或留多解）循环到不动点，再查 101 条规范链表，因此「堂哥的女儿」「老公的哥哥的老婆」这类长链也能推。输入支持 `的` / 空格 / `,` / `、` / `>` 分隔与**无分隔压缩写法**（`爸哥`、`女儿姐姐` 靠按词长降序的最长匹配切分），也认爷爷、伯父、嫂子、岳父等派生称谓词作为链头。**长幼与性别造成的多解如实返回**（`堂兄 / 堂弟`、`自己 / 哥哥 / 弟弟`）并标 `ambiguous`，推不出的组合返回 null 并给出「未识别」提示而不是硬猜；另有按称谓过滤的「反向速查」（对方怎么称呼你）。不覆盖再婚、收养、同性婚姻的称谓分支，页脚写明 |
-| 随机数与抽签 | `/tools/random-pick` | 六种模式：区间取数（一次最多 100 个）、不重复抽号、名单抽签、名单洗牌、掷骰（1–20 枚、2–1000 面）、抛硬币（1–200 次）。随机源默认 `crypto.getRandomValues`（`Uint32 / 2³²`），可切 **mulberry32 固定种子**复现，种子还能从一句话用 FNV-1a 派生（同一句话两次结果一致）；名单分隔符 `,` `，` `、` `;` `|` 与换行通吃。**不重复抽取超过容量时直接报错**（「要 50 个不重复的数，但区间 1–49 只有 49 个」）而不是静默少给，区间跨度上限 100 万，有放回模式单独开关。抽取结果刻意不落 `localStorage`（刷新即丢是特性），可一键复制 |
-| 百分比计算 | `/tools/percent` | 四种问法各用一个模式：求 `a%` 的 `b`、`a` 是 `b` 的百分之几、`a → b` 的变化率、已知增减百分比反推原数。**每一步都把算式原文渲染出来**（`15% × 200 = 30`、`(100 − 80) ÷ 80 × 100 = 25%`），给的是可核对的推导而不是一个孤立数字。变化率模式旁边固定挂一句「反向看：从 100 回到 80 是 −20%」——涨 25% 与跌 20% 不对称是最常见的误读；反推原数同时列「增加前」与「减少前」两解，遇 100% 减少无解时只留一条。>100% 时进度条钉在满格并另行提示，基准为 0 与非数字各有独立报错文案 |
-| 繁简转换 | `/tools/chinese-variant` | 字级 + 词级双向，判定顺序**先二字词、再字级默认值、最后叠加台/港追加层**。字表为自研离线数据（`opencc-js` 1.20 MB / gzip 498 kB 超预算；本站字表内容 100 059 B、逐表 gzip 合计 50 989 B，**只有 opencc-js 压缩体积的 10.2%**）：简→繁 3881 字 + 4046 词，繁→简 578 增量字 + 477 词，台式/港式各一张追加层（`TW_CHARS` 39 / `TW_WORDS` 12 / `HK_CHARS` 59 / `HK_WORDS` 272，另各配反向表）。**一字多形逐处可切换**：`發/後/麵/幹/裡` 这类「同一个简体字有多个繁体归宿」的位置切成可点小段，点一下在候选间循环，也可按整词统一改，候选来自 259 字的 `POLY` 表（生成时按**全词表**统计「字级默认值在该字所有词里成立的比例」筛出）。四个预设（简 ↔ 繁台式、简 ↔ 繁港式）+ 双向下拉，结果区纯文本渲染（**不 `v-html`**），五项计数做成徽章（输出字数 / 词组命中 / 一字多形 / 其中按字级默认 / 已手工改）。核对：与 OpenCC 在 9826 条对抗样本上 7343 条逐字一致，**其余 2483 条的差异处全部被标成可选候选**；6000 字真实文书差 7 处（0.12%）、标出密度 11.6 处/100 字。字表来源与生成脚本见「繁简转换的字表是怎么来的」。待转换文本按常规存 `localStorage`（键 `tool.chinese-variant.*`，与其他文本页同口径），全程不联网 |
+- **Base64 编解码** `/tools/base64`：文本与 Base64 互转，正确处理 UTF-8（`TextEncoder`，不是逐字符 `charCodeAt`），支持 URL 安全字符表与 data URL 剥离。
+- **URL 编解码与解析** `/tools/url`：`encodeURIComponent` 语义的分段编解码 + 查询参数拆解重组（`URLSearchParams`），协议/主机/端口/路径分段展示。
+- **图片转 Base64** `/tools/image-base64`：拖拽或选择本地图片转 data URL，探测尺寸与体积，生成 HTML/CSS/Markdown 引用片段；>5 MB 拒绝、>2 MB 警告。
+- **JWT 解析** `/tools/jwt-decode`：base64url 拆 header/payload（UTF-8 严格解码，中文 claim 正常），`exp/iat/nbf` 转本地时间并标「已过期 / 尚未生效」，容忍 `Bearer ` 前缀；**只解码不验签**。
+- **HTML 实体编解码** `/tools/html-entity`：文本与属性两种模式，可把非 ASCII 转数字引用；解码内置 167 个命名实体 + 数字引用，按规范把 NUL / 代理区 / 越界码点替换为 `U+FFFD`，支持 `&amp` 这类历史无分号写法。
+- **古典密码** `/tools/caesar-cipher`：凯撒 / ROT13 / Atbash / 维吉尼亚 / Beaufort 双向加解密，只变换 ASCII 字母并保留大小写，附 26 位移暴力破解（按英文单字母频率排序）。
+- **摩尔斯电码** `/tools/morse`：51 个字符的 ITU 表（26 字母 + 10 数字 + 15 标点），解码前先归一 `·` `–` `|` 等等价符号，按 PARIS 标准给点划计数与发报时长。
+- **Unicode 转义** `/tools/unicode-escape`：`\uXXXX`（逐 UTF-16 码元）与 `\u{…}` 双向，代理对拆分、`\xNN` 还原，非法序列逐条定位并原样保留。
+- **ASCII 码表** `/tools/ascii-table`：0–127 全表，33 个控制字符给名称与用途，查询框认 6 种写法与英文名/中文子串；选中一行展开 13 种记法（十进制到 CSS 转义、URL 百分号、UTF-8 字节）并逐条注明坑。
+
+**格式化（8）**
+
+- **JSON 格式化** `/tools/json-format`：美化 / 压缩 / 校验，保留键序、可选按键名排序，报错给出行列与上下文；标准解析失败后走容错解析（剥行/块注释、尾随逗号）。
+- **文本对比** `/tools/diff`：逐行 LCS 差异，忽略空白 / 大小写、仅显示差异，可复制 unified patch。
+- **CSV ↔ JSON** `/tools/csv-json`：按 RFC 4180 逐字符状态机解析（引号包裹、`""` 转义、字段内逗号与换行、CRLF、前导零保留），分隔符自动识别或手选；**CSV → JSON → CSV 无损往返**。
+- **HTML ⇄ Markdown** `/tools/html-md`：宽容解析器（标签不闭合自动补），表格转管道表、复杂表降级为代码块；反向支持 GFM 表格、任务列表、删除线、引用式链接等开关。结果区只作纯文本展示，不 `v-html`。
+- **Markdown 表格** `/tools/md-table`：Markdown ⇄ CSV / TSV / JSON 互转与行列互换，补空格按**显示宽度**算（中日韩与 emoji 记 2 格），对齐后的竖线在编辑器里真是齐的。
+- **YAML ⇄ JSON** `/tools/yaml-json`：`loadAll` 支持多文档，报错带行列；可调缩进、`flowLevel`、键排序、强制引号；**每次转换都实测一次往返**，不一致就点名是哪个键。
+- **XML 格式化** `/tools/xml-format`：自研宽容解析器不抛异常，坏 XML 也能格式化并把问题列成带行列号的清单；统计元素/属性/文本/注释/CDATA/最大深度，可转 JSON。
+- **JSON → TS 接口** `/tools/json-ts`：支持多份样本（NDJSON）合并推断，缺键才标可选、`null` 并进联合而不是当可选，同形状对象复用同一个具名接口。
+
+**文本处理（8）**
+
+- **正则测试** `/tools/regex`：实时匹配高亮、捕获组明细、替换预览、常用标志位，非法表达式即时报错。
+- **命名风格转换** `/tools/case-convert`：camelCase / PascalCase / snake_case / kebab-case / CONSTANT_CASE / Title Case 互转，按词切分保留数字与缩写边界。
+- **人民币大写转换** `/tools/rmb-uppercase`：金额 ↔ 中文大写双向（吸收 `1,234.5`、`￥1234.50`、全角、`(12.30)` 会计负数等写法），节权按「万嵌在亿里」递归；同页附**小写中文读法**与反解核对，标出写法是否规范。
+- **文本统计** `/tools/text-stats`：字符（按码点）/ 不含空白 / UTF-8 字节 / UTF-16 单元 / 词 / 句 / 段 / 行八项计数，附中英占比、空白构成、高频词与阅读时长。
+- **全角半角转换** `/tools/fullwidth`：`U+FF01–FF5E` 与 `U+0020–007E` 双向映射，中文标点另立显式对照表走开关，实时给全角/半角/未转换计数。
+- **行文本处理** `/tools/line-tools`：按行去重、删空行、裁剪空白、排序、加序号、随机打乱，一步一个操作且结果可回填。
+- **查找替换** `/tools/find-replace`：字面量与正则两种模式，带大小写与全字匹配开关；**全字匹配对中文有效**（用前后瞻而不是 `\b`），逐条命中给出行列号。
+- **繁简转换** `/tools/chinese-variant`：字级 + 词级双向，台式 / 港式用字分列，**一字多形逐处可切换**并可按整词统一改；字表为离线生成的自研数据（见[繁简转换的字表是怎么来的](#繁简转换的字表是怎么来的)）。
+
+**哈希与生成（5）**
+
+- **哈希计算** `/tools/hash`：MD5（本地实现，Web Crypto 不提供）+ SHA-1/256/384/512（`crypto.subtle`），一次给出全部摘要与位数。
+- **UUID 生成器** `/tools/uuid`：`crypto.randomUUID` 批量 v4、自实现 v7（时间有序），可选大小写、去连字符与分隔符。
+- **随机密码生成** `/tools/password-gen`：`crypto.getRandomValues` + 拒绝采样消除取模偏差，Fisher–Yates 保证「每类至少一个」，实时给字符集大小、熵、平均尝试次数与离线破解时间。
+- **密码强度评估** `/tools/password-strength`：给自写口令估算熵并做模式折损（常见弱口令、键盘行与连续序列、重复段、日期年份），逐条写明「理论 X bit → 判级用 Y bit」；口令不落盘。
+- **AES 加解密** `/tools/aes`：`crypto.subtle` 的 PBKDF2-SHA256（默认 210 000 次迭代）+ AES-256-GCM，载荷自带 salt 与 IV 并写成 6 段点分字段，解密前做载荷自检（格式错与口令错分开报）。
+
+**数学与换算（5）**
+
+- **表达式计算器** `/tools/calculator`：递归下降解析 `+ - * / % ^ ( )`、一元负号与 13 个函数，全角 `（）×÷` 与千分位先归一；结果按 12 位有效数字舍入，>1e12 或 <1e-6 转科学计数法，带 24 键面板与历史记录。
+- **单位换算** `/tools/unit-convert`：8 组 65 个单位（长度/面积/体积/质量/温度/时间/速度/存储），线性单位按倍率、温度走偏移公式，存储同时给 1000 与 1024 两套。
+- **进制转换** `/tools/number-base`：2–36 进制互转，`BigInt` 逐位累加不受 2⁵³−1 限制，展示位宽/字节数/按权展开；**另含两块并入功能**：RFC 4648 字母表的 Base32 双向，与 8/16/32/64 位定点按位运算。
+- **浮点数位布局** `/tools/float-bits`：十进制 ↔ IEEE 754 位串，一次给出 binary16 / binary32 / binary64 三视图（位布局着色、精确十进制展开、最短往返值、1 ulp、nextUp/nextDown）。
+- **罗马数字转换** `/tools/roman-numeral`：1–3999 双向，负数为 `-XIV`；非规范写法（`IIII`、`IL`）照样给值，同时指出违背了哪条规则并给出规范写法。
+
+**时间日期（3）**
+
+- **时间戳转换** `/tools/timestamp`：Unix 秒/毫秒与本地时间互转，自动判定单位，附相对时间与常用时区一览。
+- **日期计算器** `/tools/date-diff`：全部按 UTC 日历日计算，支持多种日期写法；输出相差天数/周/整月/「N 年 M 月 D 天」、星期、ISO 周、年内第几天、季度，附扣除周末与自定义节假日的工作日统计。
+- **crontab 解析** `/tools/cron-parse`：5 段表达式逐字段展开、中文摘要，并推算接下来 5/10/20 次触发时刻（5 年上限，故 `0 0 30 2 *` 能正确报「永不触发」）；6 段与 `L` / `#` 明确提示不支持而不猜。
+
+**颜色与图像（4）**
+
+- **颜色转换器** `/tools/color`：HEX / RGB / HSL 互转（含 alpha 的 4/8 位十六进制），WCAG 对比度与 AA/AAA 判定、10 级色阶点击复制。
+- **对比度检查** `/tools/contrast`：前景与背景各吃 HEX / RGB / HSL，带 alpha 的前景先按 alpha 合成再算比值；五条判定 + 三档实时预览，不达标时给**改动最小的可用前景色**。
+- **二维码生成** `/tools/qr-code`：容错等级 L/M/Q/H、边距、前后景色、256/512/1024 宽度；导出 PNG 与 SVG，超容量时给中文提示。
+- **CSS 渐变生成器** `/tools/gradient`：线性 / 径向 / 锥形可视化编辑，色标增删排序，输出 `background-image` 与底色回退两行，可从现有 CSS 反解回填、也可等距取样成色板。
+
+**网络与运维（5）**
+
+- **子网计算器** `/tools/ip-subnet`：CIDR 与掩码互算、网络/广播/可用地址、地址总数与可用主机数、特殊用途段标注、借位拆分与「需要 N 台主机」规划器。
+- **文件权限计算** `/tools/chmod-calc`：12 位 mode 全景视图，一个输入框吃八进制与 9/10 位符号串，逐位勾选与 `u+x,g-w` 符号模式逐步推演，附特殊位语义与 10 个预设。
+- **HTTP 状态码速查** `/tools/http-status`：66 条状态码（RFC 9110 为主线，另收 WebDAV 与 nginx/IIS 扩展并标出处），附 9 个请求方法属性表、42 条扩展名 ↔ 媒体类型互查与 `Content-Type` 解析器。
+- **IP 地址与进制** `/tools/ip-base`：IPv4/IPv6 与十进制/十六进制/逐段八进制二进制互转，IPv4 简写按 `inet_aton` 规则展开，IPv6 压缩按 RFC 5952，附归属段与 `in-addr.arpa` / `ip6.arpa` 反向域。
+- **硬盘容量与分区** `/tools/disk-partition`：先解释「1 TB 只有 931 GiB」的 6.87% 恒定损耗，再按百分比出整数 GiB 分区表与 4K 对齐的起止位置，附各文件系统注意事项。
+
+**健康与体能（5）**
+
+- **BMI 计算器** `/tools/bmi`：公制与英制两套输入，**同时按 WHO 与中国 WS/T 428—2013 两套标准分级**（结论不同会明确写出），另给正常体重区间、BMI Prime 与 Ponderal 指数。
+- **基础代谢与每日消耗** `/tools/bmr`：四个公式并排（Mifflin–St Jeor / Harris–Benedict 修订 / Katch–McArdle / Cunningham），乘 ACSM 五档活动系数得 TDEE 并折算增减重摄入。
+- **体脂率估算** `/tools/body-fat`：有实测值就用实测，否则走 Deurenberg 回归；由体脂率反算脂肪量与去脂体重，并给六档目标体重与腰围 / 腰高比 / 腰臀比风险提示。
+- **每日饮水量计算** `/tools/water-intake`：`35 ml/kg` 起算，按运动、环境、妊娠哺乳、发热逐项加成，**最后扣掉约 20% 的食物供水**，附 IOM 对照与全天分配建议。
+- **靶心率区间** `/tools/target-heart-rate`：四个最大心率估算式对照（默认 Tanaka），%HRmax 与 Karvonen 两种区间算法并排，Z1–Z5 各带主观感受与用途。
+
+**金融与理财（5）**
+
+- **房贷计算器** `/tools/mortgage`：等额本息与等额本金**并排**计算，末期用剩余本金结算以吸收分级残差，附年度汇总、逐月明细、收入门槛与 CSV 导出。
+- **车贷计算器** `/tools/car-loan`：等额本息与「等本等息」分期费率两种模式，后者用 IRR 反解出**真实年化**（月费率 0.25% 的真实年化约为标称的 1.8–1.9 倍），落地价含购置税 / 保险 / 上牌估算。
+- **投资收益与复利** `/tools/investment`：逐月推演（区分期初 / 期末定投），附通胀折现、72 法则与精确翻倍年数对照、达标时间与所需月投额反解。
+- **五险一金计算器** `/tools/social-insurance`：六项比例按常见口径预置且**每项都能就地改**，给个人 / 单位 / 合计与公积金入账，附 5%–12% 八档阶梯与逐月表。
+- **货币换算** `/tools/currency-convert`：16 个币种以对 CNY 的比值存一份**离线快照**，交叉汇率现算（不会出现两套互相矛盾的汇率）；汇率表可就地改，页面标明快照日期与「不是实时行情」。
+
+**生活常用（6）**
+
+- **年龄计算器** `/tools/age-calc`：精确到「岁 / 个月 / 天」，生日对应日按「当月没有该日取月末」处理；附总天数周数、下次生日倒计时与万天里程碑。
+- **身份证信息解析** `/tools/id-card`：GB 11643 的 MOD 11-2 校验位、省级归属地、出生日与性别、周岁；**校验位不符时仍继续解析**并把期望值写出来，15 位可升 18 位。号码打码显示且不落盘。
+- **生肖星座查询** `/tools/zodiac`：生肖走干支纪年一条公式（`n = mod(year − 1984, 60)`）推出干支、生肖、五行与本命年；星座按月切点表判定，附十二地支时辰与星座区间速查。
+- **亲戚称谓推算** `/tools/kinship`：自研原子模型（10 个原子 + 5 条链尾重写规则 + 规范链表），输入「爸爸的哥哥的儿子」得堂兄弟，也能反向给出对方怎么称呼你；多解如实返回。
+- **随机数与抽签** `/tools/random-pick`：区间取数、不重复抽号、名单抽签、名单洗牌、掷骰、抛硬币；默认 `crypto.getRandomValues`，可切固定种子复现。
+- **百分比计算** `/tools/percent`：四种问法各一个模式，**每一步都把算式原文渲染出来**，并在变化率旁提示「涨 25% 与跌 20% 不对称」这类常见误读。
+
+## 六、开发指南
+
+### 新增一个工具（六步）
+
+1. **内核**：`src/tools/<id>/index.ts` 只写纯函数 —— 不 import Vue、不碰 DOM、不发请求。这样断言脚本能直接在 node 里跑。
+2. **注册**：在 `src/tools/registry.ts` 的 `tools` 数组加一条 `ToolDefinition`（`id` / `name` / `description` / `keywords` / `category` / `icon`）。
+   `id` 一处决定四件事：路由 `/tools/<id>`、页面文件名、每页 SEO 文案、构建期静态壳。要新开分类得同时改 `CategoryId` 与 `toolCategories`。
+   **注册了却没有对应页面文件会在模块初始化时直接抛错**（`router/index.ts` 里的显式检查）—— 宁可启动即失败，也不留一张 404 死卡片。
+3. **页面**：`src/pages/tools/<PascalId>Page.vue`（`json-format` → `JsonFormatPage.vue`，按 `pageNameOf()` 约定解析）。
+   外壳统一用 `<ToolShell tool-id="<id>">`，输入与选项用 `useStored('tool.<id>.<field>', 默认值)`，复制用 `<CopyButton :text="…" />`。
+   **结果区不用 `v-html`**；敏感输入（口令、证件号）不接 `useStored`。
+4. **图标**：只用 Iconify。新名字先在 `node_modules/@iconify-json/lucide/icons.json` 的 `icons` + `aliases` 两键里核对存在
+   （`bitwise`、`fraction`、`approximate` 就不在 lucide 里）。注册表图标经 `registryIcons` 自动进包，模板里以**字面量**传入的图标构建期扫描能抓到，
+   **运行时拼出来的名字（`'lucide:' + v`）必须手登记进 `vite.config.ts` 的 `chromeIcons`**，否则离线渲染为空白。
+5. **验证**：临时断言脚本（`node --experimental-strip-types` 跑，绿了删）→ `pnpm typecheck && pnpm build`
+   → 在 `pnpm dev` 走一遍黄金路径 → 再用同源 iframe 对 `pnpm preview` 的产物做 390 / 768 / 1280 三档溢出复测。
+   **判据必须落在页面内容上**（例如先断言 `h1` 与输入框数量），只看 `scrollWidth` 会量到一页 404。
+6. **文档**：本文档同步 —— 工具清单加一行、分类计数更新、体积表按当次构建改。
+
+### 注册表与搜索
+
+`src/tools/registry.ts` 是唯一事实来源，`ToolDefinition.id` 一处决定四件事：路由、搜索与展示、每页 SEO（`pageTitle()` / `pageDescription()` 被运行时
+`afterEach` 与构建期静态壳共用，避免两处文案漂移）、构建产物（`staticHosting()` 按 `tools` 逐个写深链壳）。
+
+搜索打分在 `useToolSearch.ts`：按空格切词，多词取「全部命中之和」，任一词不命中即整体排除（AND 语义）。单词优先级为
+`名称/id 完全相等 100 > 前缀 90 > 包含 75 > 关键词全等 65 > 关键词前缀 55 > 关键词包含 45 > 描述包含 25`，同分按中文名 `localeCompare('zh-CN')`。
+命令面板与首页共用同一份打分函数，因此三处结果一致；`?category=` 参与过滤但不改变打分。
+
+### 存储与隐私
+
+- 站内一切持久化都在 `localStorage`，键前缀 `toolbox:`；工具键经 `useStored` 写入，值是 `JSON.stringify` 过的。
+  唯一的例外是主题键 `toolbox:theme`，它存的是裸字符串（`system` / `light` / `dark`）。
+- **三类敏感内容一个字符都不落盘**：身份证号、AES 的口令与明文、待评估的（自己写的）口令。这几处用普通 `ref` 而非 `useStored`，
+  "刷新即丢"是特性不是缺陷。评审新页面时按这条检查。
+- `useStored(key, 常量)` 在没有存档时会把常量本身当作 ref 的当前值，页面里的就地改写会污染那个常量，初始值必须深拷贝。
+
+### 主题与外观
+
+- 品牌色定义在 `src/assets/css/main.css` 的 `@theme static`（`brand` 绿 + `ink` 深蓝灰），再由 `vite.config.ts` 的
+  `ui({ ui: { colors: { primary: 'brand', secondary: 'ink', neutral: 'slate' } } })` 挂到 Nuxt UI 别名上。**改品牌色要同时改这两处**，
+  且必须写 `@theme static` —— Tailwind v4 默认会摇掉没有被工具类直接引用的 theme 变量，导致 `--ui-primary` 解析为空（按钮变透明且不报错）。
+- 页面底色与文字色不写死在组件里，统一覆盖 Nuxt UI 的语义变量：
+
+  | token | 亮色 | 暗色 |
+  | --- | --- | --- |
+  | `--ui-bg`（画布） | `#ffffff` | `#161618` |
+  | `--ui-bg-elevated`（卡片 / 浮层） | `#f7f8fa` | `#1f1f24` |
+  | `--ui-text`（正文） | `#213547` | `#f6f6f7` |
+  | `--ui-text-highlighted`（标题） | `#101d2b` | `#ffffff` |
+  | `--ui-text-muted`（次要文字） | `#5f6f7f` | `#aab2bd` |
+
+  实测 WCAG 对比度全部 ≥ 4.5:1（正文 12.61 / 16.73，次要 5.16 / 8.44，按钮文字 6.16 / 9.32）。亮色下还额外覆盖了实心主色按钮的文字色。
+- **毛玻璃**：token（`--glass-bg` / `--glass-elevated-bg` / `--glass-blur`）由语义变量 `color-mix` 推导，组件里只写 `glass` / `glass-card`
+  两个 `@utility`。`body::before` 是一层固定的品牌色径向渐变，给 `backdrop-filter` 提供可透视的背景；
+  `prefers-reduced-transparency: reduce` 下自动换成不透明实色。
+- **滚动条**：8px 轨道 + 4px 圆角滑块，颜色由 `--ui-text-muted` 推导；标准属性只写在 `@supports (-moz-appearance: none)` 里
+  （Chrome 一旦看到非 `auto` 的 `scrollbar-width` 就会整套忽略 `::-webkit-scrollbar`，反之 Firefox 不认 webkit 伪元素）。
+- **明暗三态**：`useTheme.ts` 是模块级单例，持久化键 `toolbox:theme`；`index.html` 的前置脚本在任何渲染之前完成同样判定（防首帧闪烁），
+  并把结果同步写进 `vueuse-color-scheme`，避免与 Nuxt UI 内置 `useDark()` 互相覆盖。
+- **卡片**：`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`；卡片内标题与简介各占一行、**同宽度档内严格等高**，
+  长文本用 `container-type: inline-size` + `translateX(min(0px, calc(100cqi - 100%)))` 在悬停 / 聚焦时横向滚出，
+  触屏与 `prefers-reduced-motion` 下改为手动横滑。完整介绍由 `ToolShell` 的头部承载。
+
+### 布局与站点配置
+
+- 三段式骨架在 `App.vue`：`AppHeader`（sticky）→ `main`（`max-w-6xl`）→ `AppFooter`，外加全局的 `AppCommandPalette` 与 `BackToTop`。
+- 站名、页脚文案、自定义 HTML、仓库地址、年份集中在 `src/site.config.ts`，改完重新构建即可，不需要动组件。
+  `footerLine` / `footerHtml` 支持 `{year}` / `{name}` 占位符，留空则整块不渲染。
+- **安全边界**：`footerHtml` 走 `v-html`，但它只可能来自这个构建期常量文件，不参与任何运行时输入。哪天要把它接成远端数据，
+  必须先过 DOMPurify 之类的净化，否则等于自造 XSS 通道。
 
 ### 繁简转换的字表是怎么来的
 
-旧站的繁简页直接用 `opencc-js@1.4.2`。本站先量了它的体积：字典 + 运行时**未压缩 1.20 MB、gzip 498 kB** —— 单这一个包压缩后就是全站首屏 gzip（197.99 kB）的 **2.5 倍**，而「不引入体积过大的依赖」是硬约束，所以改为**只借它的数据、不借它的包**。
+繁简转换是全站第一个「数据型工具」，也是构建期生成 + 体积核算的唯一样本：
 
-- **数据来源**：OpenCC 1.4.2 的官方字典文件（本机 `multicalc/node_modules/opencc-js/dist/esm-lib/dict`，那份是只读引用）。生成脚本 `scripts/gen-chinese-variant-table.mjs` 逐个 `import` **11 个字典文件** —— `STCharacters`、`TSCharacters`、`TSPhrases`、`STPhrases`、`STPhrases_GeneratedFromRegionalPhrases`（后两张合并成简→繁的词表）、`TWVariants` / `TWVariantsPhrases` / `TWVariantsRev`、`HKVariants` / `HKVariantsPhrases` / `HKVariantsRev`，按 OpenCC 自己的流水线口径合成 11 张导出表（字表 2 + 词表 2 + 一字多形 1 + 台式 3 + 港式 3）。**`src/tools/chinese-variant/table.ts` 是生成物，不要手改**（文件头写了这句话并指向本节）。
-- **复跑方式**：`pnpm exec node scripts/gen-chinese-variant-table.mjs`。字典目录用 `OPENCC_DIR` 覆盖，默认取上面那个路径。脚本不参与 `pnpm build`，`dist` 里不含它；实测在项目根新增 `scripts/` 目录前后各构建一次，**全部产物块 hash 与字节一字不变**（它不含类名，Tailwind 的自动扫描读了也无从产出）。
-- **表的编码**：字表是 `keys\u0000values` 两条等长码点串（按码点索引一一对应，不用对象是为了省字节 —— 3881 条 `{"發":"发"}` 的键名开销比数据本身大）；词表是 `key\u0001value` 用 `\u0002` 连接。简→繁的词表还带**增量标记**：`"<下标><字>"` 表示覆盖该下标，`"<下标>-"` 表示**抑制**字级默认值（词里这个字在这个词中不转）。
-- **两个旋钮**：`KEEP_N` 默认 300 —— 例外词按「这个词的这个位置上字级默认值不成立」的频次排序取前 N（N 越大越准也越大，300 是让本轮断言全绿时所用的值）；`POLY_T` 默认 1 —— 一字多形的入选条件是「该字的默认值**并非在所有已证实写法里都成立**」，也就是只要有任一已证实的替代写法就标出来。门槛扫描的结论记在坑 86：**T=1 既是唯一能让诚实性不变式全绿的一档，同时也是表最小的一档**（收紧成「常出错才标」会吞掉真实差异不报，放宽则只是过度标注）。
-- **不变式**：与 OpenCC 不一致的输出**必须**出现在候选里（哪怕最终没选它）。这条由一份临时 oracle 脚本核对（**12 449 条断言 / 0 失败**，跑绿后删除），断言里就包含「每个差异点的参考写法必须在 `def` 或 `alts` 中」，因此表格以后重新生成也不会悄悄丢掉可核对性。
-- **已知边界**：简→繁方向的词表条目**全部是二字**（4046 条，键长实测只有 `2`），所以 `TWVariantsPhrases` 里那批三字以上的人名保护（`葉步樑`、`張棟樑` 等）在这个方向判不了 —— 处理方式不是硬猜三字窗口，而是把**地区追加层前后的两种写法同时放进候选**让用户挑（见坑 87）。繁→简方向的词表保留 2–10 字的长词（477 条），不受这个限制；台式 / 港式两层的反向表 `TWVariantsRev`（38 条）/ `HKVariantsRev`（61 条）负责让地区写法回流时不被字表改没。
+- **数据来源**：OpenCC 1.4.2 随 `opencc-js` 发布的官方字典，只借数据、不引包（`opencc-js` 压缩后 498 kB，超预算）。
+  生成脚本 `scripts/gen-chinese-variant-table.mjs` 按 OpenCC 自己的流水线口径合成 11 张导出表。
+- **复跑方式**：`pnpm exec node scripts/gen-chinese-variant-table.mjs`（字典目录可用 `OPENCC_DIR` 覆盖）。
+  脚本不参与 `pnpm build`，`dist` 里也不含它；实测加不加这个 `scripts/` 目录，产物各块 hash 与字节都不变。
+- **`src/tools/chinese-variant/table.ts` 是生成物，不要手改**（文件头已注明）。
+- 产出体积：字表内容 100 059 B、逐表 gzip 合计 50 989 B，约是 `opencc-js` 压缩体积的 10.2%。
 
-### 依赖与产物体积
-
-工具实现优先用浏览器原生 API。**功能型第三方依赖只有两个**：`qrcode@1.5.4`（纯 JS、无传递依赖、`@types/qrcode` 在 devDependencies）与 `js-yaml@5.4.2`（YAML 1.2 参考实现，同样是纯 JS 单文件、无传递依赖；**它自己就带 `dist/js-yaml.d.ts`，所以原先跟着装的那份 `@types/js-yaml@4.0.9` 是多余且版本错配的，体检时已 `pnpm remove`** —— 包本身没有依赖，但 TS 走 `exports` 字段永远优先读自带的 `.d.ts`，那份 v4 声明从来没被用上）。两者都只被各自那一页 `import`，因此被打进该路由的懒加载块，不进首屏：
-
-| 产物 | 原始 | gzip | 说明 |
-| --- | --- | --- | --- |
-| `assets/index-*.js` | 269.79 kB | 80.90 kB（zlib-9 复算 80.02） | 入口：Vue + vue-router + Nuxt UI 插件 + 应用外壳 + registry + `site.config.ts` + 全局 `BackToTop.vue`，**以及 Nuxt UI 内联的整张图标表**（`node` 在产物里按 `"piggy-bank":{`、`"cake-slice":{`、`"arrow-up":{"width"`、`"gauge":{` 这类表键定位，金融批的六个新字形、生活批的七个、「返回顶部」的 `arrow-up` 与第 61 个工具的 `gauge` 全都落在这一块的 `index-*.js` 而不是 `Badge-*.js` —— 本行下一档「图标全在 Badge」的说法已按实测改掉，见坑 63）。**这一档的原始数字之前一直没跟上实际产物**：表里原先写的 223.72 kB 是第 20 个工具时的测量，后面几批只补了「本批涨多少」的增量、没改表头，把增量累加会得到约 237 kB，与实产 258.66 kB（不含健康批）差约 21 kB —— 见坑 61，以后每批以「同源码带/不带这批各 build 一次」的差值为准，不再往行文里累加。按表头实测的数字链：第 6 批（6 条工具元信息 + 1 条分类元信息 + 7 个新字形）增量 +3.53 kB 原始 / +0.84 kB gzip，与金融批那次的 +3.77 kB 同量级（差额未逐字节定位）；「返回顶部」组件连同它的 `arrow-up` 字形再 +1.10 / +0.31 → 263.35 → 266.88 → 267.98 kB；**第 7 批的第 1 个工具（1 条注册表元信息 + `gauge` 字形 + 页面里三个新图标的字符串）增量 +0.42 / +0.10**。**本轮（第 62 个工具）把这一档的数字全部换成实测值，并发现上一行写的 268.40 kB 是「旧表头 267.98 + 那批增量 0.42」算出来的、不是那批 A/B 实测的 B**：同一个 61 工具状态（把这条注册表条目和页面文件一起摘掉）今天实测 `index-*.js` = 268656 B → **268.66 kB**，与 268.40 差 0.26 —— 坑 61 的失败模式在下一批就复现了一次。本轮 A→B：268.66 → **268.81 kB**（增量 +152 B = +0.15 原始 / Vite gzip +0.05），只多一条注册表元信息 + 一个 `contrast` 字形表键。**往后的口径固定为：表头 = 本轮 B 构建的字节数 ÷ 1000，增量 = B − A，两者都从当次构建读，不再往上批的表头加**。**本轮（把 Base32 与按位运算并入 `number-base` 页、不新开工具）入口的 A/B 两态字节数完全相同（都是 268808 B，Vite 打印同为 268.80）只有 hash 变了** —— 注册表那条描述改短省下的字节与 26 个新关键词吃掉的部分恰好抵消，所以这一档本轮没有可信的「本批增量」可写；zlib-9 复算按今天的产物校正为 79.87。**本轮（体检：把两个同分类重复的注册表图标换成 `columns-3` / `lock`）268808 → 269368 B = +560 B**，归属清楚：注册表里两个 `icon` 字符串各自多/少几个字并不落到这里（那是 Badge 那档），这里是**图标表多了两个字形键** —— 按表键复查 `"columns-3":{"width"` 与 `"lock":{"width"` 各命中 1 次、且都在入口块（`Badge-*.js` 里 0 次，与坑 63 一致），被换掉的 `table` / `key-round` 两个键仍在（各被另一页在用），所以是净增两枚字形。**本轮（第 63 个工具「繁简转换」）做了一次受控 A/B**：A 态直接把工作树切回 `HEAD`（`git show HEAD:src/tools/registry.ts` 覆盖 + 把 `ChineseVariantPage.vue` 移出 `src/`，即 62 工具那版），结果 A 的三个关键块与体积表上一档**逐字节相同**（入口 `index-Cc44EI6K.js` 269368 B、`Badge-CuUN9ytg.js` 244146 B、`index-DyDgBWry.css` 215168 B），说明 git 里那份源码确实复现得出推送时的产物。B 态 **269368 → 269786 B = +418 B（gzip 79920 → 80017 = +97）**，归属已逐项查实：`lucide:languages` 的字形表键在入口块占 **238 B**（`"languages":{"width":…}` 整段实测，Badge 块里 0 次，与坑 63 一致），其余 180 B 是这一页的懒加载条目出现在入口的资源清单与 `import.meta.glob` 映射里（光清单中那串 `"assets/ChineseVariantPage-Dr5Un_d2.js",` 就 39 B）；**注册表文案一条也没进这里** —— `繁简转换` 在入口块 0 次、在 Badge 块 1 次（坑 81 的归属再验一次）。**本轮（补差：数字中文读法并入人民币大写页）这一档字节一字未动**：仍是 269 786 B / zlib-9 80 022，只换了 hash（`index-DCBGX-OX` → `index-Cpb9IUeD`），因为入口里写死了各页块的懒加载文件名，而那个页块改名涨了字节 —— 这一档本轮的**增量是 0 B**，不是「小到没量出来」 |
-| `assets/Badge-*.js` | 244.67 kB | 86.43 kB（zlib-9 复算 85.47） | 被复用最广的 Nuxt UI 共享块（`UButton`/`UBadge`/图标运行时等）。**本轮按坑 76 的全量 A/B 改写为 243.69 kB**：上一步（第 6 批 + 返回顶部）它是 243.32 kB，第 7 批第 1 个工具再 +0.36 原始 / +0.15 zlib-9（更早那批是 +2.53，来自 240.79）。**本轮（第 62 个）A→B：243.69 → 244.03 kB（+344 B = +0.34 原始 / Vite gzip +0.17）** —— 上一行的 243.69 与本轮实测的 A 一字不差，说明这一档先前确实是实测值（与入口那档不同）。**图标不在这里（新字形的表键实测落在入口块，见上一行），但注册表的文案在这里** —— 本轮（把 Base32 与按位运算并入 `number-base` 页）做了三态构建才把这一档的来源定下来：A₂（旧注册表文案 + 旧页面）`Badge-CvkYcPom` 244033 B → **A（只把注册表那条描述与关键词改掉、页面仍是旧的）`Badge-CqBq0sm9` 244147 B** → B（再加新页面板块）仍是 244147 B。也就是说**本轮 Badge 那 +114 B 全部来自「改了几个字」的注册表文本，与新页面的代码无关**；机制是 `ToolShell` 与命令面板都 `import` 了 `registry.ts`，被 rollup 合进这个共享块时把整份工具元信息一起带走了。上一行原先写的「本行不推断涨的具体来源」就此作废（新坑 81）。以后**只调文案（改描述、加关键词）也要按首屏代价算**，别以为注册表只是数据。**体检轮再验一次同一机制**：只把两个注册表 `icon` 字符串换名（`lucide:table` → `lucide:columns-3` 多 5 B、`lucide:key-round` → `lucide:lock` 少 6 B），本档 244147 → **244146 B（−1 B）**、zlib-9 85.21 → **85.22**，而字形数据一枚也没进来（`"columns-3":{` 在本档 0 次）—— 注册表文本进本档、图标字形进入口档，两条路互不串。**本轮 A→B：244146 → 244540 B = +394 B（gzip 85233 → 85407 = +174）**，与入口那档的 +418 不同源：这一档涨的**只有注册表那一条元信息**（`id`/`name`/`description`/21 个关键词/`icon`/`category` 的字符串，`繁简转换` 与 `一字多形` 在本块各命中 1 次与 2 次），本块没有新增字形表键。**本轮（补差：数字中文读法）A→B：244 540 → 244 668 B = +128 B（zlib-9 85 407 → 85 467 = +60 B）**，来源按坑 81 的机制归给注册表那一条（描述改短 + 新增 7 个关键词），本轮**没有再做三态**（A₂/A/B）去逐项拆开 —— 页面这一侧新写的读法代码进的是自家页块 `RmbUppercasePage-*.js`（见下面那行「补差」），本块本轮也没有新字形表键，所以剩下的变化只可能来自注册表文本，hash 换为 `Badge-Bb9Ha2OK.js` |
-| `assets/index-*.css` | 216.82 kB | 28.56 kB（zlib-9 复算 28.13） | Tailwind v4 + Nuxt UI 主题变量 + 毛玻璃 `@utility` + 细滚动条 + 主题气泡 + 卡片长文本滚动 + `.footer-html`（按需扫描生成，无未用到的工具类）。**本轮又换了一次 hash**（`index-DlsEY8M2.css` → `index-BZw0Y-Vf.css`，216699 → 216762 B = +63 B ≈ +0.06 原始 / Vite gzip +0.01），增量来自对比度页这一组新类（判定表的 `w-28`/`w-16`/`w-20` 三档列宽、`border-2` 的边框样例、半透明预设用的双色圆点 `w-1/2`、`size-12` 色块）；上一轮「返回顶部」带来的 +0.57 kB 见坑 75。**关键口径**：只摘注册表条目做 A/B 会得到「CSS 一字未变」的**假结论**，因为 Tailwind 仍会扫到页面文件 —— 必须把 `.vue` 一起移出 `src/` 才量得准（新坑 76）。本轮顺手复核了另一件事：把 `_oracle8.ts` / `_strip.cjs` / `_size.cjs` 三个临时文件留在项目根目录构建一次、删掉再构建一次，`index-BZw0Y-Vf.css` 等**全部块 hash 一字不变**，说明这些不含工具类的临时脚本不污染产物，但仍应删干净。**这一档数字现在是可复现的**：坑 47 补了 `@source not "../../../dist*"`，否则每次 `pnpm build` 都会把上一版产物当源码扫、把只服务于旧产物的类名再生成一遍。**本轮（`number-base` 页加 Base32 + 按位运算两块）A₂ = A = 216762 B 且 hash 一字未变**（说明注册表文案确实不影响 Tailwind 的产出，与上一行的 Badge 恰好相反），B = 216904 B（`index-BZw0Y-Vf` → `index-B57Rg8cX`，**+142 B ≈ +0.14 原始 / Vite gzip +0.04**）。新类主要是操作数栅格的任意值 `lg:grid-cols-[1fr_10rem_1fr]` 与 Base32 只读行的 `border-dashed`，**但没做逐类归属**（要为 142 B 再跑一轮 A/B 不划算，这里只登记数字）。**体检轮（换两个注册表图标 + 修颜色页取色器）本行 hash 与字节都没动**：仍是 `index-B57Rg8cX.css` 216904 B —— 图标名不进 Tailwind 的扫描范围，而颜色页那次改动只涉及一个 `computed` 的实参，没新增任何类名。**但这一档随后又变了一次，原因不在 `src/`：`README.md` 自己就被 Tailwind 的内容扫描当成了源码**（v4 的自动检测只按 `.gitignore` 里的条目排除，root 下这个 md 不在排除之列，而它和构建产物一样只被当作文本读）。实测补一条 `@source not "../../../README.md"` 之后 CSS 从 **216925 B 降到 215168 B**（`index-CrZzw8yo.css` → `index-DyDgBWry.css`，**−1757 B / zlib-9 −182**），少掉的只有 10 个选择器，全部是正文里的裸词造出来的死规则：`title-scroll`（源码只用 `group-hover/card:title-scroll` 这种带修饰符的形式，裸类本就不该存在）、`columns-3`（源码里只以 `lucide:columns-3` 出现，冒号被解析成变体所以本来不生成，正文里写成裸词就生成了）、`bg-default/85`、`backdrop-blur-md`、`sm:inline`、`sm:p-5`、`sm:px-3`、`lg:inline`、`lg:grid-cols-[minmax(0,…)]`（正文里那个被省略号截断的任意值字符串，Tailwind 照样吃下）。**在用的规则一条没被误删**，逐条复查了 `backdrop-blur-2xl`、`sm\:inline-flex`、`lg\:inline-flex`、`bg-default\/80\!` 四条，都还在产物里。**这一条顺带破了体检轮留下的那桩「同源码不同产物」疑案**：上一轮表里记的 216904 与后来复跑测到的 216925 之间，`src/` 确实一字未改，改的是 README —— 那 +21 B 就是新写进去的正文里恰好出现的一个裸词。本行前面那句「这一档数字现在是可复现的」只排除了构建输出目录，漏了文档，现在补齐。**本轮 A→B：`index-DyDgBWry.css` 215168 → `index-DYL3WmTt.css` 216816 B = +1648 B（gzip 27998 → 28134 = +136）**。这一档第一次做到**逐类归属**：把 A/B 两份 CSS 的选择器集合求差，**新增只有 7 条**且每条都只在 `ChineseVariantPage.vue` 里出现一次 —— `mx-px`、`min-w-14`、`leading-7`、`decoration-dotted`、`decoration-primary/70`、`decoration-warning/70`、`hover:bg-primary/25`（`underline`、`underline-offset-4`、`bg-primary/15`、`my-1`、`min-w-16`、`leading-6` 在 A 里已有，不算本轮）；**反向求差为空**，即没有任何在用的规则被挤掉。**7 条吃掉 1648 B 的原因不在条数**：前三条实测只有 25 / 46 / 86 B，而两条 `decoration-*` 各约 380 B —— Tailwind 会为每条带 `color-mix` 的规则额外输出一份 `@supports (color:color-mix(in lab, red, red))` 回退块，且 `-webkit-text-decoration-color` 那一行在产物里**被重复了三次**（Lightning CSS 的行为，不是本项目造成的）。7 条合计约 1.2–1.4 kB，与 +1648 同量级，**差额没有逐字节定位**（选择器求差看得见新增规则，看不见 `@supports` 分组的连带变化） |
-| 其余 3 个 preload 块 | 9.49 kB | 4.43 kB | `dist`（8.07）/ `VisuallyHidden`（1.13）/ `ConfigProvider`（0.29）。原先这行写的「4 个块 45.19 kB，含 `runtime-dom` 与 `Collection`」已经不存在：那两块后来被合进别的 chunk，实测 `index.html` 里的 `modulepreload` 只有这三条。**上一轮 `VisuallyHidden` 从 2.09 掉到 1.14 kB**，前后没人改过它、也没定位到是哪条模块被合走（按坑 61 的 A/B 办法才量得准，这里只登记数字）。**本轮这三块在 A/B 两次构建里字节一字未变**（Vite 打印同为 8.07 / 1.13 / 0.29）。**本轮（第 63 个工具）三块的字节数仍然完全相同**（8075 / 293 / 1137）而 **hash 三个都换了** —— 不是「同内容换名字」：这三块内部写死了别的 chunk 的文件名，页块集合一变它们的内容就跟着变，只是**长度恰好没变**（旧的块名片段与新的等长）。所以核对时得说清比的是字节数还是内容：本轮的字节数相同、gzip 后各差 1–2 B，正是这个原因 |
-| **首屏合计** | **740.78 kB** | **198.06 kB** | 首页 `index.html` 实际引用的 6 个静态文件（入口 JS + Badge 共享块 + 3 个 preload + CSS；**不含 `index.html` 本身，它另有 5.69 kB / zlib-9 2.41 kB**）；gzip 用 node zlib level 9 复算，Vite 自己打印的那一列略高。原始列按总字节 ÷1000（六项分别 269.37 / 244.15 / 8.07 / 0.29 / 1.14 / 215.17，各自先四舍五入相加会少 0.01）。**本轮（第 62 个工具）合计 +559 B = +0.56 kB 原始 / Vite gzip +0.23**，三项可核对：入口 +152、Badge +344、CSS +63，三个 preload 块字节不变。上一行写的 738.30 里含入口那 0.26 kB 的表头漂移，按本轮实测的 A 应为 738.55。再上一轮（第 7 批第 1 个）是 +0.83 / +0.25，第 6 批六页 + 返回顶部是 +6.79 / +2.14。首页不加载任何工具页。**本轮（`number-base` 并入 Base32 与按位运算）合计 739.11 → 739.36 kB = +256 B**，三项完全对上：入口 0（A/B 两态同为 268808 B）+ Badge +114（注册表文案）+ CSS +142（新类），三个 preload 块字节不变；zlib-9 复算 197.50 → 197.63 = **+0.13 kB**。**顺带一条测量口径的自查**：上表本轮 A₂ 的原始合计与上一轮记在表里的 B（739.11 kB）**逐字节相同**，但 zlib-9 那列上一轮写的是 197.59、今天对同一组文件复算是 197.50 —— 差 0.09 kB，说明 gzip 那列当时是按「各文件先四舍五入再相加」凑的（原始列同理，见本行开头那句）。以后合计列**一律用未压缩字节求和后再除**，不要拿四舍五入过的分项凑。**体检轮（两枚注册表图标换名 + 颜色页取色器修正）739.36 → 739.92 kB = +559 B**，两项完全对上：入口 +560（两枚新字形）+ Badge −1（两条 `icon` 字符串一改一减）；CSS 与三个 preload 本批没碰过源码，未复测。**体检轮收尾补的第 4 处修正把这一档整个往下拉了一截**：739.94 → **738.19 kB = −1757 B**，四项里只有 CSS 变了（入口 269368、Badge 244146、三个 preload 8075+293+1137 全部逐字节未动，只是入口 JS 的 hash 因为里面写死了样式表文件名而换了：`index-C6TYFlcR` → `index-Cc44EI6K`）。这一档先前那个 739.94 就是本行上面反复说的「表头必须当次实测」抓出来的——写进表的是 739.92，实测同产物是 739944 B。zlib-9 197.70 → **197.58**；含 `index.html` 的另一口径同时校正为 **743.88 kB / 200.00 kB**（html 本身 5689 B / 2419 B，两项相加正好凑到 200.00，别误读成「压缩没变」）。**这一档的表头此前一直缺一条定义**：本行说的 6 个文件不含 `index.html` 自己，把它算进去是 745.61 kB / zlib-9 200.11 kB —— 以后引用「首屏」时必须同时说明是哪一种口径（新坑 83）。**本轮（第 63 个工具，受控 A/B）六项 738187 → 740647 B = +2460 B**，四项完全对上：入口 +418、Badge +394、CSS +1648、三个 preload 各 0（8075 / 293 / 1137 一字未变）；本轮六项分别为 269.79 / 244.54 / 8.08 / 0.29 / 1.14 / 216.82 kB。**顺带把 zlib-9 这一列的配方钉死**：本表用的是 `zlib.gzipSync(buf, { level: 9 })`（gzip 封装），换成裸 `deflateSync` 会**每个文件少 12 B** —— 本轮先按 `deflateSync` 复算，六项得 197.92 kB，与同一份产物按 gzipSync 得到的 197.99 差 72 B（6 × 12），换回 gzipSync 后 A 态与表里历史值 197.58 逐字节吻合。gzip 合计 **197582 → 197994 = +412 B**。含 `index.html` 的另一口径同步更新为 **746.389 kB / 200.43 kB**（html 本身 5689 → 5742 B，多的 53 B 就是 `<noscript>` 清单里第 63 条链接），62 工具那版按同一脚本复算是 743.876 kB / 200.00 kB，与上一轮的表头一致。**本轮（补差：数字中文读法并入人民币大写页，受控 A/B，A 态 = git HEAD）六项 740 647 → 740 775 B = +128 B**，四项里只有 Badge 变了（入口 269 786、CSS 216 816、三个 preload 8075 / 293 / 1137 全部逐字节未动；入口与三个 preload 只是换了 hash —— 它们内部写死了别的 chunk 的文件名，页块一换名它们就跟着换 hash，上一行「其余 3 个 preload 块」记过同一现象）。gzip **197 994 → 198 061 B = +67 B**。本轮六项 269.79 / 244.67 / 8.08 / 0.29 / 1.14 / 216.82 kB；含 `index.html` 的另一口径 746.517 kB / 200.50 kB（html 本身 5 742 B / 2 438 B，本轮一字未改，`<noscript>` 仍是 63 条链接） |
-| `assets/QrCodePage-*.js` | 30.89 kB | 12.16 kB | **含完整 `qrcode` 库**，仅访问 `/tools/qr-code` 时下载 |
-| `assets/calculator-*.js` | 4.82 kB | 2.21 kB | 计算器内核，被计算器页与单位换算页共用（后者复用它做数字格式化） |
-| 其他 19 个工具页 | 4.54–22.38 kB | 2.23–6.87 kB | 第 1–20 个里除二维码页外的 19 页，各自一路由一块，`/tools/hash` 最大（自带 MD5 实现）；第 21–24 页 11.54 / 12.18 / 14.66 / 16.66 kB（gzip 5.04 / 5.59 / 6.02 / 6.87），最重的浮点页要一次渲染三种精度的位串与精确展开 |
-| 第 25–28 页 | 10.44 / 12.21 / 15.64 / 35.71 kB | 4.97 / 5.33 / 6.03 / 14.51 kB | 文本统计 / 古典密码 / 文件权限 / HTTP 速查。**HTTP 速查是全站最大的工具块**，因为它装的就是内容本身：内核 27.85 kB 源文件里 66 条状态码表（16.09 kB）与 42 条 MIME 表（3.51 kB）合计占 **70%**，中文长说明在 gzip 下压得动（35.71 → 14.51 kB）。换来的是零第三方依赖、离线可查、每条带出处；且它只在该路由懒加载，不进首屏 |
-| 第 29–33 页 | 7.36 / 9.76 / 8.69 / 8.68 / 12.07 kB | 3.32 / 4.25 / 3.92 / 3.87 / 5.87 kB | 全角半角 / 摩尔斯 / 罗马数字 / Unicode 转义 / ASCII 码表。五个都没有第三方依赖，最重的 ASCII 码表页装的是 128 行表本身（由 `Array.from` 生成、不是硬编码，内核 8.75 kB 源文件里控制字符名称与中文说明两张表占大头），摩尔斯页的 51 项电码表不到 1 kB。这一批整体偏小是因为内核纯函数、页面复用既有控件，没有新增按需依赖 |
-| 第 34–38 页 | 12.21 / 9.70 / 84.10 / 12.51 / 20.47 kB | 5.01 / 4.22 / 24.39 / 5.33 / 8.46 kB | 行文本处理 / 查找替换 / HTML ⇄ Markdown / Markdown 表格 / CSS 渐变。**HTML ⇄ Markdown 是全站最大的工具块（84.10 kB / gzip 24.39 kB）**，因为它装的是两个方向的完整实现：宽容 HTML 解析器 + 两套块级/行内渲染器 + 19 条样本，而 CommonMark 的强调定界、列表缩进、表格分隔行这些都得自己写（不引 `marked` + `turndown`：两个库合计约 70 kB 原始、gzip 约 20 kB，而且是「一个方向一个库」，仍然要自己写样本与胶水）。渐变页的 20.47 kB 里有约 1.1 kB 源码是 148 个 CSS 命名色表（只在需要解释 `tomato`、`mediumspringgreen` 这类写法时才用得到），按路由懒加载、不影响其余页面。另三个页面 10–13 kB 属正常水位 |
-| 第 39–43 页 | 67.99 / 20.71 / 15.43 / 10.17 / 16.07 kB | 21.73 / 8.06 / 5.98 / 4.55 / 6.74 kB | YAML ⇄ JSON / XML 格式化 / JSON → TS 接口 / AES 加解密 / IP 地址与进制。**YAML 页 67.99 kB 装的主要是 js-yaml 本体**（v5 未压缩 ESM 单文件 128.86 kB，摇树 + minify 后连同 8.30 kB 内核落进这一页，gzip 21.73 kB）—— 全站第二大工具块、也是唯一为它新增依赖的一页；理由：YAML 1.2 的块标量 / 流式集合 / 锚点别名 / 多文档 / 类型推断自研成本远高于 21 kB gzip，且按路由懒加载、不影响其余 42 页。XML 页 20.71 kB 对应内核 24.09 kB 源码（宽容解析器 + 缩进序列化器 + XML→JSON，混合内容的空白保真见坑 57），IP 页 16.07 kB 对应内核 15.84 kB（归属段表 + 六种等价写法）。AES 页 10.17 kB **不含任何加密库**（`crypto.subtle` 的 PBKDF2 + AES-GCM，内核只有 7.27 kB；`crypto-js` 那类要 60 kB 以上、且不比浏览器原生更安全），JSON→TS 页 15.43 kB 对应内核 16.39 kB |
-| 第 44–48 页 | 9.64 / 12.44 / 14.52 / 10.93 / 11.58 kB | 4.27 / 5.81 / 5.90 / 5.12 / 5.49 kB | BMI / 基础代谢与每日消耗 / 体脂率估算 / 每日饮水量 / 靶心率区间。**这一批五个页块加起来（59.11 kB 原始）比 YAML 那一页单独（67.99 kB）还小，且零新增第三方依赖**（健康域用的都是公开回归式，自己写内核比引库便宜：引一个现成的「健康计算」npm 包既拿不到公式出处、体积也压不动）。页块尺寸与内核源码尺寸基本同量级：BMI 页 9.64 kB ← 内核 7.51 kB（两套分级标准共 10 个档位的表就是它的全部内容），体脂页 14.52 kB ← 内核 11.39 kB（ACE 五档男女两套 + 腰围切点 + 六档目标体重），心率页 11.58 kB ← 内核 9.69 kB（Z1–Z5 的百分比、感受与用途五条文案 + 四个估算式的出处说明），BMR 页 12.44 kB ← 9.29 kB，饮水页 10.93 kB ← 8.22 kB。**中文长说明在 gzip 下依然压得动**（五块合计 59.11 → 26.59 kB，压掉 55%，说明页面块里装的多是可压缩的自然语言而不是硬编码数据表；对比之下 HTTP 速查那块压掉 59%、是全站表格最密的一页），且都只在该路由懒加载 |
-| 第 49–54 页 | 9.35 / 10.75 / 11.48 / 12.58 / 9.14 / 11.82 kB，另有共享内核块 `mortgage` 4.25 kB | 3.23 / 4.28 / 4.80 / 4.95 / 3.88 / 5.15 kB，共享块 2.32 kB | 房贷 / 车贷 / 投资收益与复利 / 五险一金 / 货币换算 / 硬盘容量与分区。**六页 + 共享块合计 69.37 kB 原始 / 28.61 kB gzip（压掉 55%，与健康批同一量级），同样零新增第三方依赖**——金融与磁盘这两域的口径都要写清楚出处（等本等息的 IRR 反解、购置税的 `÷1.13×10%`、GB→GiB 的三段换算），现成包既拿不到这些、也压不动体积。**`mortgage` 是这批唯一被拆出来的共享块**（4.25 kB）：车贷页 `import { buildPlan }` 复用了它的摊销器，两页共享所以 rollup 单独成块；其余五页的内核都并进各自页块，尺寸仍是「页块 ≈ 内核源码」同量级（房贷页 9.35 kB ← 内核 9.57 kB、五险一金页 12.58 kB ← 7.94 kB，差额主要是逐项说明文案与八档公积金阶梯）。最大的两个页块是五险一金 12.58 kB 与硬盘分区 11.82 kB，两者装的都是表：六项默认比例 + 每口径一条说明，与六个分区预设 + 四段文件系统注意事项 |
-| 第 55–60 页 | 5.18 / 5.33 / 6.25 / 7.34 / 9.39 / 17.15 kB | 2.48 / 2.31 / 2.88 / 3.81 / 3.97 / 5.81 kB | 百分比 / 生肖星座 / 年龄计算器 / 身份证信息解析 / 随机数与抽签 / 亲戚称谓推算（按体积升序）。**六块合计 50.64 kB 原始 / 21.26 kB zlib-9，压掉 58%（与健康批 55%、金融批 55% 同一量级），同样零新增第三方依赖** —— 抽签用 `crypto.getRandomValues` + 自写 mulberry32，年龄/生肖/身份证走原生 `Date.UTC` 与自表，称谓是自建原子模型。页块尺寸与内核源码尺寸仍基本同量级：百分比页 5.18 kB ← 内核 5.15 kB、年龄页 6.25 ← 6.18、身份证页 7.34 ← 7.49、抽签页 9.39 ← 8.28。最大的是**称谓页 17.15 kB ← 内核 19.16 kB**（101 条称谓表 + 60 余个派生词 + 5 条链尾重写规则就是功能本身，页面只把原子按钮分了四组），它也最压得动（gzip 5.81 kB，压掉 66%）|
-| 第 61 页（第 7 批第 1 个） | 10.67 kB，另有**新拆出的共享内核块 `password-gen-*.js` 2.98 kB** | 5.55 kB，共享块 1.65 kB | 密码强度评估。**这一行最重要的信息是「共享块把老页变小了」**：`PasswordGenPage` 从 11.16 kB 掉到 8.33 kB（gzip 3.35），因为两个页面现在都 `import` `password-gen/index.ts`（评估页要复用 `rateEntropy()` 与本轮新抽出的 `powerOfTen()` / `yearsLabel()` 两个格式化助手），rollup 于是把它单独成块 —— 与金融批那个 `mortgage` 共享块同一机制（坑 61）。**两页 + 共享块合计 11.16 → 8.33 + 10.67 + 2.98 = 21.98 kB**，即访问生成页多下 0.15 kB（共享块 − 老页省下的一点点），访问评估页要下 13.65 kB。评估页 10.67 kB 里装的是内核 10.26 kB 源码（75 条弱口令表 + 三条模式识别 + 判级）加页面本身，**零新增第三方依赖**（口令折损这类判断若引 `zxcvbn`，要随包带一份数万条的口令频率表，min 之后仍是数百 kB 量级 —— 是这一页 10.67 kB 的数十倍，纯前端预算不划算） |
-| 第 62 页（第 7 批第 2 个） | 11.07 kB | 4.86 kB（zlib-9 复算 4.85） | 对比度检查。**这一行的要点是「复用现成共享块 = 一分钱不花」**：新页 `import` 的 `~/tools/color` 内核（`parseColor` / `contrastRatio` / `wcagChecks` / `mix` / `rgbToHex`）早就因为 ColorPage + GradientPage 两处引用而独立成了 `color-*.js`（3.50 kB），本轮 A/B 里它的**文件名 hash 与字节都一字未变**，新页只是多挂了一个引用者；自家新内核 `src/tools/contrast/index.ts`（源码 5.01 kB）只有一页用，所以照旧并进页块、**没有**生成新的共享块（与上一行 `password-gen` 那次的机制正好对照：被两页 import 才拆得出去）。访问 `/tools/contrast` 在首屏之外要多下 **17.43 kB**：页块 11.07 + `color` 3.50 + `ToolShell` 1.24 + `CopyButton` 1.33 + `useStored` 0.29。**零新增第三方依赖**：WCAG 相对亮度与插值搜索全是本地算术，「改动最小的建议色」由向白 / 向黑各等分 40 步的线性扫描给出（80 次 `contrastRatio`，一次点击 < 1 ms），不引 `color-namer` / `chroma-js` 那类调色库 |
-| 补差：`number-base` 页并入 Base32 与按位运算 | 6.80 → **15.65 kB** | 3.13 → **5.65 kB**（zlib-9；Vite 打印 5.68） | **这一行不是新工具，是「并入既有页」的代价账**（旧站的 `programmer`（按位运算）与 Base32 都不新开页）。同一页块从 6801 B 涨到 15648 B = **+8847 B 原始 / +2.52 kB zlib-9**，访问 `/tools/number-base` 才下载，首屏只受上一行那 +256 B 影响（**页面文案后来又改了一次措辞，页块从 15.43 变成 15.65 kB，而入口 / Badge / CSS 三项一字未动** —— CSS hash 不变正好证明我新用到的那几个类名旧产物里已经有了）。零新增第三方依赖：Base32 是 32 步取余的展开（`toBase32` / `parseBase32`），按位运算直接吃 BigInt 的原生 `& | ^ ~ >>`，**64 位宽度下也精确**（`Number` 到 33 位就废了）。三态构建（A₂ 旧文案旧页 / A 新文案旧页 / B 全改）顺带把这一档钉死：Badge 与 CSS 在两态间各自的变化都与本页块无关，本页块是唯一变大的产物。**体检轮这一格一字未动**（页块 hash 仍是 `NumberBasePage-CTxBHijO.js`，15648 B）—— 那轮改的是另外两页与注册表，见下一行 |
-
-| 体检轮（4 处修正，不新增工具） | 页块 7458 → **7471 B** | —— | 四处都不开新页、不加依赖，逐个记一下代价：**① 颜色页取色器** `ColorPage-*.js` 7458 → 7471 B（+13 B，只是一个 `computed` 里多写一个对象字面量）；**② 两个同分类重复图标换名** 入口 +560 B（两枚字形）/ Badge −1 B；**③ `@types/js-yaml` 移出依赖** 产物一个字节都没变（它本来就不参与打包，省的是 72 个装机包位）；**④ 把 `README.md` 排除出 Tailwind 的内容扫描** `index-*.css` 216925 → **215168 B（−1757 B / zlib-9 −182）**，减的全是文档正文里的裸词生成的死规则（坑 84），其余五项逐字节未动。前三处合计首屏 +559 B 原始 / +0.07 kB zlib-9，加上第 ④ 处后这一档净变 **−1198 B**；见坑 82、84 |
-| 第 63 页（第 7 批第 3 个 · 繁简转换） | **111.75 kB** | **56.91 kB**（zlib-9；Vite 打印 57.80） | **全站最大工具块，超过 HTML ⇄ Markdown 的 84.10 kB 与 YAML 页的 67.99 kB**，因为它装的就是数据本身：`table.ts` 里 11 张字表的字符串内容合计 **100 059 B（43 758 码点）**，占这个块的 **89.5%**，其余是 7.48 kB 内核与 11.55 kB 页面（minify 之后）。压得动（→ gzip 掉 49%）正因为装的是码点对齐的汉字串 —— 这也是为什么该按「gzip 之后」比：字表 100 059 B gzip 后 50 989 B，而 `opencc-js` 是 498 kB gzip。**零新增第三方依赖**（只借 OpenCC 的字典数据、不引它的包，见「繁简转换的字表是怎么来的」），且只在 `/tools/chinese-variant` 这一条路由下载，**首屏那六个文件一字节都没沾这份数据**（本轮首屏 +2460 B 全部来自入口的字形与清单、Badge 的注册表文案、CSS 的 7 条新类）。本表第一次出现「页块 > 100 kB」这一档。**一条读数口径**：本行与入口那行都比 Vite 打印大 0.01 kB —— 页块实测 111 746 B（Vite 打 111.74）、入口 269 786 B（Vite 打 269.78），因为 **Vite 的两位小数是截断**，而本表按「字节 ÷1000 后四舍五入」写。同一份产物同时读到 111.74 与 111.75 不要以为构建变了 |
-| 补差：`rmb-uppercase` 页并入中文读法 | 11.54 → **13.88 kB**（实测 13 884 B） | 5.05 → **5.77 kB**（Vite 打印；zlib-9 复算 5.76） | **又一笔「并入既有页」的代价账**（旧站 `number-words` 的中文读法不新开页，工具数仍是 63）。页块 +2 344 B 原始 / +0.71 kB zlib-9（A 态 11 540 B 取自本轮 A/B 构建日志，上面「第 21–24 页」那行早年的数字不再适用），装的是 `Vocab` 双字形表 + `toReading()` + 反解器的 `点` 分支 + 页面那一块展示与两条徽章文案，**零新增第三方依赖、零新类名**（CSS 的 hash 与字节本轮一字未动，仍是 `index-DYL3WmTt.css` 216 816 B —— 新板块复用了大写块已有的 `break-all text-lg` / `rounded-xl border`，正好是坑 76 那条「必须把 `.vue` 一起移出才量得准」的反面用例：这次连样式都没有新的可扫）。首屏只受 Badge 那 +128 B 影响（注册表文案），入口与三个 preload **字节全同**、只有 hash 变（见首屏那行）。访问 `/tools/rmb-uppercase` 在首屏之外要多下 13.88 + `ToolShell` 1.24 + `CopyButton` 1.33 + `useStored` 0.29 ≈ 16.7 kB |
-
-已核对：`qrcode` 的特征串（`amount of data is too big`、`maskPattern`）只出现在 `QrCodePage` 块里，未泄漏进共享块；`js-yaml` 同理（`unacceptable kind of an object`、`tag:yaml.org,2002` 两个串在各产物块里 `grep -l` 只命中 `YamlJsonPage-*.js`）。
-
-### 构建与静态托管
+## 七、构建与部署
 
 ```bash
-pnpm build                      # 产物在 dist/，假设部署在域名根
-pnpm build --base=/toolbox/     # 部署到子目录（GitHub Pages 项目页等）
+pnpm build                       # 产物在 dist/，假设部署在域名根
+pnpm build --base=/toolbox/      # 部署到子目录（GitHub Pages 项目页等）
 # CI 里不方便传 CLI 参数时改用环境变量，两者等价（CLI 优先）：
 VITE_BASE_PATH=/ToolBox/ pnpm build
 ```
 
-`.github/workflows/deploy.yml` 监听 `push: branches:[main]`：`pnpm install --frozen-lockfile` → 以 `VITE_BASE_PATH=/<仓库名>/` 构建 → **先校验 `dist/index.html`、`dist/tools/<id>/index.html`、`dist/404.html` 三者都在且资源前缀确实是 `/ToolBox/`**（缺产物就直接 fail，免得把空白页部署上线）→ `touch dist/.nojekyll` → `peaceiris/actions-gh-pages@v4` 发到 `gh-pages` 分支（`force_orphan: true`，每次部署一条提交）。注意 workflow 文件本身也是 Tailwind 的扫描对象，见坑 84 末尾（已用 `@source not` 排除）。
+`vite.config.ts` 里的 `staticHosting()` 插件（`apply: 'build'`，注册在最后一个，因为 `closeBundle` 要读已写出的 `dist/index.html`）做三件事，
+让**没有任何 Node 服务端**的静态主机也能正确工作：
 
-**上线记录（2026-09-28）**：已推到 `https://github.com/cunyu1943/ToolBox` 的 `main`（提交 `90ec0ae`，166 个文件，`dist/` 与 `node_modules/` 由 `.gitignore` 排除），`deploy.yml` 随即跑完并把 `dist/` 发到 `gh-pages`（`191a68ea`），Pages 的源分支与路径未动，所以线上仍是同一个站点、内容换成了这版 62 工具的构建。核验走的是 git 而不是浏览器（Bash 无外网，只有 git 出得去）：`git fetch origin gh-pages` 后直接读发布分支的树 —— `assets/index-*.css` **215168 B**、`Badge-*.js` **244146 B** 与本表头两个数字**逐字节相同、文件名也相同**，入口 `index-Di9GdROS.js` **269384 B**（本地 `base:'/'` 那份是 269368 B，+16 B，见坑 85）；`tools/` 下 `index.html` 计 **62** 份，`404.html`（6241 B）与 `.nojekyll` 都在，首页 `<noscript>` 资源前缀全是 `/ToolBox/assets/…`、工具链接 **62** 条，`tools/json-format/index.html` 读回 `<title>JSON 格式化 · ToolBox</title>` 且 `description`/`og:title` 各 1 条并为本页文案。**同日还发了好几轮，记下数据的这一轮功能提交是 `b024f4d`（数字中文读法并入）**：那轮的文档收尾是 `d244b38`，线上 `gh-pages` = `a4ebf9c`，发布分支的提交信息照旧带回滚锚点 `deploy: <sha> <sha>`。本轮核验数据（`git fetch origin gh-pages` + `git cat-file -s` + `git ls-tree`）：`tools/` 下 **63** 份壳、`404.html` 与 `.nojekyll` 都在、首页 `<noscript>` 去重后 **63** 条链接、资源前缀全是 `/ToolBox/assets/…`；`Badge-Bb9Ha2OK.js` **244 668 B** / `index-DYL3WmTt.css` **216 816 B** / `RmbUppercasePage-CTGTmIFh.js` **13 884 B** 三者与本地 `base:'/'` 那份**字节完全相同**（页块 hash 不同，见坑 85 本轮的修正），入口 `index-CSdQnUPa.js` **269 802 B** = 本地 269 786 + 16。**一条更硬的证据**：`d244b38` 这个「只改 README」的提交触发的部署，与上一版（`e2c085d` ← `b024f4d`）相比**文件清单一致、每个 blob 哈希一致**（`diff <(git ls-tree -r A) <(git ls-tree -r B)` 与逐行带 blob 号的第二条 diff 都为空）—— 坑 84 那句「文档不进产物」在线上层面也被验到了，代价只是一次白跑的 CI。**再往后的纯文档提交（`38c0b96`：README 计数与映射修正）把这套核对压成一条命令**：`git rev-parse <部署提交>^{tree}` —— 那次部署 `ef9ba9f` 与上面的 `a4ebf9c` tree 哈希同为 `53f733010674d923e8d22a55fd5376757515b2c4`，一个 40 位对象名一次顶掉「文件清单一致 + 每个 blob 一致 + 字节一致」三层核对，比 diff 两棵树的清单省事得多，往后凡是「只改本文档」的部署都该拿它当验收（部署提交的信息形如 `deploy: <sha> <sha>`，`main` 的 sha 直接写在里面，不用另查）。**两条环境事实顺手更正**：① 本项开头「Bash 无外网，只有 git 出得去」已不准，本轮 `curl https://cunyu1943.site/ToolBox/tools/rmb-uppercase/` 直接返回 200 并读到 HTML，线上核验现在 **git 与 curl 两条路都通**；② `git push` 这头两次都栽在 `Recv failure: Connection was aborted`，紧接着 `git ls-remote --heads` 就通、第三次推上去 —— 这台的 GitHub 连接会**瞬断**，失败先诊断再重试，别怀疑仓库或权限。
+1. `transformIndexHtml`：补 `theme-color`、`og:*`、`twitter:card`，并写入 `<noscript>` 里的 63 条工具链接（禁用 JS 或爬虫仍能看到内容）。
+2. `closeBundle`：为每个注册工具写一份 `dist/tools/<id>/index.html`，并逐页改写 `<title>` / `description` / `og:title` / `og:description`。
+3. `closeBundle`：额外写 `dist/404.html`，支持 404-fallback 的主机把任意路径接回 SPA；`public/.nojekyll` 避免 Pages 的 Jekyll 步骤丢掉 `_` 开头文件。
 
-`vite.config.ts` 里的 `staticHosting()` 插件（`apply: 'build'`，注册在最后一个，因为 `closeBundle` 要读已写出的 `dist/index.html`）做三件事，让 **无任何 Node 服务端** 的静态主机也能正确工作：
+路由用 `createWebHistory(import.meta.env.BASE_URL)`，与 `--base` 联动；运行时元信息由 `router.afterEach` 写入（`og:*` 用 `property=`，其余用 `name=`，
+按同名属性查找，所以客户端来回切换不会产生重复标签）。
 
-1. `transformIndexHtml`：补两条 `theme-color`（亮 `#42b883` / 暗 `#42d392`）、`og:type`/`og:site_name`/`og:title`/`og:description`/`twitter:card`，以及 `<noscript>` 里的 63 个工具链接清单（禁用 JS 或爬虫仍能看到内容，本轮实测在 `<noscript>` 段内数 `href=` 计 **63 条、去重后仍是 63**；整份 `index.html` 另有 favicon / 样式表 / 三条 `modulepreload` 等链接，全文件数是 69，别拿那个数当工具数）。
-2. `closeBundle`：为每个注册工具写一份 `dist/tools/<id>/index.html`（63 份，实测每份 5726–5858 B ≈ 5.73–5.86 kB —— 本项之前写的「约 5.3 kB」是早期测量，区间随 `<noscript>` 清单条数与 id 长度涨；本轮新增那份 `chinese-variant` 的壳是 5792 B），并**逐页改写 `<title>`、`description`、`og:title`、`og:description`** —— 深链直达/刷新不 404，分享出去的元信息也是对的那一条。`pageTitle()` / `pageDescription()` 定义在 `registry.ts`，运行时 `afterEach` 与构建期静态壳共用，避免两处文案漂移。
-3. `closeBundle`：额外写 `dist/404.html`（保持站级元信息），支持 GitHub Pages 这类「404 兜底」主机把任意路径接回 SPA；`public/.nojekyll` 避免 Pages 的 Jekyll 步骤丢掉 `_` 开头文件。
+> `vite preview` 对未知路径是服务端 SPA fallback（返回 200 + index.html），而 GitHub Pages / OSS 是 **404 + `404.html`**，
+> 两者行为不同，别拿 preview 的 200 当作托管方行为的证明。
 
-路由用 `createWebHistory(import.meta.env.BASE_URL)`，与 `--base` 联动；资源引用为根绝对路径，故 `404.html` 在任意路径下都能正确加载样式。运行时元信息由 `router.afterEach` 写入，`useMeta()` 对 `og:*` 用 `property=`、其余用 `name=`（Open Graph 协议要求 `property`），且按同名属性查找 —— 客户端路由来回切换不会产生重复标签。产物核验：`dist/tools/` 下 48 份壳各只有 1 个 `og:title`/`og:description`/`description` 且与本页标题一致（例如 `/tools/ip-subnet` 的壳写的是「子网计算器 · ToolBox」+ 该行描述）；`/`、`/tools/color`、`/tools/hash` 均 200 并渲染对应 `h1`，SPA 内导航后 `og:url` 随路径更新，控制台零消息。第 21–24 个工具的四份壳同法复核（标题分别为「HTML 实体编解码 / crontab 解析 / 浮点数位布局 / 人民币大写转换 · ToolBox」，各 3.85–3.91 kB，三类 meta 各 1 条）；第 25–28 个同法复核（标题分别为「文本统计 / 古典密码 / 文件权限计算 / HTTP 状态码速查 · ToolBox」，各 3.96–4.02 kB，`og:title` 与 `description` 各只出现 1 次，`<noscript>` 清单 28 条链接且含全部新 id）；第 29–33 个复核结果为「全角半角转换 / 摩尔斯电码 / 罗马数字转换 / Unicode 转义 / ASCII 码表 · ToolBox」，各 4.32–4.34 kB（比上一批大的部分是 `<noscript>` 清单从 28 条涨到 33 条，每条链接 ~10 B），三类 meta 同样各 1 条、`<noscript>` 实测 33 条链接且含全部 5 个新 id。第 34–43 个（两批共十页）同法复核：十份壳各 4.80–4.87 kB（涨自上一批的 4.32–4.34 kB，差额就是 `<noscript>` 清单从 33 条涨到 43 条），标题分别为「行文本处理 / 查找替换 / HTML ⇄ Markdown / Markdown 表格 / CSS 渐变生成器 / YAML ⇄ JSON / XML 格式化 / JSON 转 TS 接口 / AES 加解密 / IP 地址与进制 · ToolBox」，`og:title`/`og:description`/`description` 各 1 条，首页 `<noscript>` 实测 43 条唯一链接且含这十个 id。第 44–48 个（健康批五页）同法复核：五份壳各 4.98–5.05 kB（涨自上一批的 4.80–4.87 kB，差额仍是 `<noscript>` 清单，从 43 条到 48 条、而这批的 id 本身更长），标题逐页读回为「BMI 计算器 / 基础代谢与每日消耗 / 体脂率估算 / 每日饮水量计算 / 靶心率区间 · ToolBox」，三类 meta 各 1 条；首页 `<noscript>` 实测 **48 条链接、去重后仍是 48**（即没有重复登记），最后五条正是这批的新 id；`404.html` 同批写出。第 49–54 个（金融批六页，含归入网络分类的硬盘分区）同法复核：六份壳各 **5.32–5.38 kB**（涨自上一批的 4.98–5.05 kB，差额仍是 `<noscript>` 清单从 48 条到 54 条），标题逐页读回为「房贷计算器 / 车贷计算器 / 投资收益与复利 / 五险一金计算器 / 货币换算 / 硬盘容量与分区 · ToolBox」，`og:title`/`og:description`/`description` 各 1 条；`dist/tools/` 下共 **54 份壳**，首页 `<noscript>` 实测 **54 条链接、去重后仍是 54** 且六个新 id 全在（`node` 直接读 `dist/index.html` 数出来的，不靠肉眼）。
+### CI
 
-> 注意：`vite preview` 对未知路径是服务端 SPA fallback（返回 200 + index.html），而 GitHub Pages / OSS 静态托管是 **404 + `404.html`**，两者行为不同；线上要按主机的 fallback 机制理解，别拿 preview 的 200 当作托管方行为的证明。
+`.github/workflows/deploy.yml` 监听 `push: branches: [main]`（也可手动触发）：
+`pnpm install --frozen-lockfile` → 以 `VITE_BASE_PATH=/<仓库名>/` 构建 →
+**校验 `dist/index.html`、`dist/tools/json-format/index.html`、`dist/404.html` 都在且资源前缀确实是 `/ToolBox/`**（缺产物直接 fail，免得把空白页部署上线）→
+`touch dist/.nojekyll` → `peaceiris/actions-gh-pages@v4` 发到 `gh-pages`（`force_orphan: true`）。
 
-### 功能清单
+**核对线上是否就是这一版**：比 CSS 与共享块的 hash + 未压缩字节，再比清单（`tools/` 壳数、`404.html`、`.nojekyll`、`<noscript>` 链接数、资源前缀）。
+**不要拿入口 JS 的 hash 当判据** —— CI 把 base 烘进产物，入口与各页块的 hash 必变、字节会差十几字节。
 
-- [x] 阶段 0 · 项目初始化：Vue3 + Vite + TS 脚手架、Nuxt UI v4 / Tailwind v4 / vue-router / lucide 图标接入、目录骨架、首页占位
-- [x] 阶段 1 · 主题系统：品牌绿 `#42b883`（暗色 `#42d392`）+ 辅助 `#35495e` 经 `@theme` + 颜色别名覆盖 `--ui-primary`；`--ui-bg/--ui-text` 等语义 token 覆盖；跟随系统/亮/暗三态持久化 + 首帧前置脚本防闪烁 + 右上角切换按钮
-- [x] 阶段 2 · 布局骨架：粘性顶栏（站名 / 搜索入口 / 主题按钮 / 移动端汉堡）、`USlideover` 分类抽屉、卡片栅格、页脚；断点已按编译产物核验（栅格初为 1/2/3 列，收尾按用户要求加 `xl:grid-cols-4`，并把卡片改成「图标在左 + 标题行带徽章」的横向结构）
-- [x] 阶段 3 · 搜索与工具注册表：`src/tools/registry.ts` 驱动路由/卡片/抽屉/图标/深链壳，多词 AND 打分搜索，`?category=` 深链，`Cmd/Ctrl+K` 命令面板（含键盘导航与空态），404 页
-- [x] 阶段 4 · 12 个工具：JSON 格式化 → 时间戳 → Base64 → URL → 颜色 → 正则 → 哈希 → UUID → 文本对比 → 图片转 Base64 → 二维码 → 命名转换（逐个在浏览器里用独立 oracle 验证，见「工具清单」）
-- [x] 收尾 · 响应式三宽度实测（12 页 × 375/768/1440 零水平溢出）、每页 SEO meta 与 og、路由懒加载分包、静态托管配置（深链壳 + `404.html` + `.nojekyll` + `--base` 支持）、品牌 favicon、README 重写
-- [x] 迭代 · 首页栅格改为每行 4 列（`xl:grid-cols-4`），卡片按设计稿改为「图标在左 + 标题行带徽章」，再按反馈把标题放大到 18px、描述缩到 13px
-- [x] 迭代 · 全站毛玻璃：`@utility glass` / `glass-card` + 固定品牌渐变层，顶栏/页脚/卡片/芯片/命令面板/抽屉全部接入，`prefers-reduced-transparency` 降级与对比度复算（见「毛玻璃」）
-- [x] 迭代 · 新增 4 个纯前端工具（第 13–16 个）：表达式计算器、单位换算、进制转换、JWT 解析，并新增「数学与换算」分类；四页各自在浏览器里用独立 oracle 核验（见「工具清单」要点列）
-- [x] 迭代 · 新增 4 个纯前端工具（第 17–20 个）：CSV ↔ JSON、随机密码生成、日期计算器、子网计算器，并新增「网络与地址」分类；167 条断言的内核 oracle 脚本（BigInt 子网等价、日历不变量、工作日独立计数器、CSPRNG 卡方检验、前缀最小性）跑通后删除，四页在 4173 构建产物上完成金路径 + 错误态 + 390/820 溢出复测
-- [x] 迭代 · 滚动条改细改隐：8px 轨道 + 4px 圆角滑块、隐藏箭头按钮、颜色由 `--ui-text-muted` 推导，明暗跟随（见「滚动条」）
-- [x] 迭代 · 主题按钮改为恒纯图标：中文标签只在悬停/键盘聚焦时以 CSS 气泡浮现（不用 `UTooltip`，见坑 28）
-- [x] 迭代 · 卡片观感收敛：分类徽章钉死标题行右端 + **所有卡片严格等高**（标题与简介各占一行，长文本单行裁剪、悬停/键盘聚焦时横向滚出，完整介绍在详情页），实现为零 JS 的 `container-type` + `translateX(min(0px, calc(100cqi - 100%)))`；触屏与减少动效改手动横滑（不换行，故仍等高）。见「卡片栅格」，坑 29、30
-- [x] 迭代 · 页脚可配置：新增 `src/site.config.ts` 构建期常量（站名/首行文案/自定义 HTML/仓库地址/年份），首行与自定义 HTML 支持 `{year}` `{name}` 占位符，仓库链接改为只显示图标（44×44 命中区、保留 `aria-label`、`rel="noopener noreferrer"`），自定义 HTML 走 `v-html` 并由 `.footer-html` 统一排版 —— **安全边界见「页脚与站点配置」，只允许站主维护的静态内容**
-- [x] 迭代 · 新增 4 个纯前端工具（第 21–24 个）：HTML 实体编解码、crontab 解析、浮点数位布局、人民币大写互转；「编码转换 / 时间日期 / 数学与换算 / 文本处理」四个分类的描述同步放宽。四个内核先用一份临时 oracle 脚本跑 **1197 条断言**（逐个码点比对实体表、200 组随机文本往返、cron 与「逐分钟暴力扫描」对照、IEEE 位视图与 `DataView` 交叉、`BigInt` 长除独立复算 ulp、25 个大写已知例 + 300 组金额往返）后删除，四页在 4173 产物上完成金路径 + 错误态 + 390/820 溢出复测。新坑见 32–36
-- [x] 迭代 · 新增 4 个纯前端工具（第 25–28 个）：文本统计、古典密码（凯撒 / ROT13 / Atbash / 维吉尼亚 / Beaufort + 26 位移暴力破解）、文件权限计算、HTTP 状态码与 MIME 速查；「编码转换」「文本处理」两类的描述同步放宽，「网络与地址」分类改名**「网络与运维」**以承接 `chmod` 与 HTTP。四个内核先由一份临时 oracle 脚本跑出 **13682 条断言**（八进制 ↔ 符号在 `0–0o7777` 全域往返、`ls` 的 `s/S/t/T` 渲染、维吉尼亚与 Beaufort 往返及自互逆、`Buffer.byteLength` 独立复算 UTF-8 字节、逐条状态码自查必须第一条命中自己、参数扫描的引号与转义边界）后删除；它当场揪出 **4 个真实内核缺陷**（维吉尼亚解密没减密钥、`a+s` 一个特殊位都不置、`a=`/`go=` 被误判非法、`parseOctal('755')` 多一条无意义提示）与 8 处我自己写错的期望值。四页在 4173 产物与 5173 dev 上完成金路径 + 错误态 + 390/820 溢出复测。新坑见 37–41
-- [x] 复刻 · **旧站工具复刻第 1 批（第 29–33 个）**：全角半角转换、摩尔斯电码、罗马数字转换、Unicode 转义、ASCII 码表。旧站（`multicalc/`，remote `cunyu1943/ToolBox`）67 个页面里已有一批与新站重合，不重复复刻 —— 它按维度拆开的 8 个单位页 = 本站 1 个「单位换算」，它的「编码转换」= base64 + url + html-entity，`count-text`/`text` = 文本统计，`programmer` = 进制转换；剩下约 34 个分 7 批补齐（第 2～7 批待办见下）。五个内核先由一份临时 oracle 脚本跑 **13709 条断言**（全角半角在 `U+0020–U+007E` 与 `U+FF01–U+FF5E` 全域往返、摩尔斯 51 字符逐条编码 ↔ 解码、PARIS = 50 单位与 `1200/WPM` 计时、罗马数字 1–3999 正向逐条回编、`\uXXXX`/`\u{…}`/`\xNN` 三种写法与代理对往返、128 行码表 13 种记法逐格核对）后删除；它当场揪出 **4 个真实缺陷**（全角统计用字符而不是码点查数字键表 → 「已归一」永远为空；`fromRoman('IL')` 在贪心展开阶段提前 return → 减法诊断分支从不触发；`\` 未转义导致含反斜杠的文本往返不一致；ASCII 搜索对 `zh` 做了大小写敏感比较 → 搜 `tab` 零命中）和一批我自己写错的期望值（`BG1ABC` 的 `1` 写成 `..---`、SOS 点数按 9 算、把 `·`/`—` 归一表按字面字符比对、误以为标点码组都是 5 元素、用 `===` 比数组）。五页在 4173 产物与 5173 dev 上完成金路径 + 错误态（非法转义片段清单）+ 390/820 溢出复测，控制台无新增错误。新坑见 42–46
-- [x] 复刻 · **旧站工具复刻第 2 批（第 34–38 个）**：行文本处理、查找替换、HTML ⇄ Markdown、Markdown 表格、CSS 渐变生成器。五个内核先由一份临时 oracle 脚本跑 **2247 条断言**（行处理与 `Array` 原生 `sort`/`uniq` 对照、`splitLines` 在 LF/CRLF/CR 混合输入上往返、查找替换与浏览器 `RegExp` 逐条命中比对、HTML ⇄ Markdown 三组样本的双向幂等、渐变与浏览器计算的 `linear-gradient` 字符串逐字符核对、命名色表 148 条与 `@mdi` 无关的 CSS 规范关键字表核对）后删除；它当场揪出 **5 个真实缺陷**（`inlineMd` 的换行分支漏 `i += 1` 导致任何含换行的 Markdown 死循环；`parseList` 用 `.trim()` 取正文吃掉列表项内硬换行；`<br>` 后续行多缩一格；未闭合 `<b>` 造出空 `****`；`isElement` 用 `typeof !== string` 判元素把 `undefined` 当对象）与约 15 条我自己写错的期望值。新坑见 48–54
-- [x] 复刻 · **旧站工具复刻第 3 批（第 39–43 个）**：YAML ⇄ JSON、XML 格式化、JSON → TS 接口、AES 加解密、IP 地址与进制。这一批第一次动了「依赖预算」这条线并向用户报备：只有 YAML 页新增第三方依赖 `js-yaml@5.4.2`（YAML 1.2 参考实现、纯 JS 无传递依赖；**开工前记在待办里的「实测 59 kB / gzip 18 kB」其实只是照 npm 包尺寸估的、偏小**，真实情况是它未压缩 ESM 单文件 128.86 kB，摇树 + minify 后连同 8.30 kB 内核进 `YamlJsonPage` 块 = 67.99 kB / **gzip 21.73 kB**，只在该路由懒加载），其余四页零新依赖 —— AES 用 `crypto.subtle`（`crypto-js` 要 60 kB 以上、安全性不比浏览器原生实现好）。两份临时 oracle 脚本共 **4365 条断言**（YAML 双向：5 个 dump 选项逐个 + 强制引号三类例外 + 多文档 + 坏缩进报错；XML：美化/压缩/转 JSON 三态、幂等、畸形输入的行列定位、混合内容保真；JSON→TS：可选键判据、联合塌缩、具名接口复用；IP：RFC 5952 压缩、`inet_aton` 简写、arpa 反写、每种等价写法回解析；AES：载荷自检的四种失败判据 + 双向往返）跑绿后删除；首轮 4310 条里 4 条红，最终由 typecheck（13 个错）与断言共同揪出 **4 个真实缺陷**（json-ts 嵌套联合不摊平 → `number | string | number | string | null` 这种重复项、且折叠成非联合时旧代码会 deref 不存在的 `.types` 直接崩；xml-format 把混合内容里标签之间的**词间空格**当无意义空白删掉 → 改了文本；`singular('status')` → `statu`；`pi`/`doctype` 落进只接受元素的行内序列化器）和一处「文档里有、类型和运行时都没有」的选项（js-yaml v5 不存在 `quotingType`）。五页在 5173 dev 与 4173 产物上完成金路径 + 错误态 + 390 溢出复测，AES 双向在真实浏览器里经 WebCrypto 往返验证（加密出 6 段点分载荷 → 解密回原明文，自检徽章字节数正确）。新坑见 55–58
-- [x] 复刻 · **旧站工具复刻第 4 批（第 44–48 个，新分类「健康与体能」）**：BMI 计算器、基础代谢与每日消耗、体脂率估算、每日饮水量计算、靶心率区间。五个内核**零新增依赖**（公开回归式自己写即可，引健康库既拿不到出处也压不动体积），一份临时 oracle 脚本跑 **827 条断言** 后删除：BMI 用 20 组「体重×身高」交叉核对英制 `703` 系数路径与公制路径同值（≤0.1）、正常区间两端回代、121 组体重单调性；BMR 独立复算四个公式（含男女常数项差 166）、五档 TDEE 严格按系数放大且单调、增减重计划换算；体脂页回代 `去脂体重 / (1 − 目标)` 六档、腰围切点用 `cut` 与 `cut − 0.5` 两侧夹逼验证「等于切点即触发」；饮水页逐项验证 +500/+700/+500/+300/+300/+700 与发热阈值（37.2 ℃ 不计、38.5 ℃ 计 450 ml）、分项之和 = 总量、饮品 = 总量 × 80%；心率页四个估算式逐值核对、区间上下界独立复算、Z1–Z5 首尾相接、10–100 岁全龄段扫过。**首轮 3 条红全部是我自己写错的期望值**（把 BMI 31.0 写成「超重（前期）」、`eq()` 少传一个参数、以及按未取整的 `208 − 0.7×39 = 180.7` 判 Fox/Tanaka 交叉点 —— 取整后 39 岁两者同为 181，交叉不是单一整数岁，断言改成「差值随年龄单调不增」+ 两端点实测）。真实缺陷有 2 个，都不是靠断言而是靠浏览器发现的：内核说明文案里残留 Markdown 的 `**…**`（结果区是纯文本渲染，星号直接上屏，见坑 59）与饮水页一行说明在 390 档被 `flex-1` 挤成 11px 细条并撑破页面（见坑 60）。另有一处**刻意不做**的取舍：体脂页不实现美国海军围度法（常数与单位绑定、流传版本互相矛盾，同一个人能出 10.1% 与 23.0% 两种结果，离线无从核对），已写进内核头注释与页脚。新坑见 59–62
-- [x] 复刻 · **旧站工具复刻第 5 批（第 49–54 个，新分类「金融与理财」）**：房贷计算器（等额本息 / 等额本金）、车贷计算器（含 4S 店「等本等息」真实年化）、投资收益与复利、五险一金、货币换算（**离线汇率快照 + 页面上写明快照日期与「不是实时行情」**，无后端就只能静态），以及第六个硬盘容量与分区 —— 它**刻意不登记进新开的金融分类**，而归入「网络与运维」（它回答的是「一块盘的字节去哪了」）。六个内核**零新增依赖**（摊销级数、IRR 二分、汇率交叉表都是几十行数学，引现成包反而拿不到口径）。一份临时 `_oracle5.ts` 跑 **363 条断言** 后删除：等额本息与逐期表用独立闭式复算、等额本金总息对 `i·P·(n+1)/2`、**等本等息反解出的月利率回代贴现必须等于原始本金**（这条自反校验比单看数字更能证明二分解对了）、期初/期末定投与逐月模拟对齐（两者差恰好是 `P·g·i` 一项，30 年期 328.46 元）、72 法则与 `ln2/ln(1+r)` 两端、`requiredMonthly` 反解后再回代到目标额、五险一金六项精确到元（基数 12 000 → 个人 2 700 / 单位 4 704 / 合计 7 404 / 公积金入账 2 880）、`allocate(931, 30/40/30) = 279/372/280` 且**三块之和恰等于 931**、`capacity(1000).gib = 931.32`、以及 `DEFAULT_ITEMS` / `DEFAULT_CURRENCIES` 在页面改写后不被污染（`useStored` 的共享常量陷阱，坑 66）。**首轮红出来的 1 条是真缺陷**（`allocate()` 重构后漏 `assigned += sizeGiB`，最后一块吃掉整盘、合计 1582 > 931，页面上占比列看着完全正常 —— 坑 65），其余全是我自己写错的期望值：购置税 30 970 实际 31 000（取整到 100 元）、`begin = end×(1+i)` 少减一项、128 GB 换 119.21 而非 119.2、「分期越长费率越贵」并不单调（真实年化峰值在 3–4 年）、以及我在内核注释里把 GB→GiB 的 6.87% 写成 2.34%（那是 KB↔KiB）、PB↔PiB 写成 12.5%（实为 11.18%）。另修掉一处只有读代码才会发现的文案问题：投资页逐年表把「期末总资产」写成「期初」。六页数值全部在浏览器里用**页面内独立复算的闭式**再对一遍（见「响应式与断点」段），`?category=finance` 只出 5 张卡、搜索 `931`/`IRR`/`4.9`/`公积金`/`复利` 逐个命中。新坑见 63–66
-- [x] 复刻 · **旧站工具复刻第 6 批（第 55–60 个，新分类「生活常用」）**：年龄计算器、身份证信息解析、生肖星座查询、亲戚称谓推算、随机数与抽签、百分比计算 —— 六个全部登记在新开的 `life` 分类（这是六批里第一次「一批 = 一类」，没有再出现硬盘分区那种跨类归属）。六个内核**零新增依赖**（随机走 `crypto.getRandomValues`，可复现模式用 mulberry32；称谓与生肖都是自建数据表）。亲戚称谓页**没有复制旧站那份 15.7 kB 的关系边表**，改为自研原子模型：10 个原子（父/母/子/女/兄/弟/姐/妹/夫/妻）+ 5 条链尾重写规则（`H W` 抵消、父母的异性配偶即父母本身、手足的父母即自己的父母、后代的父母即上一环的自己、手足的手足按前缀决定塌缩或留多解）+ 101 条称谓表，于是「堂哥的女儿」「老公的哥哥的老婆」这类长链也能推出，且**表里只需登记规范链**。一份临时 `_oracle6.ts` 跑 **275 条断言** 后删除，含两条全域一致性检查（每条称谓表项必须能被自己的链推出、每个派生称谓词必须解析出非 null）。**首轮 15 条红，其中 4 项是真缺陷**（`AGE_SAMPLES` 的「差 1 天满 1 万天」配 1999-06-01 是句反话 —— 那天的第 1 万天在 2026-10-17、还没到，已实测改成 1999-05-10；`妯娌`/`连襟` 只进了称谓表、没进派生词表，导致「妯娌是什么关系」反查失败；`KIN_TABLE` 缺 `M,F,F`/`M,F,M` 使「外公的爸爸」返回 null；以及示例文案与实算之间本来没有任何一条断言连着两者），其余 11 条是我自己写错的期望值（生日当天的 `nextAge` 是 30 不是 31、2/29 出生到平年 2/27 是「25 岁 11 个月 29 天」不是 30 天、`checkCodeOf('1…1')` 是 `0`（加权和 100 mod 11 = 1）、`110105194912310019` 的校验位应为 `1`（合法男号取 `…0011`）、2025 年本命年往前是 `[2025, 2037, 2049]`、两条随手写的正则断言）。此外修掉两处**只有读自己代码才会发现**的问题：`AgeCalcPage` 的统计里残留一个 `formatCn(...) ? '' : ''` 的垃圾三元表达式，以及进度条用了全站没出现过的 `bg-neutral/10`（本项目的既有用法是 `bg-primary/10`）。六页在 5173 dev 上的复测见「响应式与断点」段。新坑见 69–74
-- [x] 迭代 · **全站「返回顶部」**：新增全局组件 `src/components/BackToTop.vue`（`App.vue` 挂载，60 页共用），滚过 480px 才出现、`z-20` 在 sticky 顶栏（`z-30`）之下、44×44 命中区、`glass` + `lucide:arrow-up`（已登记进 `chromeIcons`）。进出场只用 `<Transition>` 的 Tailwind 类故 **`main.css` 零新增**，`prefers-reduced-motion` 下改直接跳顶，`leave-active-class` 带 `pointer-events-none`。代价：入口 +1.10 kB / gzip +0.31、CSS +0.57 kB，`Badge` 块 hash 未变，**零新依赖**。见「返回顶部」，新坑 75
-- [x] 复刻 · **旧站工具复刻第 7 批的第 1 个（第 61 个）**：**密码强度评估** `/tools/password-strength`（`lucide:gauge`，归入「哈希与生成」，该类由 4 涨到 5）。与生成页**共用同一个 `rateEntropy()`**（28/45/64/80/100 五档 + 离线每秒 10¹¹ 次的攻击假设 + 平均尝试取 `2^(bits−1)`），差别全在「人会怎么写口令」：字符池按码点分七类累加（汉字取 3500 的一级字表、其余非 ASCII 保守取 100），理论熵之后按四类可识别模式**下调**（75 条常见弱口令表含中文口令与 ≥6 位的内嵌命中、码点连续与键盘行正逆序、整段重复的周期、整串或内嵌的日期与年份），命中即在「评估要点」逐条写明折损了多少 bit。口令用 `ref` 而非 `useStored`，**不落 `localStorage`、不发请求**。零新增依赖（`zxcvbn` 那类要随包带数万条口令频率表，min 之后仍是数百 kB 量级，纯前端预算不划算）。临时 `_oracle7.ts` 跑 **89 条断言** 后删除：**首轮 8 条红，2 条是真缺陷**（① `YEAR_OR_DATE` 的可选组括号数错，导致 `2026` / `Wang2026` 这种「只有年没有月日」的写法**完全不匹配**、日期折损形同虚设；② `cap()` 只在真的降低熵时才记那条说明，于是 `qwertyuiop` 只报「命中弱口令表」、用户看不到「其实是键盘行」这一层 —— 改成 note 无条件记录、熵取 min），另 6 条是我自己写错的期望值（把 `abb11 ` 数成 2 个小写、`ok(name, false)` 的语义用反、单调性用例的前缀本身就是重复串等）。上线前还修掉页面里两处自造问题：结果区纯文本里写了 Markdown `**语义可猜性**`（会把星号上屏，坑 59 同类）与一条 `{{ cond ? '含 75 条…' : '' }}` 的垃圾三元 + 硬编码条数（改 `{{ COMMON_PASSWORDS.length }}`）。新坑见 76–78
-- [x] 复刻 · **旧站工具复刻第 7 批的第 2 个（第 62 个）**：**对比度检查** `/tools/contrast`（`lucide:contrast`，归入「颜色与图像」，该类由 3 涨到 4）。从颜色工具里拆出来的独立页：颜色页回答「这个颜色是什么」，这一页只回答「这两个颜色叠在一起能不能读」。内核 `src/tools/contrast/index.ts` **零新增依赖**，全部算式复用 `src/tools/color/index.ts`（`parseColor` / `contrastRatio` / `rgbToHex`），自己只补三件事：① `compositeOver()` 先把带 alpha 的前景按 `round(src·a + back·(1−a))` 合成到背景上再算比值（背景的自身透明度按不透明处理，并在页面上写明这个口径）；② `buildRows()` 固定输出五条 WCAG 判定（正文 AA 4.5 / 正文 AAA 7 / 大字号 AA 3 / 大字号 AAA 4.5 / 非文本 UI 3）；③ `suggestReadable()` 用 40 步 × 提亮/压暗两个方向的插值搜索，给出**保持背景与色相不变、改动最小**的可用前景色。建议色选取有一条反直觉的规矩：**只有一侧可达标时必须选那一侧**，不能拿两侧的 `moved` 直接比大小（未达标侧的 `moved` 是「最优点」而非「达标点」，比出来会挑错方向）。零依赖的成本是 80 次 `contrastRatio` 调用，全在 `computed` 里、输入不变就不重算。临时 `_oracle8.ts` 跑 **47 条断言** 后删除，其中一条是**独立复算**：按 WCAG 相对亮度公式另写一份 `webaim()`，与内核输出逐值对齐，避免「用被测代码验被测代码」。**首轮 1 条红是真缺陷**（`suggestReadable` 在 slate-400 压白时返回了未达标的提亮侧 `reached:false / ratio 2.5`），其余红的都是我自己的错前提 —— 包括一条**数学上根本不可能成立**的期望：我以为存在「同色系怎么调都到不了 4.5」的背景色，实际上对任意背景，纯白与纯黑必有一端可达（白端充要条件是 `Lbg ≤ 0.1833`、黑端是 `Lbg ≥ 0.175`，两个阈值有重叠所以无缝），于是「不可达」的用例全部改成 AAA 的 7 来测（`#808080` 压 `#808080` 最优只有 5.32）。另三条错期望：`composited` 是 `Rgb` 不含 `alpha`、`rgb(999,-20,0)` 不报错（`parseColor` 会截断到 255/0）、品牌色对比度我猜 3.63 实为 3.71。**反证性质最强的一条断言来自外部已知值**：`#767676` 压纯白 = 4.54 是设计圈公认的「AA 最小灰」，页面默认值与半透明黑预设的建议色都精确落在它上面，说明插值搜索的步长与判据都对。新坑见 79–80
-- [x] 复刻 · **第 7 批补差第 1 项：Base32 与按位运算并入进制转换**（**不新开工具页**，总数仍是 62 / 11 分类）。旧站这两块分别是 `programmer`（按位运算）与进制页里的 Base32，本站按既定口径合并进 `/tools/number-base`。**内核新增**：`toBase32()` / `parseBase32()` 用 RFC 4648 的 `A–Z2–7` 字母表（**与 `parseInBase(x, 32)` 的 JS `0–9A–V` 是两套不同的表，同一个数写出来不一样**，页面末尾专门写了这条区分），以及 `bitwise(a, b, op, width)` 六个运算在 8/16/32/64 定点宽度内做。**关键实现口径**：BigInt 的 `& | ^ ~ >>` 本身就是**无限位补码**，所以负操作数不需要特判，`a & mask` 直接就是它在本位宽下的补码表示；要显式处理的只有「右移是逻辑右移（先截断再 `>>`，否则负数会一直移出 1）」与「有符号解读按最高位单独减 `2^width`」。左移被 mask 截掉 1 时给 `overflow` 标记并在页面出徽章，因为这是本位宽下**真实发生**的信息丢失，不提示就是静默错。顺手把 `parseInBase` 里那段 Horner 累加抽成 `accumulate(body, digits, radix, label)` 共用，**报错文案逐字保持不变**（有断言钉着）。零新增第三方依赖。临时 `_oracle9.ts` 跑 **9404 条断言** 后删除，其中**独立复算占大头**：Base32 用「`toString(32)` 得到 JS 字母表再逐字符映射到 RFC 表」这条完全独立的路径对了 4400 多个值；按位运算对四个位宽 × 120 组伪随机操作数，**用逐字符真值表**（把两条等长位串按位比字符拼出 AND/OR/XOR/NOT，以及用 `slice` 拼出移位）对结果位串，而不是拿 BigInt 的运算去验 BigInt 的运算。**首轮 3 条红全是我自己写错的期望**（都栽在同一件事上：想用 `bitwise(-1n, 0n, 'and', 8)` 看补码截断，而 `& 0` 当然把结果清成 0 —— 应该读结果的 `a` 字段或改用 `or`），本轮**内核零缺陷**；改判后另补了 `-1 与全 1 相与`、`B 位串也走补码` 两条正面断言。三态 A/B（详见「依赖与产物体积」）意外定位到一个从没怀疑过的归属：**只改注册表里那条描述 + 加 26 个关键词、页面一字未动，Badge 共享块就从 244033 B 涨到 244147 B** —— 注册表文案原来跟着 `ToolShell` 一起进了那个块（新坑 81）。新坑见 81
-- [x] **全项目体检（不新增工具）**：应「检查下项目是否有问题，有则纠正」跑了一遍静态 + 产物 + 浏览器三层核对。**先确认没问题的部分**：`pnpm typecheck` 与 `pnpm build` 全绿；注册表 62 条 ↔ 62 个页面文件 ↔ 62 个内核目录 ↔ `dist/tools/*/index.html` 62 个深链壳 **四层一一对应，无孤儿、无死链**（`node` 现场读注册表比对，`missingPage` / `orphanPage` / `extra` 全空）；62 个 id 无重复、62 个名称无重复、11 个分类无空类、**797 个关键词（含 11 个单字词：升 / 与 / 或 / 熵 / 行 / 磅 / 水 / 杯 / X / %）逐条搜一遍都能命中自己所属工具**（含按名称、按 id、按大小写与首尾空格归一、多词 AND 语义、分类过滤计数五条不变式），搜索断言首轮只红 1 条，查是我自己的错预期（以为「进制 base」只会命中进制转换页，实际 `ip-base`「IP 地址与进制」两个词都匹配，AND 语义没错）；62 个内核在 node 下全部可加载（说明没有模块顶层摸 DOM）；265 处 `useStored` 键**全部唯一，无跨工具串状态**；身份证/AES/口令三页的敏感输入确认都是普通 `ref`，没进 `localStorage`；`v-html` 只有页脚一处且只吃 `site.config.ts` 的静态内容；产物里 62 个 `<noscript>` 链接与逐页 title/description 改写都在；无残留 `_*.ts` / `dist-check*` / 备份文件；控制台零 warn / error。**修掉四处**：① **颜色页的取色器会拿到 8 位 HEX**（`pickerHex` 直接 `rgbToHex(color)`，而 `rgbToHex` 在 `alpha < 1` 时自动追加两位透明度，于是把 `#42b88380` 写进 `<input type="color">`）—— 这条值按 HTML 规范**不是 valid simple color**，严格实现要走取值净化落到 `#000000`；实测 Chromium 会宽容地截断成 `#42b883` 所以本地看不出来，属于「换个浏览器才炸」的缺陷，改成 `rgbToHex({ ...color, alpha: 1 })`（对比度页早就是这么写的，这次是让颜色页跟上）。② **两个同分类内重复的图标**：`csv-json` 与 `md-table` 都是 `lucide:table`、`password-gen` 与 `aes` 都是 `lucide:key-round` —— 首页是按分类分组渲染的，这两对会**挨在一起出现**，两张卡看不出区别。改成 `md-table → lucide:columns-3`、`aes → lucide:lock`，两个名字都先在 `@iconify-json/lucide/icons.json` 离线核对存在、构建后按表键 `"columns-3":{"width"` 复查确认进了入口块的字形表（各 1 次，`Badge-*.js` 里 0 次）。跨分类还另有两对重名（`ruler` 单位换算/体脂、`network` 子网/称谓）判定为可接受，不动。③ **`@types/js-yaml@4.0.9` 装在 `dependencies` 且与 `js-yaml@5.4.2` 版本错配**：v5 自带 `dist/js-yaml.d.ts`，TS 走 `exports` 永远读自带的那份，这个 v4 声明从来没生效过，`pnpm remove` 掉（顺带清掉 72 个装机包位；lockfile diff 只有它自己的三条，无版本漂移）。④ **`README.md` 被 Tailwind v4 的内容扫描当成了源码** —— 体检时接连遇到两种怪现象：同一份 `src/` 重跑 build，样式表从 216904 B 变成 216925 B、hash 也换；做 A/B 时又得到「排除 README 反而让 CSS 大 6606 B」这种荒谬结论。第二个是实验自身的问题：输出目录叫 `d-mdon` / `d-mdoff`，**不匹配 `@source not "../../../dist*"`**，于是它们留在项目根里被下一轮构建扫进内容集（清掉残留、改用命中排除规则的 `dist-a` / `dist-b` 重做才干净）。重做完，第一个也解释清楚了：文档正文里的裸词类名会照样生成规则。补一条 `@source not "../../../README.md";` 后 CSS 216925 → **215168 B**（−1757 B / zlib-9 −182），少掉的 10 个选择器逐条核对全是死规则（`title-scroll`、`columns-3`、`bg-default/85`、`backdrop-blur-md`、`sm:inline`、`sm:p-5`、`sm:px-3`、`lg:inline` 与被省略号截断的 `lg:grid-cols-[minmax(0,…)]`），在用的 `backdrop-blur-2xl` / `sm\:inline-flex` / `lg\:inline-flex` / `bg-default\/80\!` 四条一条没掉（坑 84）。**「构建不可复现」是个假警报**：没有 flaky build，是「改文档等于改输入」没被识别出来。**体检轮的量账**：入口 +560 B（两枚字形）、Badge −1 B（两条 `icon` 字符串一改一减）、CSS 与三个 preload 未动、`ColorPage` +13 B；第 ④ 处再让 CSS −1757 B，其余五项逐字节不变。**首屏合计（6 项、不含 `index.html` 那个口径）739.36 → 739.94 kB（前三处 +559 B，实测值，表头当时写的 739.92 是坑 61 那一类「拿上一轮表头累加」的漂移）→ 738.19 kB / zlib-9 197.63 → 197.70 → 197.58**；含 html 的另一口径同步校正为 743.88 kB / 200.00 kB。新坑见 82、84
-- [x] 复刻 · **旧站工具复刻第 7 批的第 3 个（第 63 个）**：**繁简转换** `/tools/chinese-variant`（`lucide:languages`，归入「文本处理」，该类由 7 涨到 8）。**全站第一个「数据型工具」**：不引 `opencc-js`（实测未压缩 1.20 MB / gzip 498 kB，超「不引入体积过大的依赖」这条硬约束），改为用脚本 `scripts/gen-chinese-variant-table.mjs` 从 OpenCC 1.4.2 的官方字典**离线生成** `src/tools/chinese-variant/table.ts`（11 张表、字表内容 100 059 B、gzip 50 989 B ＝ opencc-js 压缩体积的 10.2%），运行时按「**先二字词 → 再字级默认值 → 最后叠加台/港追加层**」做最长匹配。交互层是这一页真正的产品价值：**一字多形不给「全局唯一答案」**，而是把每一处可疑位置切成可点小段、循环切换候选，也可按整词统一改，另给五项计数徽章（输出字数 / 词组命中 / 一字多形 / 其中按字级默认 / 已手工改），让「机器凭什么这么转」看得见。临时 `_oracle10.ts` 跑 **12 449 条断言 / 0 失败** 后删除，核心是一条**诚实性不变式**：与 OpenCC 的每个差异点都必须出现在候选里（逐条核 `def`/`alts` 是否含参考写法），于是 9826 条对抗样本中 7343 条逐字一致、**其余 2483 条的差异全部被标出**，6000 字真实文书差 7 处（0.12%）、标出密度 11.6 处/100 字。**首轮红过两批**：584 条来自我把「词表能覆盖字表」的证据写漏（只登记替换、没登记**抑制**，`丑三`、`丁丑` 这类「词里这个字不转」的条目全丢），另一批是**地区追加层把候选吃掉**（`樑→梁` 让 `葉步樑` 等 5 个人名既转错又无法手改，改为候选同时保留追加层前后的写法）。一字多形的入选口径换了三次才定：从「只在需要的样本上统计」改为**在全词表的等长条目（49 794 条）上统计该字默认值成立的比例** —— 前者会让 `出`/`了`/`后` 这类字看起来「总是转对」，因为它们的常用词根本不在词表里（坑 86）。产物与页面核验：`dist/tools/` 63 份壳、`<noscript>` 63 条链接（去重后仍 63）、typecheck 与 build 全绿；4173 产物上完成双向 + 四预设 + 逐处循环切换 + 整组改 + 徽章 + 390/1280 溢出复测，控制台零 warn / error。**零新增第三方依赖**，首屏 +2460 B。新坑见 86–87
-- [x] 复刻 · **第 7 批补差第 2 项：数字中文读法并入人民币大写页**（**不新开工具页**，总数仍是 **63 / 11 分类**）。旧站的 `number-words` 一页做「财务大写 + 中文读法」两件事，本站按同一口径把读法并进 `/tools/rmb-uppercase`，不新增注册表条目。**内核改动集中在三处**：① 原来写死大写字形的 `sectionToChinese` / `belowYi` / `integerToChinese` 改收一个 `Vocab { digit, unit }` 参数（大写 `壹…仟` / 小写 `一…千` 两套），节权与补零逻辑**一行没动** —— 两套读法共用同一套「万嵌在亿里」的递归，这是本轮最重要的复用；② 把 `parseAmount` 里那段「全角 / 千分位 / `￥` / 括号负数」的清洗抽成 `normalizeNumeric()`，正向、读法、反解三条路共用，读法与大写的 `ok` 因此恒等（页面不需要为读法单写错误分支）；③ 新增 `toReading()`：整数走小写、**10–19 去掉前导「一十」**、小数**逐位读不进位**、负数只在有非零量时加「负」。**反解器同步放开小写**：`CN_SECTION_UNIT` 收 `十/百/千`，`点` 式小数走 `fracDigits`（与元角分互斥、只允许出现一次，第 3 位起按分四舍五入并出提示）。**注册表那条只改了描述并加 7 个关键词**（读法 / 读作 / 中文读法 / 数字转中文 / 小写 / 一千二百三十四 / number to chinese），图标仍是 `lucide:banknote`。零新增第三方依赖。临时 `_oracle10.ts`（脚本名与上一轮繁简转换那轮相同，两轮都是跑绿即删、仓库里从未留过这个文件）跑 **38 536 条断言** 后删除：~6 400 个整数的**语法不变式**（不出现连续两个「零」、不以「零」结尾、节权不重复）+ 读法→反解的**闭环**（含 16 位 `BigInt`）+ 手写读数表 + 报错文案回归 + 1 500 组「正向/读法/反解」三路小数闭环。**本轮 205 条红全在「参照」一侧**：我先把旧站 `chinese-number.ts` 的 `toChineseLower` 当独立参照跑，结果它自己错读 `1000000001000`→「一万亿一千」（漏跨节零）、`1100000000000`→「一万亿一千亿」（该是「一万一千亿」），详见坑 89。新坑见 88–90
+## 八、体积预算
 
-- [x] **初始化 git 仓库并推送上线（2026-09-28，不新增工具）**：应「推送到远程 https://github.com/cunyu1943/ToolBox」执行。`git init -b main` → 一条初始提交 `90ec0ae`（166 个文件 / 35197 行，`dist`、`node_modules`、`*.local` 走 `.gitignore` 排除，`types/components.d.ts` 与 `.vscode/extensions.json` 保留）→ `git push --force origin main` 覆盖远端 `main`（原 `5d52153`，即 multicalc 那 67 工具的版本；用户选的落点就是覆盖不备份，旧历史仍在本机 `multicalc/` 那份 clone 里，要回滚是 `git push --force origin 5d52153:main`）。**为这次推送补的三项工程**：① `vite.config.ts` 增 `base: process.env.VITE_BASE_PATH ?? '/'`，让 router（读 `import.meta.env.BASE_URL`）与 `staticHosting()`（读 `config.base`）共用一个开关，CI 里不必传 CLI 参数（实测 `--base` 优先级更高）；② 新增 `.github/workflows/deploy.yml`（pnpm → node 22 → `--frozen-lockfile` → 带 base 构建 → **发布前校验三类产物齐全且资源前缀确为 `/ToolBox/`** → `.nojekyll` → `peaceiris/actions-gh-pages@v4` 发 `gh-pages`）；③ 新增 workflow 文件当天 CSS 就 +27 B 换了 hash（Tailwind 扫 YAML，坑 84 第三次命中），补 `@source not "../../../.github";` 后逐字节回到 `index-DyDgBWry.css` 215168 B，**体积表的数字因此一个都不用改**。上线核验没有浏览器可用（Bash 无外网、只有 git 出得去），改用 `git fetch origin gh-pages` 读发布分支的树逐项数：62 份 `tools/*/index.html`、`404.html`、`.nojekyll`、62 条 `<noscript>`、`/ToolBox/assets/` 前缀、逐页 title 改写，CSS 与 `Badge` 块字节与本地一致、入口 +16 B（坑 85）。这一轮写完 README 后又重跑了一次构建做回归：`ls dist/assets` 与上一份**diff 为空**，三个关键块仍是 CSS 215168 / `Badge` 244146 / 入口 269368 B —— 也就是坑 84 那条 `@source not "../../../README.md"` 真的把文档排除干净了，以后改文案不会再动产物。**推送的对外影响**：Pages 内容整体从 67 工具换成 62 工具，旧站深链 `/ToolBox/tool/<id>` 与新站 `/tools/<id>` 不同名，现在会落进 SPA 的兜底 404 页（非白屏、非硬 404）；重定向表本轮没做。新坑见 85
+以下数字来自当前 `dist/`（`base: '/'` 的本地构建，Vite 十进制 kB、gzip 用 `zlib.gzipSync(level: 9)` 复算）：
 
-- [ ] **旧深链重定向表（唯一还挂着的复刻项，未开工）**：`/ToolBox/tool/<id>`（旧站单数）→ `/ToolBox/tools/<id>`，做法是在发布分支多写 63 个 `<meta http-equiv="refresh">` 壳（或一张 `tool/*/index.html` + 一段 `history.replaceState`），代价约每壳几百字节、只影响 `gh-pages`，`src/` 与 `pnpm build` 都不碰。**为什么单列**：这是复刻完成后唯一会让用户看到 404 页的路径，其余旧工具内容都已在本站内（三项并页见上面「补差」两条）。做之前先定一件事：**旧站 67 页与本站 63 页不是一一对应**（八个单位换算页并成一页、`text`/`encoding`/`programmer` 各有拆分去处，见开头那段映射表），所以重定向不能按 id 直映 —— 至少 `length|area-units|volume|weight|temperature|time-units|speed-units|storage` → `unit-convert`、`text` → `line-tools`、`encoding` → `number-base`、`programmer` → `number-base`、`number-words` → `rmb-uppercase` 这十三处要单独指。
+| 产物 | 原始 | gzip | 说明 |
+| --- | --- | --- | --- |
+| `assets/index-*.js` | 269.79 kB | 80.02 kB | 入口：Vue + vue-router + Nuxt UI 插件 + 应用外壳 + registry + 内联图标表 |
+| `assets/Badge-*.js` | 244.67 kB | 85.47 kB | 复用最广的 Nuxt UI 共享块（`UButton` / `UBadge` / 图标运行时，**以及 registry 的工具元信息文本**） |
+| `assets/index-*.css` | 216.82 kB | 28.13 kB | Tailwind v4 + Nuxt UI 主题变量 + 毛玻璃 + 细滚动条 + 卡片滚动动画 |
+| 其余 3 个 preload 块 | 9.51 kB | 4.44 kB | `dist` / `ConfigProvider` / `VisuallyHidden` |
+| **首屏合计（上面 6 项）** | **740.78 kB** | **198.06 kB** | 首页 `index.html` 实际引用的 6 个静态文件，**不含 `index.html` 自身**（5.74 kB / 2.44 kB） |
 
-### 已踩过的坑（维护参考）
+工具页全部按路由懒加载，首页不加载任何一个。当前偏大的几页：繁简转换 111.75 kB（89% 是字表数据）、HTML ⇄ Markdown 84.10 kB（两个方向的完整实现）、
+YAML ⇄ JSON 67.99 kB（主要是 `js-yaml` 本体）、HTTP 状态码速查 35.71 kB（装的是 66 条状态码与 42 条 MIME 表本身）、
+二维码页 30.89 kB（含完整 `qrcode` 库）。
 
-1. **pnpm 必须扁平安装**：`.npmrc` 与 `pnpm-workspace.yaml` 里的 `node-linker=hoisted` 是 Nuxt UI 内部子路径解析的前提，删掉会白屏报错。
-2. **`@nuxt/ui/vue-plugin` 只有类型入口**：运行时靠 `@nuxt/ui/vite` 插件做 id 别名，所以 `main.ts` 的导入必须和 vite 插件同时存在。
-3. **不要另外注册 unplugin-auto-import / unplugin-vue-components**：`@nuxt/ui/vite` 已内置，重复注册会报错，统一走其 `autoImport` / `components` 选项。
-4. **TypeScript 6.0 已废弃 `baseUrl`**：路径别名只用 `paths: { "~/*": ["./src/*"] }`（相对 tsconfig 解析），配 `ignoreDeprecations` 也能过但没必要。
-5. **自定义色板必须写 `@theme static`**：Nuxt UI 生成的是 `--ui-primary → --ui-color-primary-500 → var(--color-brand-500, 内置兜底)`，而 Tailwind v4 默认把没有被工具类直接引用的 theme 变量摇掉；不加 `static` 时 `--color-brand-*` 根本不出现在 CSS 里，兜底又为空，结果 `--ui-primary` 解析失败、实心按钮背景变透明且无任何报错。用内置色板名（如 `emerald`）不会暴露这个问题。
-6. **图标离线**：`icon.clientBundle` 在构建期把图标内联成 `<svg>`，`scan: true` 只识别模板里的 `i-*` 类名，以字符串动态传入的图标需列进 `icons` 数组，否则运行时请求 Iconify API。新工具图标名要先经 Iconify API 校验存在，否则会静默渲染为空白。
-7. **Nuxt UI v4 无 `UButtonGroup`**：需要按钮组时用普通 `<div class="flex items-center gap-2">` 包裹。
-8. **vue-router 装到了 v5**：`createRouter` / `createWebHistory` / `afterEach` 与 v4 用法一致，已实测通过；若后续引入 v4 生态插件需先确认 v5 兼容性。
-9. **切主题时别按 `transition-colors` 后的计算值判断对错**：卡片带 0.15s 颜色过渡，若自动化页面处于 `visibilityState: hidden`（无头/后台标签页不推进过渡），`getComputedStyle` 会长期返回过渡前的旧值 —— 表现像「主题反了一拍」，实际 `--ui-bg-elevated` 在该元素上解析完全正确。核验样式要么先 `style.transition='none'`，要么直接读自定义属性值。
-10. **`USlideover` 关闭后 DOM 不一定立刻消失**：退场动画被隐藏标签页冻结时，`[role=dialog]` 会留在文档里但 `data-state="closed"`；判断开合状态要读 `data-state` 或元素是否卸载，不要用 `querySelector('[role=dialog]')` 是否存在。
-11. **模板里的内联事件不能写多条语句**：`@click="a = ''; b = false"` 这种跨行多语句会被 Vue 当成箭头表达式函数体，直接是**编译期**错误（`Unexpected token, expected ','`），页面 500 白屏。一律抽成具名函数（如 `resetFilters()`）。批量预检可用 `vue/compiler-sfc` 逐个编译模板，注意 `parse()` 的签名是 `parse(source, { filename })` —— 第一个参数要传字符串本身。
-12. **Web Crypto 的算法名必须带连字符**：`crypto.subtle.digest('SHA-256', …)`，写成 `'SHA256'` 在 Chrome 报 `Algorithm: Unrecognized name`。因为 MD5 是本地实现、其余四个走 subtle，症状会是「只有 MD5 有结果、其余整列报错」，很容易误判成 MD5 的问题。
-13. **`UTextarea` 没有 `autogrow` / `resize` 这两个 prop**：真实 props 是 `rows` / `maxrows` / `autoresize` / `fixed`（要确认就读 `node_modules/@nuxt/ui/dist/runtime/components/Textarea.d.vue.ts`）；想要「可拖高」用 `:ui="{ base: 'resize-y' }"` 配 `:rows`，而不是 `:autogrow`。
-14. **后台标签页里 `navigator.clipboard.writeText` 可能永不 settle**：`useCopy` 因此拿 800ms 超时竞速，失败/超时回退 `document.execCommand('copy')`，保证 UI 一定有「已复制」或失败反馈；自动化验证复制内容时直接 stub `writeText` 捕获入参。
-15. **二维码的两个 UX 坑**：输入为空时必须先 `return` 清空输出，否则每次按键都刷出红色错误提示；`qrcode` 库的容量错误是英文（`The amount of data is too big…`），要映射成中文提示再展示。
-16. **上游噪音不是我们的 bug**：Nuxt UI 的 Select items 会刷 `Invalid prop: type check failed for prop "ariaHidden". Expected Boolean, got String`（一次 16 条）。控制台核验时先排除这条再判断有无新增错误。
-17. **`vite preview` 的深链行为 ≠ 静态主机**：见上一节末尾的说明。
-18. **`@vue/tsconfig` 开了 `erasableSyntaxOnly`，TS 参数属性写不了**：`constructor(private readonly tokens: Token[])` 直接 TS1294（「This syntax is not allowed」）。改成显式字段 + 构造函数赋值。附带好处：内核可以用 `node --experimental-strip-types` 直接 import 来跑纯函数测试（Node 的类型剥离同样不接受参数属性），不必先 build。
-19. **后台标签页里 `setTimeout` 被节流到约 1 次/秒、`requestAnimationFrame` 完全不触发**：两件事都咬到我们了 —— ① 探针里 `await sleep(60)` 循环十几次的脚本会累积成 15s 超时，等待要改成 `for (…) await Promise.resolve()`（微任务足够让 Vue 完成 patch）；② 计算器「点按钮后把光标移到插入点之后」原本写在 `requestAnimationFrame` 里，后台标签页下永远不执行，导致连续点击的插入位置漂移，改成 `nextTick()` 后正常（真机前台也一致）。
-20. **`BigInt()` 字面量只认十进制**：`BigInt('FF')` 抛 SyntaxError。任意进制解析要按位累加（`value = value * radix + BigInt(digit)`，顺带在此处校验非法字符）；输出方向 `bigint.toString(base)` 原生支持 2–36，只需统一大小写。
-21. **只四舍五入不切展示格式 = 假装精确**：12 位有效数字下 `2^53` 若继续走定点小数会显示 `9007199254740000`（后四位是补的零）。超过 1e12 或小于 1e-6 必须切科学计数法，不能等 `String()` 自己在 1e21 才切换。
-22. **Nuxt UI 的复合控件不吃脚本 `element.click()`**：`USelect` 的 `[role=option]` 用 `click()` 不改变选中值（Reka 听的是 pointer 序列）；顶栏的 `Ctrl+K` 在这个自动化通道里也可能被聚焦元素吞掉，而 `window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))` 稳定生效。要验证「自定义进制」这类需要选菜单项的分支，最省事的是直接写该工具的 `localStorage` 键（如 `toolbox:tool.base.preset`）再 `location.reload()`。
-23. **别拿「CSS 里搜不到」判断规则没生效**：Lightning CSS 会把含 `color-mix()` 的声明编译成 `@supports` 新旧对，产物里 `body:before` 出现 3 次（flat 色兜底、`color-mix` 现代分支、`prefers-reduced-transparency` 的 `display:none`）。核验以 `getComputedStyle(body, '::before')` 的实际值为准（本次为 `position:fixed; z-index:-1; background-image: radial-gradient(… oklab(… / 0.18) …)`），并留意读到的若是旧构建产物，先确认 `dist` 时间戳再下结论。
-24. **日期差用「借位」算月日会算出负天数**：`2026-01-31 → 2026-03-01` 按「日不够就向月借」会得到 `1 个月 −30 天`。改成**迭代累加整月直到越过终点**（`while (toUtcMs(addMonths(a, n+1)) <= toUtcMs(b)) n++`），落点与终点之差就是天然非负的天数，月末截断（`addMonths` 内 `min(d, daysInMonth)`）顺带保证「1/31 + 1 月 = 2/28」。用 400 组随机日期对跑不变量（`年*12+月+日分量重组后 == 总天数`）才把这类边界暴露出来。
-25. **`/31` 不是「省地址的 /30」**：`usableHostsOf` 必须显式给 `/31 → 2`、`/32 → 1`（否则 `-2` 变成 0 和 -1）；但 `suggestPrefix(2)` 刻意返回 `/30`，因为 RFC 3021 的 `/31` 只用于点对点链路。同类：掩码/主机数计算一律用 `2**32 − 2**(32−p)` 而不是 `<<`/`>>>`，JS 的 32 位有符号移位会让 `/0`、`/1` 直接溢出成负数。
-26. **示例常量里的引号会把字符串截断**：CSV 示例想演示「带引号含逗号」的字段，写在单引号串里 `'…,'带引号,含逗号'…'` 触发 TS1005（`',' expected`），且报错位置只在字符串中段、很容易被误判成正则或模板问题。含 `"` 的示例一律用单引号串包裹并对内部 `"` 不加转义（或改用双引号串 + `\"`）。
-27. **批量结果的 `ok` 要在页面侧过滤**：`generateMany` 对「一个字符类都没勾」这种非法配置仍返回 `count` 条 `{ok:false, value:''}`，直接 `v-for` 就渲染出 10 行空白加 10 个能复制空串的按钮。改成 `.filter(item => item.ok)`，错误提示由单条结果区承担。另注意 `generateMany` 有 50 条上限（`Math.min(..., 50)`），批量选项最多只给到 `50 条`，写断言时别按 160 000 次采样去算卡方。
-28. **「悬停才显示的文字」别默认上 `UTooltip`**：主题按钮从「≥640px 显示汉字」改成纯图标 + 悬停提示时，先用 `UTooltip` 试了一版，入口块 `index-*.js` 立刻 208.9 → 249.8 kB（Reka Tooltip + `@floating-ui` 全进首屏，+13 kB gzip）。改成 `group/theme` + `absolute top-full end-0` 的 CSS 气泡后体积回到 208.97 kB，只多 0.5 kB CSS。两个必要细节：① 默认类必须含 `invisible`（`opacity-0` 仍在无障碍树里，读屏会把隐藏标签一起播报，`header.innerText` 也会多出「跟随系统」）；② 提示层要 `pointer-events-none`，否则浮到按钮外沿时会干扰悬停判定。
-29. **`@utility` 经变体使用时，外面写裸类名选择器匹配不到**：卡片标题的动画写作 `group-hover/card:title-scroll`，DOM 上的 `class` 字面量就是 `"group-hover/card:title-scroll"`（含冒号和转义斜杠），所以在样式表另写 `.title-scroll { animation: none }` 是完全空转的，且不报错。产物里是否**存在**裸 `.title-scroll` 规则还不稳定 —— 只用一个变体时没有，加了第二个变体 `group-focus-within/card:title-scroll` 后 Tailwind 顺带产出了一条（对元素无效，纯死字节）。正确写法是把 `@media (prefers-reduced-motion: reduce) { animation: none }` **嵌进 `@utility` 体内**，Tailwind 会带着变体选择器一起产出（已在产物里逐个确认两条变体各自带一份 reduce 分支）。对比 `title-marquee`：它以裸类出现在模板里，所以 `.title-marquee` 确实进了 utilities 层，外部未加层的 `@media (hover:none)` / `prefers-reduced-motion` 才能覆盖它（未加层规则优先级高于任何 `@layer`）。核验只认产物文本：`grep 'title-scroll' dist/assets/*.css` 看选择器到底长什么样，别凭直觉。
-30. **别拿 `scrollWidth` 判断标题是否被裁**：带 `text-overflow: ellipsis` 且内部 `inline-block` 溢出时，Chrome 的 `h2.scrollWidth` 会虚高约 16px（实测容器 116、文字 118.56，`scrollWidth` 报 135），照它统计「被裁标题数」会多数出 4 张。要量就量文字本体：`span.getBoundingClientRect().width`（或 `Range` 包住文本节点）对 `h2.clientWidth`。同理，`cqi` 位移的算术成立前提是 `container-type: inline-size` 真的落在 `h2` 上 —— 缺了它 `100cqi` 退化成视口宽度，位移量在个别视口「碰巧对」、其余全错，所以断言里要有一项 `getComputedStyle(h2).containerType === 'inline-size'`。另：后台标签页里无限动画 `getAnimations()` 会报 `playState: 'running'` 但 `currentTime` 恒为 0（不推进），要看位移只能 `a.pause(); a.currentTime = 2400` 再读矩形。
-31. **`toolbox:theme` 存的是裸字符串，不是 JSON**：`useTheme` 直接 `localStorage.setItem(THEME_KEY, next)`（`src/composables/useTheme.ts:44`），首帧前置脚本也按 `mode !== 'light' && mode !== 'dark' → 'system'` 判读（`index.html:19`）；而工具自己的 `tool.*` 键走 `useStored`，是 `JSON.stringify` 过的。探针里习惯性地 `setItem('toolbox:theme', JSON.stringify('system'))` 会得到 `"system"`（带引号），页面看起来仍然正常（解析失败恰好回落到 system），但用户显式选的亮/暗就被静默清掉了。写这个键只能给裸值。
-32. **块注释里绝不能出现 `*/`**：给 cron 内核写文档时举了步长例子 `` `*/5` ``，注释当场被提前闭合、后面的正文变成代码，`node --experimental-strip-types` 报 `ERR_INVALID_TYPESCRIPT_SYNTAX`（终端 node v22 与 agent node v24 都报，且报错位置指向注释结束后的第一行，很难一眼看出是文档字符串）。措辞统一改成 `[*]/n`，或写成「带步长的通配」。
-33. **实体解码的正则要一起吃掉分号**：`/&(#[xX][0-9a-fA-F]+|#[0-9]+|[a-zA-Z][a-zA-Z0-9]*)/g` 少了尾部的 `;?`，替换结果就会在每个还原字符后面留一个孤立 `;`（`&nbsp;` → ` ;`），167 条解码断言同时全红才暴露；改成 `…);?/g` 后用 `match.endsWith(';')` 区分「带分号」与「历史无分号」两条路径。另一处：`amp/lt/gt/quot/apos` 只登记在「历史无分号前缀表」里是不够的，带分号的 `&amp;` 也必须能在命名实体表中查到。
-34. **位运算是 32 位有符号的**：`fraction & quietMask` 判断 NaN 静默/信号，对 binary64 的 52 位尾数会把高 20 位截掉、结论反着来 —— 改成 `fraction >= 2 ** (fracBits - 1)`；同理 `1 << 52` 在 JS 里是 `1 << (52 % 32)`（按 32 取模）而不是 2⁵²，构造隐藏位要用 `BigInt(2 ** layout.fracBits + fraction)` 或 `1n << BigInt(n)`。这两处都是「在 32 位下恰好对、在 64 位下静默错」的典型。
-35. **人民币大写的节权必须递归**：把「四位一节 + 节权字符串」直接拼接，在 10¹² 处会产出「壹兆」式错值且反向解析回不来（`9999999999999999.99` 反解成 `999900000000999999999999.99`）。中文数字是**「万」嵌在「亿」里**的嵌套结构：`integerToChinese` 先按 10⁸ 切「亿」，每半再按 10⁴ 切「万」（`belowYi`），零的插入按「低位段不足一个节单位量级时补零」判；反向解析同步为 `万: section = (section + current) * 10⁴`、`亿: total = (total + section + current) * 10⁸`。
-36. **探针清理 `localStorage` 要按 `toolbox:tool.` 全前缀**：`useStored` 写的键在存储里带站点前缀、且历史工具用短名（人民币大写页写的是 `toolbox:tool.rmb.amount`，不是 `toolbox:tool.rmb-uppercase.amount`）。按 id 拼前缀去删会整批漏删，结果用户下次打开新工具看到的是探针残留值而不是默认示例。做法：先 `Object.keys(localStorage)` 打印一遍再决定删哪些，只删本轮新出现的键，别碰 `toolbox:theme`（见 31）和用户已有的其他工具键。
-37. **特殊位的归属不能直接拿 `who` 字符串判定**：`'a'.includes('u')` 是 `false`，于是 `a+s`、`a+t` 一个特殊位都不会置上 —— 而且不报错，只在结果里少一位，肉眼很难从 `4755` 与 `755` 的差异里反推出来。凡是「按 u/g/o 分别处理」的逻辑都要先把 `a` 展开成 `ugo`（内核里的 `whoSet`）。同类：`s` 只对 u/g 有意义、`t` 只对 o/a 有意义，这两条必须显式报错而不是静默忽略。
-38. **`=` 后面不带权限字符是合法写法**：`a=`、`go=` 的语义是「清空该节」，只有 `+` / `-` 后面缺权限字符才是错误。按「权限字符必须非空」统一校验会把合法写法判非法，还会连带把 `u+` 的错误文案改得面目全非。另一处：GNU 的大写 `X`（仅当目标是目录时给执行位）与 `g=u`（以其他 who 为权限来源）在纯前端拿不到 inode，只能明确报「不支持」，绝不能退化成按 `x` 处理 —— 静默猜一个语义比报错更危险。
-39. **维吉尼亚的解密方向要区分自互逆算法**：Beaufort `C = K − P` 与 Atbash、ROT13 一样是自反函数，若像凯撒那样在解密时统一把密钥取负，Beaufort 就回不到原文。实现里用一个 `sign` 因子收口（`decode && !beaufort ? -1 : 1`），oracle 对 Beaufort 只断言「同样的操作做两次回到原文」。另外**只有字母推进密钥流**（标点、数字、空格都不消耗密钥位置），否则明文里加个逗号就会让后续密文整体错位。
-40. **速查类工具的 `keywords` 要放上用户会直接搜的数字**：HTTP 速查上线后在首页搜 `429` 得到 0 条 —— 注册表关键词里只写了 `404`、`502`。补进 15 个常见码后命中正常，入口块原始尺寸原地不动、gzip 还降了 0.01 kB。工具页内部的 `searchStatus` 同理：纯数字查询必须「先精确码、再前缀码」，直接走模糊打分会让短数字命中一堆噪声。
-41. **别用 `[a-z-]` 这类正则统计工具 id**：`base64` 与 `image-base64` 含数字，用它数 `<noscript>` 的链接会得出 26 而不是 28，据此「修产物」是白折腾。统计 id 列表要么用 `[^"]+`，要么直接在 node 里 `import` registry 比对。同源的坑还有：隐藏标签页（`document.hidden === true`）里浮层内 `input.offsetWidth` 恒为 0，据此会误判「Cmd/Ctrl+K 没打开面板」，判开合要读 `data-state` 或元素存在性（见 10）—— 本轮即用此法复核出面板其实正常工作（面板输入框、`chmod` 一条命中、首页筛选 `429` 只出 HTTP 速查）。
-42. **同源 iframe 探针必须与父页同源**：在 4173 的页面里嵌 `http://localhost:5173/tools/xxx` 的 iframe，`onload` 照样触发但 `contentDocument` 是 `null`，回调里 `d.querySelector` 直接抛错 →  Promise 永不 resolve，五个页面全部报「timeout」，看起来像 dev 服务器打不开。核验 dev 要先 `select_page` 切到 5173 那个标签页再嵌同源 iframe。另一处同批踩到：dev 下**并发 5 个** iframe 会顶满工具自身的 15 s 超时（每个页面都要现编译一遍模块图），一批控制在 2–3 个，且 `onload` 后要**轮询等 `h1` 出现**（固定 `setTimeout(…, 800)` 会让 morse / roman-numeral / ascii-table 报「没渲染」，实际是 Vue 还没挂载完）。
-43. **给 `useStored` 写探针值必须 `JSON.stringify`**：工具键存的是序列化后的值，`localStorage.setItem('toolbox:tool.unicode-escape.source', 'a\\u12')` 写进去的是裸串，页面 `JSON.parse` 抛错被 `catch` 静默吞掉、回落成默认示例 —— 表现是「我塞的非法转义片段根本没进输入框」，据此会误判「错误态 UI 有 bug」。与坑 31 正好相反：`toolbox:theme` 是全站唯一的裸字符串键，工具键一律 JSON。（同一个原因决定了探针收尾必须把这些键删干净：留着的是探针写进去的值，用户下次打开新工具看到的就不是默认示例。）
-44. **数字键的表要用码点查，不能用字符**：`CJK_TO_HALF` 的键是 `0x3002` 这样的码点数字，`text.filter((ch) => ch in CJK_TO_HALF)` 恒为空（`in` 左边被转成字符串键），于是「本次被归一的中文标点」永远是 `[]`、开关看起来坏了。改成 `(ch.codePointAt(0) as number) in CJK_TO_HALF`。这类「不抛错、只是永远不命中」的缺陷只有靠断言「开关打开时 `normalized.length > 0`」才暴露。同类：`'。' in {0x3002: '.'}` 为假、`'3002' in {3002: …}` 为真，别被 JS 的对象键 coercion 骗了。
-45. **「只转非 ASCII」也要把反斜杠转义掉**：`\` 是 `U+005C`，属于 ASCII，按「非 ASCII 才转」会原样放过；可它一旦紧跟一条 `\uXXXX`，解码方就会把这一个字面量反斜杠当成转义符，`\` + `中` 编码出的 `\u5de5` 被还原成 `中`、那个反斜杠凭空消失 —— 往返测试结果和输入不相等，且只在「输入含反斜杠」时出现，很容易当成偶发。修法是转义方向无条件把 `\` 编成 `\\`（`if (nonAsciiOnly && code <= 0x7f && ch !== '\\')`），解码方向先认 `\\\\` → `\` 再处理其余序列。
-46. **贪心解析里的提前 `return` 会吞掉诊断分支**：罗马数字反向解析原本「贪心展开失败就立刻返回错误」，于是 `IL`（`I` 在 `L` 前，减法规则不允许跨档）根本没走到规则诊断，报出来的是无信息量的「无法解析」。改成**先用宽松读法算值（小值在大数前取负）、再用 `toRoman` 回编比对**，两条路径（值能算出 + 回编不等）都进诊断分支才能指出「哪条规则被违背」（`IL` → `I 只能放在 V/X 之前`、`VC` → `V 不能作减数`）并附「规范写法是 XLIX」。附带：回编若本身越界（>3999）必须直接报越界，不能让「非规范写法」的文案盖住真实原因。
-47. **Tailwind v4 会把构建产物当源码扫，`pnpm build` 因此不可复现**：本项目不是 git 仓库（`Is a git repository: false`），v4 的自动内容检测「按 `.gitignore` 排除」这条前提不成立，于是 `dist/` 里的旧产物也进扫描集。实测**同一份源码连跑两次 `vite build --outDir dist-check`，CSS 从 214.63 kB 涨到 222.39 kB（+7.76 kB 原始 / +0.90 kB gzip）**，而且第二次涨出来的类名又会喂给第三次 —— 每改一次文案就重放一次，线上 CSS 里就攒下一批只服务于旧产物的死规则。修法是在 `src/assets/css/main.css` 里加 `@source not "../../../dist*";`（路径**相对 CSS 文件本身**：`src/assets/css` → 三级才是项目根，写成 `../../dist*` 会指向 `src/dist*` 而静默无效）。加完三连跑 CSS 全部锁在 `index-pgLy6ZWU.css` 214.63 kB。核验方法就是「同源码连 build 两次比 hash」，别拿一次产物的 CSS 尺寸当基线；`@source`（正向）在这里帮不上忙 —— v4 里它是**追加**，要关自动检测得 `source(none)`，但那会连 `@nuxt/ui` 自身组件的类名一起丢掉，代价远大于收益。**同一前提还有第二个受害者**：项目根的 `README.md` 也在扫描集里，改文案会改 CSS 的 hash 与字节，量级 1757 B，见坑 84。
-48. **`v-model` 与 `:value` 不能同时挂在同一个元素上，而 `vue-tsc` 不会报**：渐变页的取色格写了 `<input type="color" v-model="stop.color" :value="stop.color">`，`pnpm typecheck` 全绿，`pnpm build` 也过得去（构建期按需编译，报错点在模板编译器），但 dev 下打开 `/tools/gradient` 直接 500 —— 控制台是 `TypeError: Failed to fetch dynamically imported module`，看不出原因。**dev 服务器上直接 curl 那个模块才看得到真错**：`curl -s http://localhost:5173/src/pages/tools/GradientPage.vue | grep -o '"message":"[^"]*"'` → `Unnecessary value binding used alongside v-model`。以后每个新页面都按这条查一遍（五个模块逐个 curl + grep `"message"`），别只信 typecheck。
-49. **`Array.prototype.findLastIndex` 在本项目编译不过**：`@vue/tsconfig` 的 lib 没到 ES2023，报 `TS2550 Property 'findLastIndex' does not exist`。HTML 解析里「找最内层的同名开标签」正需要它，改成 `stack.map((el) => el.tag).lastIndexOf(name)` —— 语义等价、零新增配置。（顺手记住反面：`stack.findIndex` 对嵌套 `<li>` 会命中最外层那个，把子项甩到父级。）
-50. **图标名要查 `@iconify-json/lucide` 的 `icons`，别名不算**：`lucide:dicesix`、`lucide:trash-2` 都不在 `icons` 里（前者应为 `lucide:dices`，后者只存在于 `aliases`，指向 `trash`）。`build-time` 内联查不到就留空，运行时才请求 API、离线即空白。核对：`node -e "const j=require('@iconify-json/lucide/icons.json');console.log(!!j.icons['dices'],!!j.icons['trash-2'])"`。另外页面里以 `icon="lucide:xxx"` 字符串传入的图标不会被 `scan` 抓到，本批往 `chromeIcons` 补了 8 个（`arrow-down-to-line / square-function / text / arrow-right / undo-2 / shuffle / dices / trash`），入口块因此多涨约 4.9 kB 原始。
-51. **硬换行（`<br>` ⇄ 行尾两空格）的往返稳定要过三关**：① `parseList` 取列表项正文用 `.trim()` 会把行尾两个空格吃掉 → 改 `.trimStart()`；② `inlineOf` 给 `<br>` 之后的文本节点补前导空格，使续行比首轮多缩一格 → `lead` 的条件要判 `!/[ \n]$/.test(out)`（换行也算「已经有分隔了」）；③ 首轮产物会留下单个行尾空格和只含空格的空块 → 收尾统一走 `tidyMd()`：行尾空白串只允许「0 个」或「2 个（硬换行）」，3 个以上连续换行压成一个空行，**围栏代码块内部一个字不动**（那里的缩进和行尾空格有意义）。这三处都不是靠读代码找到的，是靠 `htmlToMarkdown(mdToHtml(htmlToMarkdown(x))) === htmlToMarkdown(x)` 这条幂等断言的差分输出定位的。
-52. **未闭合标签会造出空强调对**：`<p>这个 <strong>段落<b>少了一个闭合标签` 里 `<b>` 被自动闭合到文档末尾、罩住了后面的 `<blockquote>`，于是块级内容外面套了一对包着空行的 `****`。EMPHASIS 分支的判空条件从 `if (!inner)` 扩到 `if (!inner || inner.includes('\n\n'))`：Markdown 表达不了「强调一整块」，只留内容。
-53. **转换结果不 `v-html`**：Markdown → HTML 的输出里可能原样保留用户粘贴的 HTML 块，`v-html` 等于在页面里执行它。结果区只作纯文本 `<pre>` 展示 + 复制。（`src/site.config.ts` 的 `footerHtml` 走 `v-html` 是另一回事：那是站主手写的静态配置，永不接用户输入或远端数据。）
-54. **定义列表是单向映射**：`<dl>` 转出 GTM 式 `术语\n: 释义`，而 md→html 不解析 `: ` 前缀，第二轮会把两行并成一段。这是格式本身没有可逆语义，不是 bug —— 幂等断言里按标签跳过 `定义列表` 样本，页面上也写明了「反向不解析」。
-55. **AES 页的口令 / 明文 / 载荷三个输入框刻意都不接 `useStored`**：一行 `useStored` 就能「记住上次的输入」，但那等于把密钥副本以明文写进 `localStorage` —— 它留在浏览器 profile 的数据文件里，能读磁盘的进程、同步了 profile 的备份、任何一条同源 XSS 都拿得到，而且**刷新不会没、清缓存才会没**。这个工具的用途（加密一段要留下来的东西）意味着「口令得重填」远比「口令被静默落盘」可接受，所以只有模式与迭代数持久化，页面上把「刷新即丢」写成特性而不是缺陷。附带的 API 约束：`useStored` 返回的是 `Ref`，塞进 `v-for` 用的普通对象数组再 `v-model="item.value"` 是接不上的，要持久化的字段得各自成一个 ref。（程序化改 `mode` 走坑 22 那条路：写 `toolbox:tool.aes.mode` 再重载。）
-56. **js-yaml v5 没有 `quotingType` 这个选项**：按 v3/v4 的记忆写 `dump(obj, { quotingType: '"' })`，typecheck 直接报 TS2353，运行时也不认 —— 引号只能靠值本身是否「必须有引号」来触发（`'yes'`、`'12'`、`'hello: world'`、空串 `''` 会被强制引号，其余裸写）。同批三条与直觉相反的默认行为：块序列缩进两格（`list:\n  - a`，不是顶格的 `- a`）、`flowLevel: 0` 是让**整篇**变流式而不是「只让标量流式」、含换行的字符串走块标量 `|-`。报错自带 `line`/`column`，但 js-yaml 还会附整段 code frame 噪声，展示前要截掉、只留「第 N 行第 M 列：原因」。（另：`@types/js-yaml` 落在 `dependencies` 而非 `devDependencies`，只有类型、不进产物；为了不在这台机上重跑安装暂时没动，属可选清理。）
-57. **XML 混合内容里「标签之间的空白」是文本，不是格式**：解析后过滤纯空白文本节点（`!(child.kind === 'text' && !child.value.trim())`）对普通元素是对的 —— 那些换行只是缩进；但混合内容（文本夹着标签）里 `</b>` 与后一个词之间那个空格是**词间空格**，拿同一份过滤后的 `kids` 去行内序列化会把 `a xb c` 写成 `axbc`，改掉了文本本身。修法是行内那一支不复用 `kids`、重新从 `node.children` 过滤（只按 `keepComments` 剔注释），换行折成一个空格并提示「标签之间的换行被压成了空格」。同批另一处：这一支会碰到 `pi` / `doctype`，而它们被传给签名只接受 `XmlElement` 的 `serializeInline`（两处 TS2345）—— 补一个 `inlineLeaf` 收非元素节点，别在行内递归里塞类型判断。
-58. **Vite 报的 kB 是十进制，`wc -c` 的字节不是**：直接拿产物字节数和 Vite 输出的 kB 相比会得出「产物比构建报告大 / 小」的错结论（差约 2.4%），要一致就统一 ÷1000。同批两条测量纪律：① 构建一律 `--outDir dist-check`，因为 `dist/` 常被 `vite preview` 占着（Windows 下 EBUSY），而坑 47 那条 `@source not` 只挡 CSS 扫描、不解决占用；② 新页面是否真的干净**不能只看 typecheck 与 build 通过**（坑 48 已复发确认过一次），五个模块逐个 `curl -s http://localhost:5173/src/pages/tools/XxxPage.vue | grep -o '"message":"[^"]*"'`，无输出才算过。
-59. **内核里的自然语言文案不要写 Markdown 强调**：健康批五个内核的 `notes` / `basis` 里有四处写着 `**肾功能不全…**`、`**占比**` 这类星号强调，而结果区按纯文本渲染（坑 53 那条约束：不 `v-html`），于是星号原样出现在页面上 —— **typecheck、build、断言全绿也看不见**，只有把页面 `innerText` 读出来才暴露。要么用「」引号（这批的既有写法），要么就真的上富文本渲染（不为了这个理由上）。收尾加一条廉价守卫：`grep -n "['\`][^'\`]*\*\*[^'\`]*['\`]" src/` 只在字符串字面量里找 `**`，就能跳过 JSDoc 与 `2 ** bits` 这类指数运算。
-60. **「数字 + 一句长说明」混排不要给说明 `flex-1`**：饮水页那行说明写成 `min-w-0 flex-1`，390 档被左右两块统计挤成 **11px 宽的细条**（`clientWidth 11 / scrollWidth 47`），自身内容溢出还撑破文档（`documentElement` 水平溢出 21 px）。`min-w-0` 只保证「可以缩到比 min-content 更小」，并不保证缩完还能看 —— 中文虽然处处可断行，但 `（IOM）`、`2700 ml` 这类不可断片段就是它的下限。改成 `min-w-0 basis-full`（恒占一整行）后溢出归零。检测别只看 `scrollWidth > clientWidth`：这类「细条」不一定撑破页面，要另跑一条探针 —— 列出所有 `clientWidth < 40 && scrollWidth > 60` 的元素，为空才算干净。
-61. **体积表的「本批增量」不能累加当基线**：`index-*.js` 那行自第 20 个工具起就没改过表头数字（223.72 kB），后面每批只追加「本批涨 +X kB」的句子，把五批增量累加约得 237 kB，而实际产物（不含健康批）是 **258.66 kB**，差约 21 kB —— 因为图标表、registry 元信息、外壳组件的改动都算不进那几条句子。正确测法是**做一次带/不带对照**：把 `registry.ts` 里这批的条目临时删掉（`cp` 到 `/tmp` → `sed '421,475d'` → build → 复原并 `md5sum` 比对确认源码没被改），两次产物相减才是这批的真实增量（本批入口 +0.92 kB、共享块 +1.81 kB、CSS +0.00）。CSS 那格还能直接看 hash：`index-BgZqbl0a.css` 两次构建同名，就是零新增类名。
-62. **这台机上任何构建/工具命令都走 `pnpm exec`，不要顺手 `npx`**：本批有一次因为 `package.json` 里没有 `build:check` 脚本、`pnpm build:check 2>/dev/null || npx vite build …` 的兜底就跑了 `npx`，当场违反「只用 pnpm」这条硬约束（npx 还会顺带打印 npm 升级提示）。命令写兜底分支时，兜底那一支也要是 pnpm。
-63. **图标核验必须按「表键」而不是 `lucide:` 字面量，且字形表落在哪个 chunk 会变**：本批先用 node 把 `src/**` 里 93 条 `lucide:*` 逐个在 `dist` 里找，唯一未命中的是注释里的 `lucide:xxx` —— 看起来全绿，**但对三元写法是假绿**：页面块里 `"lucide:sliders-horizontal"` 这个字符串本来就在编译出的渲染函数中，找得到它不代表字形数据进了包。必须按表键 `"sliders-horizontal":{` 定位。按表键复查的结果是这两条**早已在入口块里**（把它们补进 `chromeIcons` 后 `index-C1wS4tM1.js` / `Badge-BtoLNcLm.js` / `index-DMhx0cZF.css` 三条 hash 一字未变），即 scan 也能抓到模板里以字面量写出的三元分支；此前「AES 的 `eye`/`eye-off` 属动态传入、必须手登记」对这类字面量三元是过度归因，**真正必须手登记的只有运行时拼出来的名字**（`'lucide:' + v`）。顺带纠正体积表里「注册表图标全在 Badge 块」那句：本批它们在入口块，落点随 chunk 图变，每次重新定位。
-64. **判水平溢出以文档为准，`overflow-x-auto` 容器内的宽表不是缺陷**：房贷页两张 `min-w-105` / `min-w-115` 的表在 390 档右边界确实超出视口（探测脚本会把 `TABLE` / `THEAD` / `TR` 列成 offender），但外层容器把它们关在自己的横向滚动条里，`documentElement.scrollWidth === clientWidth`。若按「任一元素右边界 > 文档宽度」直接下结论就会误报，进而去删掉本该滚动的宽表 —— 那才是引入缺陷。
-65. **改完整数分配算法必须断言「各部分之和 == 总量」**：`allocate()` 重构后漏掉一行 `assigned += sizeGiB`，于是最后一块 `total - assigned` 等于整块盘，三块 279 / 372 / 931 合计 1582 GiB > 931 GiB，而页面上占比列仍是 30% / 40% / 30%、逐行看毫无异常。只有对总和的断言（`allocate(931, 30/40/30)` 之和恰为 931）抓得到，这类「余数归最后一份」的写法以后一律配一条总和断言。
-66. **`useStored(key, 模块级常量)` 在没有存档时把常量本身当作 ref 的当前值**：页面里任何就地改写（`item.personalPct = x`、`slices.push(…)`）都会污染那个常量，同一次会话里第二次进页面拿到的就是被改坏的「默认值」。初始值必须深拷贝（社保页 `DEFAULT_ITEMS.map(i => ({ …i }))`、硬盘页 `DISK_PRESETS[0].slices.map(s => ({ …s }))`），并在 oracle 里配一条「跑过一轮改写后常量仍等于原始值」的守卫断言。
-67. **数值抽查不一定要起浏览器：`node --experimental-strip-types` 能直接 `import` 项目里的 `.ts` 内核**（本批 Node 24 实测可用，30 秒内核对完 IRR 比率区间与 72 法则两端）。用它复算了「真实年化 ÷ 标称费率」在 0.2%–0.6% 费率 × 1–5 年上的全区间（1.78–1.96 倍，峰值在 3–4 年、非单调），才敢往 README 与内核注释里写具体数字 —— 上一批凭印象写的「1.7–2.05 倍」就是没有复算的产物。
-68. **Nuxt UI 的 `ariaHidden` prop 类型告警是 dev 噪音，不要为它改页面**：本批每次加载含 `USelect` 的页都会报一条 `Invalid prop: type check failed for prop "ariaHidden". Expected Boolean, got String with value "true"`，且**一个 `USelect` 报一条**（货币页有「从 / 到」两个下拉，单次加载就报两条 —— msgid 47、48）。调用栈从 `SelectItemIndicator` → `PrimitiveSlot` → `UIcon aria-hidden="true"` 一路都在 Nuxt UI / reka-ui 内部，**我们传下去的只有最外层那个 `<USelect>`**；`grep -rn "aria-hidden" src/` 全站只有 `PasswordGenPage` 一处无关的装饰性 `<span>`，所以这既不是本批引入的、也不在我们可改的范围里。Vue 的 prop 类型校验只存在于 dev 构建，产物里不会跑；要消掉只能给每个 `USelect` 包一层，不值。核对控制台时把它单列出来，别当成新缺陷去找。**另有一条成本教训：`list_console_messages` 默认把整段调用栈塞进消息文本，本批一次全量拉进 3 万+ token —— 要抽查就传 `types: ["warn"]` 与 `includeStackTraces: false`，或先用 DOM 断言把功能核完再决定要不要读日志。**
-69. **自建关系表要配「双向可达」断言，不能只抽查**：称谓表里登记了 `'H,HB,W': 妯娌`，但 `WORD_TO_CHAIN` 里没有「妯娌」这个词，于是「妯娌是什么关系」这类**以称谓开头的反查**直接失败；反过来 `M,F,F`（外公的爸爸）在表里缺项，链推到了规范形式却查无此人。修法不是多写几条用例，而是两条全域断言：① 遍历 `KIN_TABLE` 的每个键，用自己的链 `resolveChain(key.split(','))` 必须回到同一条目（证明表项都能被链推出、且归一化不会把它改写别处）；② 遍历 `WORD_TO_CHAIN` 的每个词，`resolveChain(atoms)` 不得为 null（证明每个派生词都有表项接得住）。这两条一次性把「表有词缺 / 词有表缺」两类不一致全暴露出来，比人工补用例可靠得多。
-70. **「下次生日」必须按年求对应日，不能复用按月的锚点**：`computeAge` 内部为了算「N 个月 M 天」已经有一个 `addMonthsClamped(birth, totalMonths)` 的月锚点，顺手拿它推「下次生日」看起来天经地义，实际会把 1 月 31 日出生的人的下次生日算成 3 月 31 日（月锚点前进一个月）、2 月 29 日算成 3 月 29 日 —— **而且都是个真实存在的日期，页面上完全看不出荒谬**。正确做法是另写 `birthdayIn(birth, year)`：年份单独前进，只把日期钳到该月月末。同一处 `lastBirthday` 也犯了按月的错，一并改。
-71. **示例按钮的文案是「断言」，不是「装饰」**：`AGE_SAMPLES` 第三条写「差 1 天满 1 万天」配 `1999-06-01`，实算第 10 000 天是 2026-10-17（相对参考日 2026-09-24 还在未来 23 天），页面一边显示「万天未到」一边被按钮称作「差 1 天满」—— 文案与数据分处两块区域，肉眼扫过不会矛盾。改完（`1999-05-10` → `totalDays === 9999`）后补一条把两者连起来的断言：对每个样本 `computeAge(birth, ref)` 的结果必须兑现 `label` 里那句事实。任何「样本 + 一句说明」的 UI 都需要这条。
-72. **身份证号与 AES 口令同属「一个字符都不落 `localStorage`」**：这一页最容易顺手写 `useStored('tool.id-card.text', '')`，而它存的是完整公民身份号码 —— 明文躺在共享电脑的浏览器里，与「输入内容不离开浏览器」的承诺直接冲突（`localStorage` 虽然不发出去，但它对同机器同来源的一切脚本可读、且不会随会话结束消失）。页面用 `const idText = ref('')`，验证纪律也相应加一条：**收尾必须 `Object.keys(localStorage)` 反查没有 `toolbox:tool.id-card.*`**，而不是只测「刷新后是否还原」。页面对号码打码（`110105********002X`）并给显隐切换，展示态与存储态两件事都要守住。
-73. **`browser-use` 的 `evaluate_script` 单次调用里冷 iframe 装到 4 个必超时**：15 s 上限 ÷ 每页「加载 + 等 hydration」约 800–900 ms 再叠加同源 iframe 的冷启动，6 个新页面要拆成 3 次调用（每次 2 页）。而且**每次调用开头先 `document.querySelectorAll('iframe').forEach(f => f.remove())`**，否则上一轮残留的 iframe 会与新的一起跑，超时来得更快。
-74. **探针定位元素：芯片是 `BUTTON`、样本按钮要精确匹配文本**，两件事本批各撞一次。首页的分类芯片渲染成 `<button>`，按 `a[href*="category="]` 选会得到 0 条（一度以为「芯片没渲染」）；身份证页的样本按钮用 `textContent.includes('15 位一代证')` 首轮点了没反应，改成 `textContent.trim() === '15 位一代证'` 才命中。此外 `UFormField` 的 `<label>` 不是它 wrapper 的直接子元素，`:scope>label` 选择器找不到控件 —— 按标签文本定位输入框在这套组件里不可靠，能用 `aria-label` 或结构位置就别用 label 文本。**按文本定位失败时先确认「到底没渲染」还是「没选中」，别在选不中的情况下改数据。**
-75. **后台文档里 `scroll` 事件与 `Transition` 都不跑：验证「随滚动出现」的组件要自己派发事件**（本轮为 `BackToTop` 撞的）。同源 iframe 在被探针加载时是隐藏文档（`docHidden === true`），此时改 `scrollTo` 会让 `scrollY` 真的从 900 走到 1288，**但窗口不派发 `scroll` 事件** —— 组件的监听器一次都没被调用，按钮永远不出现。我先怀疑是自己的 `requestAnimationFrame` 批处理有问题，去掉 rAF 改成直接同步读 `scrollY` 后**依然不复现**，这才去打印监听器与滚动位置，确认代码是对的、环境不喂事件。修的是测试：`w.dispatchEvent(new w.Event('scroll'))` 手动驱动一次即通过。**同一机制还造成一个真实缺陷**：`<Transition>` 的 leave 在隐藏文档里永远不结束，元素的类一直停在 `leave-active`、computed `opacity: 0` 却仍在 DOM 里 —— 一个「看不见但点得到」的按钮。所以 `pointer-events-none` 必须写进 `leave-active-class`（这是产品收益，不是为了让测试变绿）。另两条推论：**别断言平滑滚动的结果**（隐藏页里 `behavior: 'smooth'` 不推进，改 spy `window.scrollTo` 的入参 `{top:0,behavior:'smooth'}`，再用 reduced-motion 的 `'auto'` 分支去核「真的回到 0」，它是同步的）；**在 iframe 里读视口宽度要用 `contentWindow.innerWidth`**，裸 `innerWidth` 会读到外层窗口（本次误读到 532 而以为是 390 档）。
-76. **A/B 量体积必须把「注册表条目 + 页面文件」一起摘掉，而且摘源码的动作要和删备份分成两步**（本轮为第 61 个工具撞的，含一次差点丢掉整页源码的事故）。只注释掉 `registry.ts` 里那一条再做 `vite build --outDir dist-check`，量出来的是**假增量**：`import.meta.glob` 仍会把 `pages/tools/XxxPage.vue` 发成一个块（只是没人 `import` 它），而 **Tailwind 的源码扫描根本不看注册表**，于是 CSS 会报「hash 与字节一字未变」—— 本轮因此一度写下「CSS 0 增长」，把页面文件一起移出 `src/` 重测才是真值：入口 +0.42、Badge +0.36、**CSS +0.04（hash `index-BtetCL5k` → `index-DlsEY8M2`）**、首屏 +0.83。**更要紧的是手法**：我当时的清理命令是 `rm -rf dist-check && rm -f /tmp/registry.bak.ts /tmp/PasswordStrengthPage.bak.vue`，把「备份」和 A/B 产物一起删了 —— 而这个仓库**没有 git**，`mv` 走的页面源码就只剩这一份 `/tmp` 副本，等于当场删掉了唯一一份源码。恢复路径记下来备用：agent 的会话日志 `~/.qoder-cn/logs/sessions/<项目>/<会话 id>/segments/*.jsonl` 里，`tool.requested` 记录的 `data.args.content` 是**完整的**写入内容（同一目录树下的 `projects/<项目>/<会话 id>.jsonl` 会把超长输入截断到约 15 kB，别去那里找），按行号取出那次 `Write` 的 `content`、再依次 `replace` 掉它之后的每一条 `Edit`（`old_string` 必须恰好命中 1 次，命中 0 次说明中间还有别的改动），写回原路径即可。**验证恢复是否逐字节正确有个近乎免费的办法**：`pnpm build` 后比对产物 hash —— 块名里的 hash 由内容决定，本轮恢复后 `PasswordStrengthPage-DjZrZ4FV.js` / `index-CC8A6tNB.js` / `Badge-Cnppxq8m.js` / `index-DlsEY8M2.css` 与验证过的构建完全一致，且 `ls dist/assets` 前后 diff 为空。日志里的字符串会被脱敏过滤器改写（本轮 `lucide:key-round` 被写成 `key-roun***REDACTED***`，导致按它匹配的 `old_string` 命中 0 次），命中失败时先 `grep` 真实文件核对那一段，再手工补。以后一律：**先 `cp -r src /tmp/ab-src` 或用 `git`(若有) 建分支，跑完 A/B 立刻把副本移回并 `grep -c` 复核，最后单独一条命令删备份** —— 备份与产物不能出现在同一条 `rm` 里。
-77. **后台标签页把 `setTimeout` 节流到几乎不返回，含多个 `await` 的浏览器探针必撞 15 s 上限**（本轮为密码强度页撞的，与坑 73 同一类但成因不同）。探针脚本里写 `await wait(400)` × 3～4 次就会 timeout，不是页面慢，而是 `browser-use` 加载的 iframe 文档处于隐藏态、定时器被压到 1 s 以上甚至干脆不走。**可行的写法是「一次调用只做一次动作、全程同步」**：这一次调用只 `dispatchEvent` / 点按钮 / 改输入框并 `return true`，下一次调用再读 DOM 断言（Vue 的 watcher 在 microtask 里跑完，同步代码走到下一个 macrotask 时 DOM 已经更新，实测不需要 `await nextTick`）。配套的两个小坑：Tailwind 的类名带小数点时**不是合法 CSS 选择器**（`span.h-1.5` 直接 `querySelectorAll` 抛 `SyntaxError`，要用 `[class*="h-1.5"]`）；本项目的 Nuxt UI 版本**不渲染 `data-slot` 属性**（按 `[data-slot="badge"]` 找徽章恒为 0 条，要按可见文本 `强度：` 定位）。
-78. **「模式折损」这类判断有两个反直觉的坑，都是断言逼出来的**（本轮 `_oracle7.ts` 抓的）。① **正则的可选组一定要数清括号**：`(?:19|20)\d\d(?:[-/._ ]?(?:0[1-9]|1[0-2])[-/._ ]?(?:0[1-9]|[12]\d|3[01]))?` 看着像「月、日都可省」，实际把「月」和「日」写在了同一层可选组里，于是 `2026`、`Wang2026` 这种**只有年份**的写法一个字符都不匹配、年份折损形同虚设 —— 正确写法是把日单独再包一层：`\d\d(?:月(?:日)?)?`。② **说明文案不能被「是否降熵」这个条件门控**：`cap(bits, note)` 里如果写成「只有 `bits` 真的低于当前值才 push note」，`qwertyuiop` 就只会报「命中常见弱口令表」、用户看不到「它同时是 10 位键盘行」，两条本应同时呈现的诊断被熵的比较吃掉了 —— 正确做法是 **note 无条件记录、熵单独取 min**。另外，`console` 侧本轮 warn 级消息为 **0 条**（`list_console_messages` 用 `types:["warn"]` + `includeStackTraces:false` 拉，全站核查别把 stack 带上，坑 60 那次全文拉过 3 万 token）。
-79. **`v-model` 绑到「数组里的 ref 属性」上不会自动解包；`rgbToHex` 默认会跟着拼 alpha**（本轮为对比度页撞的，前者是渲染期 bug、后者是取值口径）。① 为了少写重复模板，我把前景/背景两侧写成 `const sides = [{ store: fg, key: 'fg' }, …]` 再 `v-for`，输入框上写 `v-model="side.store"` —— 结果两个框全都**不随输入更新**（也不报错）：`v-model` 需要的是可赋值的绑定目标，而 `side.store` 拿到的是 **ref 对象本身**（数组不是 `reactive`，Vue 不会对它的元素属性做解包），于是 `:value` 读到的是 `[object Object]`、`@update:modelValue` 又赋不回原 ref。**这类「两侧结构完全对称」的场景，直接写两块显式模板比抽数组省心得多**，真要抽就得用 `reactive({ fg, bg })` 或把 ref 放进 `reactive` 对象里（ref 作为 reactive 的属性时才会解包）。② `rgbToHex(color)` 在 `color.alpha < 1` 时**自动输出 8 位**（`#rrggbbaa`），而原生 `<input type="color">` 只吃 6 位 `#rrggbb`，否则回落到 `#000000` 且**不报错**。给取色器喂值必须显式写死不透明：`'#' + rgbToHex({ ...color, alpha: 1 })`。
-80. **串行多 iframe 探针在后台标签页里会「假失败」；`useStored` 的键带前缀，按 `startsWith('tool.')` 过滤恒为空**（本轮为对比度页三档复测撞的，两条都是测试自身的问题、都曾让我以为产品坏了）。① 一次调用里 `for (const w of [390, 768, 1280])` 依次建 iframe、等 `onload` 再等 hydration，配 4 s 超时 —— 三档全部返回 `h1: null`，看着像「页面没渲染」。实际是把三个页面的加载串在同一批 microtask/timer 里、后台文档的定时器又被节流（见坑 73、77），第一个还没 hydration 完就轮到读 DOM 了。**改成「一次调用只加载一个宽度、用 300 ms 间隔轮询 `document.querySelector('h1')`」**后 417 ms 就绪、三档各调一次全部读到正确值。判据：**同一段代码换个写法就通，就是环境问题**，别急着去改产品。② 收尾核对持久化时我写 `Object.keys(localStorage).filter(k => k.startsWith('tool.contrast'))` → `[]`，一度怀疑「输入框没落盘」。`useStored` 统一加了站点命名空间前缀（`src/composables/useStored.ts` 里的 `const PREFIX = 'toolbox:'`，与 `index.html` 的 `toolbox:theme` 同一套），真实键名是 `toolbox:tool.contrast.fg`。要么按前缀写全，要么用 `includes(...)`。此外，**探针改写过 `localStorage` 就必须还原，且只删本轮自己创建的那几项**（用「跑之前先快照键列表、跑之后只 diff 出新增的键来删」的方式），别按模式一把 `removeItem` —— 本次 5173 源里有 20 个既有键，一把清会把用户的真实状态一起清掉。
-81. **注册表文案不是「只是数据」：它会跟着 `ToolShell` 进 Badge 共享块，改几个字就有首屏代价；量「并入既有页」这类增量必须做三态构建**（本轮为 `number-base` 的 Base32 + 按位运算撞的）。原先记在表里的说法是「Badge 块装的是 Nuxt UI 共享组件、不装注册表」—— 那只对**图标字形**成立（表键在入口块），对**工具元信息文本**不成立：`ToolShell` 要 `pageTitle`/`categoryLabel`，命令面板要整份 `tools`，于是 `registry.ts` 被合进 Badge 那个块。实测：只把一条 `description` 改短 + 加 26 个关键词、页面文件一字未动，`Badge-*.js` 从 244033 B → 244147 B（+114 B），hash 也变了；同一时点 CSS 的 hash 与字节**完全不变**（Tailwind 不看注册表），入口字节数也不变（描述省下的与关键词吃掉的刚好抵消，只有 hash 变）。**推论一：以后凡是「只调文案」的改动也要按首屏算，不能因为「又没加代码」就写零代价**。**推论二（手法）**：增量的归属要靠**三态**拆开 —— A₂ = 旧文案 + 旧页面，A = 新文案 + 旧页面，B = 新文案 + 新页面；A₂→A 是注册表的价格，A→B 是页面的价格。只做「B vs 上一轮表头」的两点比较会把两者混成一个数字（本轮如果那样就会错报成「新页面板块让共享块涨了 114 B」）。A 态的实现方式是把页面文件换成旧版（**先 `cp` 到临时目录、`sha256sum -c` 验还原，备份与 `dist-check*` 分两条命令删**，见坑 76），比给内核加编译开关便宜得多。**顺带一条测量口径的纠正**：首屏合计的 gzip 列此前是按「分项各自四舍五入再相加」凑的，同一组文件今天按未压缩字节求和再压缩复算差了 0.09 kB —— 合计列必须从字节求和出发。**还有一条 Base32 的口径教训（写给未来的自己）**：RFC 4648 的 `A–Z2–7` 与 JS `toString(32)` 的 `0–9a–v` 是两套字母表，同一个数写出来不同（255 → RFC `H7`、JS `7V`）；页面里两行同时出现时必须显式说明用的是哪套，否则用户会以为其中一行算错了。**按整数读 Base32 时末尾 `=` 只是填充**，直接丢掉即可，但要在页面上写清「这里做的是整数的数字表示，不是字节串的编码填充」（要编码字节串是 Base64 页那一套 8 字符一组 + `=` 补齐的口径，两者不可混）。
+**测量纪律**：不以「上一轮表头 + 本批增量」的方式累加，每次改动都重新实测；做 A/B 时把**注册表条目与页面 `.vue` 一起**移出 `src/`
+（只改注册表会让 Tailwind 的 CSS 增量假报为 0），输出目录一律用 `dist-a` / `dist-b` 这种命中排除规则的名字，备份与产物分两条命令删。
+改根目录下的非 `src/` 文本文件（workflow、文档）之后，做一次「同源码重跑构建比 hash」——它们可能被 Tailwind 当成内容源。
 
-82. **把颜色内核的输出直接喂给 `<input type="color">`，会在「不是本地这个浏览器」上炸**（体检轮在颜色页修的）。`rgbToHex()` 的设计是「`alpha < 1` 就自动补两位透明度」，这对展示用的 8 位 HEX 是对的，但取色器那一行写的是 `rgbToHex(color)`，于是透明度滑到 50% 时给它的是 `#42b88380`。按 HTML 规范 color 状态的取值净化是「不是 valid simple color 就置为 `#000000`」，而 valid simple color 只接受**恰好 7 个字符**的 `#rrggbb` —— 也就是规范上这就是个「滑一下透明度，取色色块变黑」的缺陷。修法是一行：`rgbToHex({ ...color, alpha: 1 })`（对比度页从一开始就是这么写的，这次是让颜色页跟上）。**为什么本地看不出来**：实测 Chromium 对 8 位值是宽容的，会把 `.value` 报成截断后的 `#42b883`，页面表现完全正常 —— 这类「只有 Chromium 兜住了」的写法不能当正确。两条探针手法记下来：① 要看的是 `el.value`（净化后的值）而不是 `el.getAttribute('value')`（那是我们写进去的脏原值，Vue 对 `:value` 走的是设 property，两者会不一致）；② 想复现「属性触发净化」必须**新建一个 input 再 `setAttribute`**，同一个元素一旦被 property 设过就有了 dirty value flag，之后改属性不再起作用（我就因此先误读成「属性也走截断」，第二次拿干净元素测才看到 `#11223344ff` → `#000000`）。**推广为一条规矩**：凡是把 `rgbToHex` / 任何格式化函数的输出交给「格式受限的原生控件」（`type=color` / `type=date` / `type=number`），都要显式给出该控件要求的形态，别依赖浏览器的宽容。
+## 九、维护约定（踩坑沉淀）
 
-83. **「首屏」是个未定义就引用的词**：体积表里那一行「首屏合计 739.36 kB」从来没写清**是否包含 `index.html` 本身**，体检时按两种口径各算一遍，差出 5.69 kB 原始 / 2.41 kB gzip（体检当轮那份产物：**6 个静态文件 = 739.92 kB / zlib-9 197.70；再加 `index.html` = 745.61 kB / 200.11**；同一口径在补掉第 4 处修正后是 **738.19 kB / 197.58** 与 **743.88 kB / 200.00**，见坑 84）。以前几轮写的数字用的是哪一种，已经无法从表里判断。修法是**把清单钉死在产物上**：`grep -oE "<link[^>]*>|<script[^>]*>" dist/index.html` 把 `module` 脚本 + 三条 `modulepreload` + 那张样式表列出来，逐文件 `statSync` + `zlib.deflateSync(level 9)` 求和，别凭记忆数有几个块。同一件事在图标那档也救了一次 —— 体积表里那句「字形落点会随 chunk 图变」是对的，但**清单口径**变了才会让两轮的「首屏」根本不在比同一个东西。以后每次改体积表，先在这一行里写下"几项、含不含 html"，再写数字。
-84. **`README.md` 也是 Tailwind v4 的内容源，改文档会改产物**（体检轮第 4 处修正，也是那桩「同源码不同 hash」疑案的谜底）。v4 的自动内容检测没有「只扫源码」这回事：它按 `.gitignore` 的条目排除目录，root 下未被忽略的文本一律读进来当候选串，于是正文里出现的裸词 `title-scroll`、`columns-3`、`backdrop-blur-md`、`sm:p-5`、甚至被省略号截断的 `lg:grid-cols-[minmax(0,…)]` 都会各生成一条规则。代价实测 **1757 B 原始 / 182 B gzip**，且**每次改文案都可能换掉样式表的 hash** —— 表现就是「`src/` 一字未改，重跑 build 的 CSS 从 216904 B 变成 216925 B」，看着像构建不可复现，其实是文档变了。修法是 `src/assets/css/main.css` 补 `@source not "../../../README.md";`（与坑 47 那条 `@source not "../../../dist*"` 并列）。补之前务必确认**没有误删在用的规则**：本项目逐条复查了 `backdrop-blur-2xl` / `sm\:inline-flex` / `lg\:inline-flex` / `bg-default\/80\!` 四条仍在产物里，才敢写「只少死规则」。**同一条坑还有个做实验的陷阱**：`pnpm build --outDir d-mdon` 这种输出目录名**不匹配 `dist*`**，于是它会留在项目根里被下一轮构建扫到，把 A/B 彻底污染 —— 我第一次量这个效应时得到「排除 README 反而让 CSS 大 6606 B」的荒谬结论，就是这个残留目录造成的。以后做 A/B，输出目录一律用 `dist-a` / `dist-b` 这种命中排除规则的名字，且**上一轮的输出目录必须在这轮构建之前就删掉**（删产物和删备份永远分两条命令，别在同一条里既 `mv` 源码又 `rm` 备份）。**同一机制在推送当天又命中一次**：新增的 `.github/workflows/deploy.yml` 让 CSS 从 215168 B 涨到 215195 B（+27 B，只是 YAML 文本里某个片段被当成了类名），补一条 `@source not "../../../.github";` 后产物**逐字节回到 `index-DyDgBWry.css` 215168 B**、入口 hash 也回到 `index-Cc44EI6K.js`。所以这条坑的真正用法是：**根目录新增任何非 `src/` 文本文件（workflow、docs、配置）之后，先做一次「同源码重跑构建比 hash」**，变了就补排除，别把「构建偶发换 hash」当噪声记进体积表。
-85. **线上产物与体积表差 16 B 是「base 烘进块」的正常结果，核对部署要比字节和清单、不要比入口 hash**（推送当天 `git fetch origin gh-pages` 读发布分支的树对出来的）。CI 用 `VITE_BASE_PATH=/ToolBox/` 构建，`import.meta.env.BASE_URL` 会以字面量形式出现在入口块的那几个资源 URL 里，于是 `index-*.js` 从本地（`base:'/'`）的 269368 B 变成 **269384 B**，hash 也从 `index-Cc44EI6K` 换成 `index-Di9GdROS`；而 **CSS 与 `Badge-*.js` 连文件名都没变**（样式表不引用资源 URL，共享块里没有 base 依赖）。**但「只有入口换 hash」这句本轮被证否了**：`RmbUppercasePage` 页块本地 `index-COZ4z_pu.js`、线上 `index-CTGTmIFh.js`，**字节完全相同（13 884 B）而 hash 不同** —— 页块里也有 base 字面量（页面级 `import.meta.env.BASE_URL` 的引用）。所以准确的说法是「**CSS 与不含 URL 的共享块连文件名都不变；入口和每个页块字节只差 base 那十几位、hash 必换**」，核对时比字节与清单、别比 hash。由此两条口径：① 体积表记的是「`base:'/'` 的本地构建」这一档，线上会在这一档上差十几字节，引用时说清口径（同坑 83）；② 核对「线上跑的是不是这一版」时，**别拿入口 hash 当判据**（换个 base 就必变），要比 CSS/共享块的 hash + 未压缩字节，再比清单：`tools/` 壳数、`404.html`、`.nojekyll`、`<noscript>` 链接数、资源前缀是不是 `/ToolBox/`。顺带一条本次部署的**外部影响**：旧站深链是 `/ToolBox/tool/<id>`（单数，multicalc 那版），本站是 `/tools/<id>`，所以推送之后所有旧深链会落到 SPA 的兜底 404 页（`NotFoundPage.vue`，不是白屏，也不是硬 404），旧 67 个工具的页面内容不再可达；要平滑过渡得单独写一张 `tool/ → tools/` 的重定向表，本轮没做。
+按主题归类的高频纪律，都是本项目真实踩过的：
 
-86. **「这个字算不算一字多形」只能在全词表上统计，而且门槛越松表反而越小**（本轮为繁简转换撞的，口径换了三次才定）。字级默认值会转错的那些字必须逐个标出来才谈得上诚实，于是需要一张「哪些字有一形多归」的名单（`POLY`，最终 259 字）。① **样本池是第一个坑**：第一版按「哪些字确实需要例外词」来选，也就是只在 `needed`（字级默认值被词表改写的那些条目）上统计，名单严重偏斜 —— `出`、`了`、`后` 这类字看起来「总是转对」，因为它们的常用词（`出来`、`好了`）在 OpenCC 词表里是**键＝值的同形条目**，正好被 `needed` 的过滤条件当噪声丢掉，而它们恰是真实文本里最容易被字表误转的一批。改成在**全词表的所有等长条目（49 794 条 / 涉及 4681 个字）**上统计「该字的默认值在这一条里成立吗」，比例才无偏。② **门槛扫描**：入选条件写成「默认值成立比例 < T」后扫 T，结论是 **T=1（只要有任一已证实的替代写法就标）既是唯一让诚实性不变式全绿的一档，也是表最小的一档**（1292 码点 / 2842 B，6000 字文书上的标出密度 11.6 处/100 字）；收紧到「只有常出错才标」会直接假绿 —— 那 7 处真差异被吞掉不标；再往「全标」方向抬 T 只是更啰嗦，不会更准。③ **试过用体积换正确性、量化后否掉**：给 `POLY` 配二字上下文键（bigram 版）实测**多花 27.8 kB gzip、覆盖率一条也没多**，不划算 —— 这是本轮唯一一次「加数据换准确」的尝试，以否掉收场，记下来免得再试一遍。④ 名单的判据是**词表证据**，与「这个字在日常里到底有几个繁体写法」无关，所以页面上的措辞是「已按词组判定｜按字级默认值，建议确认」，不能写成语言学结论。
+**构建与测量**
 
-87. **后置的规范化层会静默吃掉候选；词表证据必须同时登记「替换」和「抑制」**（本轮两处真缺陷，都是断言逼出来的，且都不是靠看输出发现的）。① 台/港层的口径是「最后再映射一次」，`TWVariants` 把 `樑` 记成 `梁`，而 `TWVariantsPhrases` 里那批三字人名（`葉步樑`、`張棟樑` 等）用的正是 `樑`。本页只做二字词 + 字级默认，判不了三字，于是先得到 `樑`、再过地区层收成 `梁`，**而 `alts` 里那条 `樑` 也被同一个映射带走**（`[...alts, ...alts.map(remap)]` 之后被 `filter(a => a !== def)` 删掉），结果是 5 个姓名例「既转错、又无处可改」。修法是让候选同时保留**地区层前后的两种写法**，把选择权交回用户，而不是在二字窗口上假装能判三字。② 词表用增量标记编码（`"<下标><字>"` 覆盖字级默认、`"<下标>-"` **抑制**），重写生成器时为了少扫一遍而省掉抑制证据，`丑三`、`丁丑` 这类「词里这个字不转」的条目立刻退回字级默认值 —— **584 条断言当场红**。恢复办法：例外词的入选判据必须同时承认「替换」与「抑制」，同形条目（键＝值）只在**该字已是成员**时才追加，不能反过来用它拉人入伙。**推广成一条规矩**：任何「后置的规范化层」都要检查它有没有把诊断信息（候选、原始写法）一起抹掉 —— 这类缺陷不会因为输出看起来更规范而消失，它只是让用户没法纠正。
+1. Tailwind v4 的自动内容扫描会把**构建产物与根目录文本**当源码读。`main.css` 里已有三条排除：`dist*`、`README.md`、`.github`。
+   少一条 `dist*`，同一份源码连跑两次 build 的 CSS 就会从 214.63 kB 涨到 222.39 kB；少 `README.md` 则每次改文档都换掉样式表 hash（实测 1757 B 死规则）。
+   路径相对 CSS 文件本身（`src/assets/css` → 三级才是项目根）。
+2. Vite 打印的 kB 是十进制且两位小数是**截断**，与 `wc -c` 的字节数不可直接对账，统一 ÷1000。Vite 打印的 gzip 列也不等于 node 的任何一档，
+   体积表以 `zlib.gzipSync(level: 9)` 为准。
+3. 体积「首屏」必须写明口径（几项、含不含 `index.html`），清单从 `dist/index.html` 的实际引用里抓，别凭记忆数块。
+4. `vite preview` 会占用 `dist/`（Windows 下 EBUSY），构建一律 `--outDir dist-check` 之类的备用目录。
 
-88. **「独立参照」自己也可能是错的：旧站的中文读法有两类系统性错读，本轮 205 条红全在参照一侧**（数字中文读法并入时撞的）。我按以前几轮的做法，先把旧站 `multicalc/app/utils/chinese-number.ts` 的 `toChineseLower` 拿来当独立参照跑断言，结果 **205 条红**。逐条回查发现参照才是错的：它把「每 4 位一节」平铺成 `['', 万, 亿, 万亿]` 这套固定节权，于是**「万」嵌在「亿」里**那一层被再乘一次 —— `1 100 000 000 000` 读成「一万亿一千亿」（应为「一万一千亿」）、`9 999 999 999 999` 读成「九万亿九千九百九十九亿…」（应为「九万九千九百九十九亿…」）；另一类是跨节零漏读，`1 000 000 001 000` 读成「一万亿一千」（应为「一万亿零一千」），因为它只有一个 `needZero` 布尔、条件写的是「本节 <1000 且 `num >= 10000`」，管不到被整节跳过的层。**本站内核走的是另一条结构**：先按 10⁸ 切「亿」框、框内再按 10⁴ 切「万」（`belowYi`），补零按「低位段不足一个节单位量级」判，这三个值本站分别输出 一万一千亿 / 九万九千九百九十九亿… / 一万亿零一千。**推广成一条规矩**：拿另一份实现当参照之前，**得先验参照自己** —— 本轮的撤法是「参照换成人手写的小读数表 + 一组语法不变式」（6 400 余个整数上断言：不出现连续两个「零」、不以「零」结尾、节权不重复、`读法 → 反解 == 原值` 闭环），不变式不依赖任何第二份代码，所以不会因为参照错而把正确的内核判红。**顺带一条体积无关但影响正确性的差**：旧站那套是 `Number` 的 `intPart`（`Math.round(abs*100)/100` 过浮点、`>= 1e16` 抛错），2^53 以上就静默失真；本站读法接的是同一套 `BigInt` 节权，16 位整数照样逐条对上。
+**Vue 与 Nuxt UI**
 
-89. **三条路共用同一份清洗之后，页面的错误分支可以整块省掉 —— 但前提是「恒等」有断言钉着**（本轮的结构性简化，也是它唯一的隐藏风险）。`normalizeNumeric()`（全角 / 千分位 / `￥` / 括号负数 / 尾随「元」）从 `parseAmount` 里抽出来，正向大写、中文读法、反向解数三条路都先过它，于是 `toReading(x).ok === parseAmount(x).ok` 在 1 500 组小数上逐条相等。**页面因此把读法块放进同一个 `<template v-if="parsed.ok">` 里、不写任何读法专属的报错 UI** —— 省是对的，但如果哪天两条路的判据分叉（比如读法放宽支持更多位、而大写仍卡 16 位），表现就是**读法块静默消失**而不是报错。所以这条恒等式必须留在断言里（本轮 `_oracle10.ts` 有专条目），不能只靠「看起来一样」。**反向解数器加「点」时有两条必须显式互斥**：① 「点」只允许出现一次，② 有「点」就不能再有元/角/分，两条混写共用一条文案「「点」只出现一次，且不与元角分混写」（`一元三点五` 和 `三点一四点二` 都走它，别拆成两条近似的话）。小数第 3 位起按分四舍五入并出提示（`一百二十三点五零五` → `123.51` + 「小数位超过 2 位，已四舍五入到分：123.505 → 123.51」）；没写「点」就仍走角分，`二十` 这类无「元」的补一条「未写「元」，仍按整数金额处理」。**最后一条是给用户看的、不是给代码看的**：正向大写会进位而读法不进位（`1.005` → 大写「壹元零壹分」、读法「一点零零五」），同一个数两种写法不一致，页面上必须各写一句说明，否则用户会以为其中一处算错。
+5. 模板里的内联事件不能写多条语句（`@click="a = ''; b = false"` 是编译期错误），抽成具名函数。
+6. `v-model` 与 `:value` 不能挂在同一个元素上，`vue-tsc` 不报但 dev 下直接 500；新页面按 `curl -s <dev URL>/src/pages/tools/XxxPage.vue | grep -o '"message":"[^"]*"'` 逐个查一遍。
+7. `v-model` 绑到「数组里的 ref」不会自动解包（数组不是 `reactive`），两侧对称的模板直接写两块显式代码更省心。
+8. `UTextarea` 没有 `autogrow` / `resize`，真实 props 是 `rows` / `maxrows` / `autoresize` / `fixed`；要可拖高用 `:ui="{ base: 'resize-y' }"`。
+9. 不要单独注册 `unplugin-auto-import` / `unplugin-vue-components`（`@nuxt/ui/vite` 已内置，重复注册会报错）。
+10. `USelect` 的 `[role=option]` 用脚本 `click()` 不生效（Reka 听 pointer 序列）；要验证这类分支最省事的是直接写对应的 `localStorage` 键再 reload。
+11. 一条上游 dev 噪音：含 `USelect` 的页面会报 `Invalid prop: type check failed for prop "ariaHidden"`，调用栈全在 Nuxt UI / reka-ui 内部，生产构建不执行，
+    不要为它改页面。控制台核查时先排除它；`list_console_messages` 记得关掉 stack，否则一次能拉进几万 token。
 
-90. **同源 iframe 探针的两条「假通过」：路径写成 `index.html` 会量到 404 页；Vite 打印的 gzip 列不能用 node 复现**（本轮 390/1280 复测撞的第一条，第二条是体积表口径）。① 预览服务对 `/tools/rmb-uppercase/index.html` 这个 URL **能把文件读出来**（静态资源解析），但 Vue 路由按 `/tools/<id>` 匹配、把带 `index.html` 的路径判成 **404** —— 于是 `documentElement.scrollWidth - innerWidth` 依然是 0、`overflowing` 依然是空数组，**两轮三档的「全绿」量的是一页 404 文案**。而且第一次我还把 `src` 写成 `/toolbox/tools/...`（把线上子目录当成了本地预览前缀，本地 `base:'/'`），那次同样是 0 溢出。**判据必须落在页面内容上**：本轮之后固定加一条 `querySelectorAll('input').length === 2` 与「读法段落文本命中」，再报溢出数字；`src` 用目录形式 `/tools/<id>/`。相关：坑 73、80 那几条讲的都是「探针自己坏了」，本条的区别是**它坏了却返回一个看起来正确的绿灯**，所以比假失败更危险。② 体积表里 Vite 打印的那一列 gzip **不等于** node 的任何一档：入口 `index-*.js` 本轮 Vite 打 80.90，而同一份字节 `zlib.gzipSync(level 9)` = 80.02、默认档 = 80.32（CSS 同：打 28.56 / l9 28.13 / 默认 28.45）。所以**两列不能互相对账**，也不能因为「复算比打印小」就怀疑构建变了 —— 本表以 zlib-9 那列为准（合计也按它求和），Vite 那一列只是抄构建日志。
+**浏览器环境**
 
-91. **根目录新增文本文件必须重量一次 CSS：`LICENSE` 实测零影响，而 `README.md` 当年贡献了 1757 B 死规则**（坑 84 的续集，只登记测量结果，机制没去读源码确认）。给仓库补 `LICENSE`（**无扩展名**）并在 `package.json` 加 `"license": "MIT"` 之后跑了一次 `pnpm build` 对账：入口 `index-Cpb9IUeD.js` **269 786 B**、`Badge-Bb9Ha2OK.js` **244 668 B**、`index-DYL3WmTt.css` **216 816 B**、三个 preload **8075 / 293 / 1137** —— 六项**文件名与字节全部与补文件之前相同**（首屏合计 740 775 B / zlib-9 198 061 B，`dist/tools/` 仍 63 份壳），即 Tailwind 没把 `LICENSE` 当内容源。同一目录下的 `README.md` 与 `.github/**` 却是**会被扫的**（那 1757 B 死规则的来源见坑 84，靠 `src/assets/css/main.css` 里 `@source not "../../../README.md"` 这类显式排除解决）。**所以「无扩展名的文件不被扫」是观测到的差异，不是查证过的规则**，别把它推成「加任何根目录文本都安全」：往里丢文本文件之后，按坑 61 的口径量一次 CSS 字节（或做「带 / 不带各 build 一次」的 A/B），真发现进了 CSS 就照那三行 `@source not` 的写法补第四条。
+12. 后台标签页里 `setTimeout` 被节流、`requestAnimationFrame` 完全不触发：探针要改成「一次调用只做一次动作 + 全同步读 DOM」，
+    组件里的「下一帧再执行」要用 `nextTick()` 而不是 `rAF`。
+13. 后台文档不派发 `scroll` 事件、`<Transition>` 的 leave 也不会结束。验证「随滚动出现」的组件要自己 `dispatchEvent(new Event('scroll'))`；
+    也正因如此，`leave-active-class` 必须带 `pointer-events-none`（否则留下一个看不见但点得到的按钮）。
+14. `navigator.clipboard.writeText` 在后台标签页可能永不 settle，所以 `useCopy` 用超时竞速 + `execCommand` 兜底。
+15. 同源 iframe 探针必须与父页同源，且 dev 下并发不超过 2–3 个；`onload` 后要轮询等 `h1` 出现，固定 `setTimeout` 会误判「没渲染」。
+    判溢出以 `documentElement.scrollWidth === clientWidth` 为准（`overflow-x-auto` 容器内的宽表不是缺陷），
+    另外单跑一条「`clientWidth < 40 && scrollWidth > 60`」的细条探测。
+16. 别用 `scrollWidth` 判断带 `text-overflow: ellipsis` 的标题是否被裁（Chrome 会虚高），要量文字本体的 `getBoundingClientRect().width`。
 
-92. **把附加条款接在 MIT 正文后面，GitHub 就不认这是 MIT 了**（补 `LICENSE` 时撞的第一手证据）。第一版 `LICENSE` 写成「标准 MIT 全文 + 一段 `---` 分隔的第三方数据出处」，`GET /repos/<owner>/<repo>/license` 返回的是 `path=LICENSE`、`license.spdx_id=NOASSERTION`、`name=Other` —— 文件明明读到了（`path` 都对），但**内容模板比对没过**：正文之后多出成段的自定义文字就被判成「其他」，仓库 About 那一栏不会显示 MIT。改法是 `LICENSE` 只留一字不改的 MIT 正文，出处声明挪到根目录 `NOTICE`（Apache-2.0 里 NOTICE 就是这个用途，放在 MIT 项目下也读得通）。**核验只靠一条 API**：`curl -s https://api.github.com/repos/<owner>/<repo>/license` 看 `spdx_id`，别看仓库页面右侧那个标签（有缓存，改完当场多半还是旧的）。顺带一条纪律：`LICENSE` 与 `NOTICE` 都是根目录的无扩展名文本，按坑 91 的口径加完要跟一次产物对账 —— 最省的办法是部署后直接比 `git rev-parse <部署提交>^{tree}`，tree 哈希没动就说明两个文件都没进 Tailwind 的扫描 —— 这次就是这么验的：拆开之后的部署 `2025d71`（← `9eeefce`）tree 仍是 `53f733010674d923e8d22a55fd5376757515b2c4`，与 `b024f4d` 那一版逐字节相同，同一次 `/license` 查询也已经回到 `spdx_id=MIT`。
+**数据与算法**
 
-## 四、License
+17. 日期差不要用「借位」算月日（会得到负数天），改成迭代累加整月直到越过终点；「下次生日」按年求对应日，不能复用按月锚点。
+18. 位运算在 JS 里是 32 位有符号：`1 << 52` 等于 `1 << (52 % 32)`，64 位场景一律走 `BigInt`。
+19. `BigInt('FF')` 会抛错，任意进制解析要按位累加（顺带在此处校验非法字符）；`Number` 超过 2⁵³ 就静默失真，金额一律 `BigInt` 分单位。
+20. `crypto.subtle.digest` 的算法名必须带连字符（`'SHA-256'`），写成 `'SHA256'` 会报 `Unrecognized name`。
+21. 随机数取值要用拒绝采样消除取模偏差，别直接 `random() % n`。
+22. 中文数字是**「万」嵌在「亿」里**的嵌套节权，平铺成固定节权表会在 10¹² 处算错；写这类逻辑要配「不出现连续两个零、不以零结尾、节权不重复」的不变式。
+23. 改整数分配算法必须断言「各部分之和 == 总量」（余数归最后一份的写法最容易吃掉整盘而页面看不出异常）。
+24. 实体解码的正则要一起吃掉分号，并把「历史无分号」写成最长前缀匹配；`\` 自身在「只转非 ASCII」时也要转义，否则会吃掉后面的 `\uXXXX`。
+25. 内核里的自然语言文案不要写 Markdown 的 `**…**`（结果区按纯文本渲染，星号会上屏，typecheck / build / 断言都发现不了）。
+26. 自建关系表要配两条全域断言：每条表项能被自己的链推出、每个派生词都能解析出非 null。示例按钮的文案也是一种断言，要和实算结果连起来测。
+27. 「数字 + 一句长说明」的混排行里，说明项不要给 `flex-1`（窄屏会被挤成细条并撑破页面），用 `basis-full` 或给明确 `min-w-*`。
 
-**许可证：MIT。** 仓库根目录的 `LICENSE` 是**一字不改的标准 MIT 文本**（版权人 `cunyu1943`，年份 2026），第三方数据的出处声明**单独放在 `NOTICE`**（把附加条款接在 MIT 正文后面，实测会让 GitHub 的许可证识别退化成 `Other` / `NOASSERTION`，见坑 92）；`package.json` 同步写了 `"license": "MIT"`。`"private": true` **保留**着 —— 它只用来挡住 `pnpm publish` 手滑把站点发到 npm，既不影响 GitHub 识别许可证，也不影响任何人按 MIT 使用这份代码。要改署名或换许可证，改 `LICENSE` 首行的版权人 + `package.json` 的 `license` 字段，然后回到本节同步。
+## 十、License 与第三方出处
 
-MIT 覆盖的是**本仓库自研的源码**，下面那张表和两处出处它一概不改写（版本号与 `license` 字段都是从 `node_modules/*/package.json` 实读的，`pnpm-lock.yaml` 为锁定来源）：
+**许可证：MIT。** 仓库根目录的 `LICENSE` 是**一字不改的标准 MIT 文本**（版权人 `cunyu1943`，年份 2026），
+第三方数据的出处声明单独放在 `NOTICE`（把附加条款接在 MIT 正文后面，实测会让 GitHub 的许可证识别退化成 `Other` / `NOASSERTION`）；
+`package.json` 同步写了 `"license": "MIT"`，`"private": true` 只用来挡住误发 npm。
 
-| 依赖 | 装到的版本 | 许可证 | 用途 |
+MIT 覆盖的是**本仓库自研的源码**，下面这张表与两处出处它一概不改写（版本与 `license` 字段实读自 `node_modules/*/package.json`，
+`pnpm-lock.yaml` 为锁定来源）：
+
+| 依赖 | 版本 | 许可证 | 用途 |
 | --- | --- | --- | --- |
 | `vue` / `vue-router` | 3.5.43 / 5.3.1 | MIT | 框架与路由 |
-| `@nuxt/ui` | 4.11.1 | MIT | UI 组件（Vue 模式，非 Nuxt 项目） |
+| `@nuxt/ui` | 4.11.1 | MIT | UI 组件（Vue 模式） |
 | `tailwindcss` / `@tailwindcss/vite` | 4.3.3 | MIT | 样式 |
 | `vite` / `@vitejs/plugin-vue` | 8.3.0 / 6.0.9 | MIT | 构建 |
-| `typescript` | 6.0.3 | **Apache-2.0** | 类型检查（只在开发期，不进产物） |
+| `typescript` | 6.0.3 | **Apache-2.0** | 类型检查（仅开发期，不进产物） |
 | `vue-tsc` / `@vue/tsconfig` / `@types/node` | 3.3.11 / 0.9.1 / 24.13.6 | MIT | 开发期工具与类型 |
-| `qrcode` | 1.5.4 | MIT | 二维码编码（只在二维码页按需加载） |
-| `js-yaml` | 5.4.2 | MIT | YAML ⇄ JSON（只在该页按需加载） |
-| `@iconify-json/lucide` | 1.2.135 | **ISC** | 图标字形数据（构建期内联，运行时不请求 Iconify API） |
+| `qrcode` | 1.5.4 | MIT | 二维码编码（仅该页按需加载） |
+| `js-yaml` | 5.4.2 | MIT | YAML ⇄ JSON（仅该页按需加载） |
+| `@iconify-json/lucide` | 1.2.135 | **ISC** | 图标字形（构建期内联，运行时不请求 Iconify API） |
 
-两处出处不是「写一句 MIT」就能带过的：
+两处出处需要单独声明：
 
-- **繁简转换的字表是派生数据**：`src/tools/chinese-variant/table.ts` 由 `scripts/gen-chinese-variant-table.mjs` 从 **OpenCC（Apache-2.0）** 的 `STCharacters` / `TSCharacters` / `TSPhrases` / `STPhrases`(+`_GeneratedFromRegionalPhrases`) / `TWVariants*` / `HKVariants*` 字典（经 `opencc-js@1.4.2` 随包发布的表）裁切生成，文件头注释已写明来源与「不要手改」。**Apache-2.0 要求保留版权声明与许可证文本**，所以 MIT 只授予本仓库自研的代码，**不重新授权这张表** —— 出处声明单独写在根目录的 `NOTICE` 里（连同 `table.ts` 自己的文件头注释），改这张表的口径时两处都要跟着改。
-- **图标是 ISC 授权的数据**：整站图标一律来自 Iconify 的 lucide 集合，连 `public/favicon.svg` 也是用 node 读取 `toolbox` 字形生成的品牌图标（不是手画的）。没有自绘 SVG，就没有额外的图标授权问题（这条出处同样登记在 `NOTICE` 第 2 条）。
+- **繁简转换的字表是派生数据**：`src/tools/chinese-variant/table.ts` 由生成脚本从 **OpenCC（Apache-2.0）** 的字典裁切生成，
+  Apache-2.0 要求保留版权声明与许可证文本，所以 MIT 不重新授权这张表 —— 声明写在根目录 `NOTICE` 与 `table.ts` 的文件头。
+- **图标是 ISC 授权的数据**：整站图标一律来自 Iconify 的 lucide 集合，连 `public/favicon.svg` 也是用 node 读取 `toolbox` 字形生成的（不是手画 SVG）。
 
-其余 60 多个工具的内核（Base64 / URL / 哈希 / AES / XML / JSON→TS 接口 / diff / 正则 / 颜色 / 中文数字与大写 / 单位表 / 子网与 chmod 速查 …）**全部是本仓库自研**，只用了浏览器与 JS 原生 API（`TextEncoder`、`crypto.subtle`、`crypto.getRandomValues`、`crypto.randomUUID`、`URL`、`FileReader`、`DataView`、`BigInt`、`<canvas>`），除上表 `qrcode`、`js-yaml` 两条外没有第三方代码进产物。复刻旧站（同所有者名下的 `multicalc/`）时**只读参照了它的功能范围与文案口径，没有搬任何源码文件**，本站的页面与内核是按本文档的口径重新实现的。
+除上表两个功能型依赖外，其余 60 多个工具的内核**全部是本仓库自研**，只用了浏览器与 JS 原生 API。
+复刻旧站（同所有者名下的 `multicalc/`）时**只参照了功能范围与口径，没有搬任何源码文件**。
