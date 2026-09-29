@@ -1,0 +1,1 @@
+import{Ir as e,or as t}from"./Badge-Bb9Ha2OK.js";var n=`toolbox:`;function r(r,i){let a=n+r,o=e((()=>{try{let e=localStorage.getItem(a);return e===null?i:JSON.parse(e)}catch{return i}})());return t(o,e=>{try{localStorage.setItem(a,JSON.stringify(e))}catch{}},{deep:!0}),o}export{r as t};

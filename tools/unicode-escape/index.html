@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/ToolBox/favicon.svg" />
+    <meta name="description" content="Unicode 转义：\uXXXX 与 \u{…} 双向转换，代理对拆分、\xNN 还原并标出非法序列位置。纯前端实现，输入内容不会离开浏览器。" />
+    <title>Unicode 转义 · ToolBox</title>
+    <meta name="theme-color" content="#42b883" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#42d392" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ToolBox" />
+    <meta property="og:title" content="Unicode 转义 · ToolBox" />
+    <meta property="og:description" content="Unicode 转义：\uXXXX 与 \u{…} 双向转换，代理对拆分、\xNN 还原并标出非法序列位置。纯前端实现，输入内容不会离开浏览器。" />
+    <meta name="twitter:card" content="summary" />
+    <!-- 前置读取主题：必须在首帧之前给 <html> 打上 .dark，否则暗色用户会先看到白屏闪烁 -->
+    <script>
+      ;(function () {
+        var el = document.documentElement
+        var mode
+        try {
+          mode = localStorage.getItem('toolbox:theme')
+        } catch (e) {
+          mode = null
+        }
+        if (mode !== 'light' && mode !== 'dark') mode = 'system'
+        var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        el.classList.toggle('dark', dark)
+        el.style.colorScheme = dark ? 'dark' : 'light'
+        // 与 @nuxt/ui vue-plugin 内部 useDark() 的存储键同步，避免两套逻辑互相覆盖
+        try {
+          localStorage.setItem('vueuse-color-scheme', dark ? 'dark' : 'light')
+        } catch (e) {}
+      })()
+    </script>
+    <script type="module" crossorigin src="/ToolBox/assets/index-DsgnS44c.js"></script>
+    <link rel="modulepreload" crossorigin href="/ToolBox/assets/Badge-Bb9Ha2OK.js">
+    <link rel="modulepreload" crossorigin href="/ToolBox/assets/dist-QGqskvTS.js">
+    <link rel="modulepreload" crossorigin href="/ToolBox/assets/ConfigProvider-BLhYBbXs.js">
+    <link rel="modulepreload" crossorigin href="/ToolBox/assets/VisuallyHidden-D6yZJOh9.js">
+    <link rel="stylesheet" crossorigin href="/ToolBox/assets/index-DYL3WmTt.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript><p>需要启用 JavaScript 才能使用工具。工具清单：<br /><a href="/ToolBox/tools/json-format">JSON 格式化</a> · <a href="/ToolBox/tools/timestamp">时间戳转换</a> · <a href="/ToolBox/tools/base64">Base64 编解码</a> · <a href="/ToolBox/tools/url">URL 编解码与解析</a> · <a href="/ToolBox/tools/color">颜色转换器</a> · <a href="/ToolBox/tools/contrast">对比度检查</a> · <a href="/ToolBox/tools/regex">正则测试</a> · <a href="/ToolBox/tools/hash">哈希计算</a> · <a href="/ToolBox/tools/uuid">UUID 生成器</a> · <a href="/ToolBox/tools/diff">文本对比</a> · <a href="/ToolBox/tools/image-base64">图片转 Base64</a> · <a href="/ToolBox/tools/qr-code">二维码生成</a> · <a href="/ToolBox/tools/case-convert">命名风格转换</a> · <a href="/ToolBox/tools/calculator">表达式计算器</a> · <a href="/ToolBox/tools/unit-convert">单位换算</a> · <a href="/ToolBox/tools/number-base">进制转换</a> · <a href="/ToolBox/tools/jwt-decode">JWT 解析</a> · <a href="/ToolBox/tools/csv-json">CSV ↔ JSON</a> · <a href="/ToolBox/tools/password-gen">随机密码生成</a> · <a href="/ToolBox/tools/password-strength">密码强度评估</a> · <a href="/ToolBox/tools/date-diff">日期计算器</a> · <a href="/ToolBox/tools/ip-subnet">子网计算器</a> · <a href="/ToolBox/tools/html-entity">HTML 实体编解码</a> · <a href="/ToolBox/tools/cron-parse">crontab 解析</a> · <a href="/ToolBox/tools/float-bits">浮点数位布局</a> · <a href="/ToolBox/tools/rmb-uppercase">人民币大写转换</a> · <a href="/ToolBox/tools/text-stats">文本统计</a> · <a href="/ToolBox/tools/caesar-cipher">古典密码</a> · <a href="/ToolBox/tools/chmod-calc">文件权限计算</a> · <a href="/ToolBox/tools/http-status">HTTP 状态码速查</a> · <a href="/ToolBox/tools/fullwidth">全角半角转换</a> · <a href="/ToolBox/tools/morse">摩尔斯电码</a> · <a href="/ToolBox/tools/roman-numeral">罗马数字转换</a> · <a href="/ToolBox/tools/unicode-escape">Unicode 转义</a> · <a href="/ToolBox/tools/ascii-table">ASCII 码表</a> · <a href="/ToolBox/tools/line-tools">行文本处理</a> · <a href="/ToolBox/tools/find-replace">查找替换</a> · <a href="/ToolBox/tools/html-md">HTML ⇄ Markdown</a> · <a href="/ToolBox/tools/md-table">Markdown 表格</a> · <a href="/ToolBox/tools/gradient">CSS 渐变生成器</a> · <a href="/ToolBox/tools/yaml-json">YAML ⇄ JSON</a> · <a href="/ToolBox/tools/xml-format">XML 格式化</a> · <a href="/ToolBox/tools/json-ts">JSON 转 TS 接口</a> · <a href="/ToolBox/tools/aes">AES 加解密</a> · <a href="/ToolBox/tools/ip-base">IP 地址与进制</a> · <a href="/ToolBox/tools/bmi">BMI 计算器</a> · <a href="/ToolBox/tools/bmr">基础代谢与每日消耗</a> · <a href="/ToolBox/tools/body-fat">体脂率估算</a> · <a href="/ToolBox/tools/water-intake">每日饮水量计算</a> · <a href="/ToolBox/tools/target-heart-rate">靶心率区间</a> · <a href="/ToolBox/tools/mortgage">房贷计算器</a> · <a href="/ToolBox/tools/car-loan">车贷计算器</a> · <a href="/ToolBox/tools/investment">投资收益与复利</a> · <a href="/ToolBox/tools/social-insurance">五险一金计算器</a> · <a href="/ToolBox/tools/currency-convert">货币换算</a> · <a href="/ToolBox/tools/disk-partition">硬盘容量与分区</a> · <a href="/ToolBox/tools/age-calc">年龄计算器</a> · <a href="/ToolBox/tools/id-card">身份证信息解析</a> · <a href="/ToolBox/tools/zodiac">生肖星座查询</a> · <a href="/ToolBox/tools/kinship">亲戚称谓推算</a> · <a href="/ToolBox/tools/random-pick">随机数与抽签</a> · <a href="/ToolBox/tools/percent">百分比计算</a> · <a href="/ToolBox/tools/chinese-variant">繁简转换</a></p></noscript>
+  </body>
+</html>

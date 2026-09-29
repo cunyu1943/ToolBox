@@ -1,0 +1,1 @@
+import{tn as e}from"./Badge-Bb9Ha2OK.js";function t(){let t=e()?.vnode?.scopeId;return t?{[t]:``}:{}}export{t};

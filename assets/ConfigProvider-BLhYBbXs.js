@@ -1,0 +1,1 @@
+import{P as e}from"./Badge-Bb9Ha2OK.js";function t(){let e=document.activeElement;if(e==null)return null;for(;e!=null&&e.shadowRoot!=null&&e.shadowRoot.activeElement!=null;)e=e.shadowRoot.activeElement;return e}function n(e){return e==null}var[r,i]=e(`ConfigProvider`);export{n,t as r,r as t};
